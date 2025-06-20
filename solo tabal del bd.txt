@@ -1,0 +1,246 @@
+CREATE TABLE `cargo` (
+  `idcargo` int(11) NOT NULL,
+  `nombre_cargo` varchar(100) NOT NULL,
+  `descripcion` text NOT NULL
+);
+
+CREATE TABLE `categoria` (
+  `idcategoria` int(11) NOT NULL,
+  `nombre_categoria` varchar(100) NOT NULL,
+  `descripcion` text NOT NULL
+);
+
+CREATE TABLE `cliente` (
+  `idcliente` int(11) NOT NULL,
+  `nombre` varchar(100) NOT NULL,
+  `apellido` varchar(100) NOT NULL,
+  `dni` varchar(20) NOT NULL,
+  `telefono` varchar(20) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `direccion` text NOT NULL,
+  `fecha_registro` datetime DEFAULT current_timestamp(),
+  `estado` enum('Activo','Inactivo') DEFAULT 'Activo',
+  `observaciones` text DEFAULT NULL
+);
+
+CREATE TABLE `configuraciones` (
+  `id` int(11) NOT NULL,
+  `logo` varchar(255) NOT NULL,
+  `favicon` varchar(255) NOT NULL,
+  `pie_pagina_descripcion` text NOT NULL,
+  `pie_pagina_derechos` text NOT NULL,
+  `direccion_contacto` text NOT NULL,
+  `correo_contacto` text NOT NULL,
+  `telefono_contacto` text NOT NULL,
+  `fax_contacto` text NOT NULL,
+  `mapa_contacto` text NOT NULL,
+  `total_certificados_recientes` int(11) NOT NULL,
+  `total_certificados_populares` int(11) NOT NULL,
+  `servicios_activos` int(11) NOT NULL,
+  `bienvenida_activa` int(11) NOT NULL,
+  `certificados_activos` int(11) NOT NULL,
+  `boletin_activo` int(11) NOT NULL
+);
+
+CREATE TABLE `configuracion_pago` (
+  `id` int(11) NOT NULL,
+  `paypal_email` varchar(255) DEFAULT NULL,
+  `paypal_sandbox` tinyint(1) NOT NULL DEFAULT 1,
+  `banco_nombre` varchar(100) DEFAULT NULL,
+  `banco_cuenta` varchar(50) DEFAULT NULL,
+  `banco_titular` varchar(100) DEFAULT NULL,
+  `yape_numero` varchar(20) DEFAULT NULL,
+  `plin_numero` varchar(20) DEFAULT NULL
+);
+
+CREATE TABLE `curso` (
+  `idcurso` int(11) NOT NULL,
+  `nombre_curso` varchar(100) NOT NULL,
+  `descripcion` text NOT NULL,
+  `duracion` int(11) NOT NULL,
+  `idcategoria` int(11) NOT NULL,
+  `idinstructor` int(11) NOT NULL,
+  `estado` varchar(20) NOT NULL,
+  `dias_semana` varchar(100) NOT NULL,
+  `hora_inicio` time NOT NULL,
+  `hora_fin` time NOT NULL,
+  `precio` decimal(10,2) DEFAULT 0.00,
+  `cupos_disponibles` int(11) DEFAULT 0,
+  `fecha_inicio` date DEFAULT NULL,
+  `fecha_fin` date DEFAULT NULL,
+  `requisitos` text DEFAULT NULL,
+  `objetivos` text DEFAULT NULL
+);
+
+CREATE TABLE `empleado` (
+  `idempleado` int(11) NOT NULL,
+  `nombre` varchar(100) NOT NULL,
+  `apellido` varchar(100) NOT NULL,
+  `dni` varchar(20) NOT NULL,
+  `idcargo` int(11) NOT NULL,
+  `telefono` varchar(20) NOT NULL,
+  `email` varchar(100) NOT NULL
+);
+
+CREATE TABLE `entidad` (
+  `identidad` int(11) NOT NULL,
+  `nombre_entidad` varchar(100) NOT NULL,
+  `ruc` varchar(20) NOT NULL,
+  `direccion` text NOT NULL,
+  `telefono` varchar(20) NOT NULL,
+  `email` varchar(100) NOT NULL
+);
+
+CREATE TABLE `especialista` (
+  `idespecialista` int(11) NOT NULL,
+  `nombre` varchar(100) NOT NULL,
+  `apellido` varchar(100) NOT NULL,
+  `especialidad` varchar(100) NOT NULL,
+  `experiencia` int(11) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `telefono` varchar(20) NOT NULL
+);
+
+CREATE TABLE `genero` (
+  `idgenero` int(11) NOT NULL,
+  `nombre_genero` varchar(50) NOT NULL
+);
+
+CREATE TABLE `hora_lectiva` (
+  `idhora_lectiva` int(11) NOT NULL,
+  `idcurso` int(11) NOT NULL,
+  `fecha` date NOT NULL,
+  `hora_inicio` time NOT NULL,
+  `hora_fin` time NOT NULL,
+  `tema` varchar(255) NOT NULL
+);
+
+CREATE TABLE `idioma` (
+  `id_idioma` int(11) NOT NULL,
+  `nombre_idioma` varchar(255) NOT NULL,
+  `valor_idioma` text NOT NULL
+);
+
+CREATE TABLE `inscripcion` (
+  `idinscripcion` int(11) NOT NULL,
+  `idcliente` int(11) NOT NULL,
+  `idcurso` int(11) NOT NULL,
+  `fecha_inscripcion` date NOT NULL,
+  `estado` enum('Pendiente','Aprobado','Rechazado','Cancelado') DEFAULT 'Pendiente',
+  `nota_final` decimal(10,2) DEFAULT NULL,
+  `fecha_aprobacion` datetime DEFAULT NULL,
+  `observaciones` text DEFAULT NULL,
+  `monto_pago` decimal(10,2) DEFAULT 0.00,
+  `estado_pago` enum('Pendiente','Pagado','Reembolsado') DEFAULT 'Pendiente',
+  `metodo_pago` varchar(50) DEFAULT NULL,
+  `comprobante_pago` varchar(255) DEFAULT NULL
+);
+
+CREATE TABLE `instructor` (
+  `idinstructor` int(11) NOT NULL,
+  `nombre` varchar(100) NOT NULL,
+  `apellido` varchar(100) NOT NULL,
+  `especialidad` varchar(100) NOT NULL,
+  `experiencia` int(11) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `telefono` varchar(20) NOT NULL
+);
+
+CREATE TABLE `modulo` (
+  `idmodulo` int(11) NOT NULL,
+  `nombre_modulo` varchar(100) NOT NULL,
+  `descripcion` text NOT NULL,
+  `idcurso` int(11) NOT NULL
+);
+
+CREATE TABLE `modulo_rol` (
+  `idmodulo_rol` int(11) NOT NULL,
+  `idmodulo` int(11) NOT NULL,
+  `idrol` int(11) NOT NULL
+);
+
+CREATE TABLE `paginas` (
+  `id` int(11) NOT NULL,
+  `nombre_pagina` varchar(255) NOT NULL,
+  `slug_pagina` varchar(255) NOT NULL,
+  `contenido_pagina` text NOT NULL,
+  `banner_pagina` varchar(255) NOT NULL,
+  `meta_titulo` varchar(255) NOT NULL,
+  `meta_palabras_clave` text NOT NULL,
+  `meta_descripcion` text NOT NULL
+);
+
+CREATE TABLE `pago` (
+  `idpago` int(11) NOT NULL,
+  `idinscripcion` int(11) NOT NULL,
+  `monto` decimal(10,2) NOT NULL,
+  `fecha_pago` datetime NOT NULL DEFAULT current_timestamp(),
+  `metodo_pago` enum('PayPal','Transferencia Bancaria','Yape','Plin') NOT NULL,
+  `estado` enum('Pendiente','Completado','Reembolsado','Cancelado') NOT NULL DEFAULT 'Pendiente',
+  `txn_id` varchar(100) DEFAULT NULL,
+  `comprobante` varchar(255) DEFAULT NULL,
+  `observaciones` text DEFAULT NULL
+);
+
+CREATE TABLE `preguntas_frecuentes` (
+  `id` int(11) NOT NULL,
+  `titulo_pregunta` varchar(255) NOT NULL,
+  `contenido_pregunta` text NOT NULL,
+  `orden_pregunta` int(11) NOT NULL
+);
+
+CREATE TABLE `redes_sociales` (
+  `id_red` int(11) NOT NULL,
+  `nombre_red` varchar(30) NOT NULL,
+  `url_red` varchar(255) NOT NULL,
+  `icono_red` varchar(30) NOT NULL
+);
+
+CREATE TABLE `rol` (
+  `idrol` int(11) NOT NULL,
+  `nombre_rol` varchar(100) NOT NULL,
+  `descripcion` text NOT NULL
+);
+
+CREATE TABLE `servicios` (
+  `id` int(11) NOT NULL,
+  `titulo` varchar(255) NOT NULL,
+  `contenido` text NOT NULL,
+  `foto` varchar(255) NOT NULL
+);
+
+CREATE TABLE `sliders` (
+  `id` int(11) NOT NULL,
+  `foto` varchar(255) NOT NULL,
+  `titulo` varchar(255) NOT NULL,
+  `contenido` text NOT NULL,
+  `texto_boton` varchar(255) NOT NULL,
+  `url_boton` varchar(255) NOT NULL,
+  `posicion` varchar(255) NOT NULL
+);
+
+CREATE TABLE `suscriptores` (
+  `id_suscriptor` int(11) NOT NULL,
+  `correo_suscriptor` varchar(255) NOT NULL,
+  `activo` int(11) NOT NULL,
+  `fecha_suscripcion` datetime NOT NULL
+);
+
+CREATE TABLE `usuario` (
+  `idusuario` int(11) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `idrol` int(11) NOT NULL,
+  `estado` varchar(20) NOT NULL
+);
+
+CREATE TABLE `usuarios_admin` (
+  `id_usuario` int(11) NOT NULL,
+  `nombre_completo` varchar(100) NOT NULL,
+  `correo` varchar(255) NOT NULL,
+  `telefono` varchar(100) NOT NULL,
+  `contrasena` varchar(255) NOT NULL,
+  `foto` varchar(255) NOT NULL,
+  `rol` varchar(30) NOT NULL,
+  `estado` varchar(10) NOT NULL,
+  `remember_token` varchar(64) DEFAULT NULL
+);

@@ -1,0 +1,75 @@
+/* Diseño general */
+body {
+    background-color: #2c3e50;  /* Fondo oscuro para el panel */
+    color: #070707; /* Color claro para el texto */
+}
+
+.sidebar {
+    background-color: #34495e;  /* Color oscuro para la barra lateral */
+}
+
+.sidebar a {
+    color: #ecf0f1;
+}
+
+.sidebar a:hover {
+    background-color: #1abc9c;  /* Color de hover suave */
+    color: #fff;  /* Texto blanco cuando el usuario pasa el mouse */
+    border-radius: 4px;
+}
+
+.main-header {
+    background-color: #16a085;  /* Color moderno para la barra superior */
+    border-bottom: 2px solid #1abc9c; /* Borde más claro */
+}
+
+.logo-lg {
+    color: #fff;
+    font-weight: bold;
+}
+
+.user-image {
+    border-radius: 50%;
+}
+
+/* Mejora en los botones */
+.btn-flat {
+    background-color: #16a085;
+    color: #fff;
+}
+
+.btn-flat:hover {
+    background-color: #1abc9c;
+}
+
+/* Barra lateral activa */
+.treeview.active > a {
+    background-color: #1abc9c;
+    color: #fff;
+}
+
+.treeview-menu > li > a {
+    color: #ecf0f1;
+}
+
+/* Colores más sutiles */
+.sidebar-menu > li.active > a {
+    background-color: #1abc9c;
+    color: #fff;
+}
+
+/* Cambios de iconos */
+.sidebar-menu .fa {
+    color: #ecf0f1; /* Asegura que los iconos sean claros */
+}
+
+.sidebar-menu .fa:hover {
+    color: #1abc9c;
+}
+
+/* Animaciones de hover para los íconos */
+.sidebar-menu .treeview > a:hover .fa,
+.sidebar-menu .treeview .active > a .fa {
+    transform: rotate(45deg); /* Animación simple */
+    transition: transform 0.3s ease;
+}
