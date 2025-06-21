@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 18-06-2025 a las 19:20:27
+-- Tiempo de generación: 21-06-2025 a las 13:59:41
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -88,12 +88,19 @@ CREATE TABLE `cliente` (
 
 INSERT INTO `cliente` (`idcliente`, `nombre`, `apellido`, `dni`, `telefono`, `email`, `direccion`, `fecha_registro`, `estado`, `observaciones`) VALUES
 (1, 'Luis', 'González', '23456789', '987-123-456', 'luis@ejemplo.com', 'Av. Principal 456', '2025-06-09 16:42:40', 'Activo', NULL),
-(2, 'María', 'López', '34567890', '123-987-456', 'maria@ejemplo.com', 'Calle Secundaria 789', '2025-06-09 16:42:40', 'Activo', NULL),
-(4, 'Laura', 'Ramirez', '72557246', '9250033437', 'admin@gmail.com', 'sb', '2025-06-09 16:42:40', 'Activo', NULL),
-(5, 'Laura', 'Ramirez', '23456789', '9250033437', 'test@gmail.com', 'jato', '2025-06-09 16:43:55', 'Activo', NULL),
+(4, 'Juan Pérez', 'González', '73452524', '925033437', 'admin@gmail.com', 'jsto', '2025-06-09 16:42:40', 'Activo', NULL),
+(5, 'Laura', 'instrucor apellido', '23456789', '980456765', 'test@gmail.com', 'jato', '2025-06-09 16:43:55', 'Activo', NULL),
 (6, 'Laura', 'González', '23456789', '987654322', 'admin@gmail.com', 'sd', '2025-06-09 16:50:18', 'Activo', NULL),
 (7, 'Recepcionista', 'Ramirez', '23456789', '9250033437', 'admin@gmail.com', 'sdf', '2025-06-09 16:50:59', 'Activo', NULL),
-(8, 'Laura', 'instrucor apellido', '72557246', '987654322', 'test@gmail.com', 'sdfhm,', '2025-06-09 17:40:17', 'Activo', NULL);
+(8, 'Laura', 'instrucor apellido', '72557246', '987654322', 'test@gmail.com', 'sdfhm,', '2025-06-09 17:40:17', 'Activo', NULL),
+(9, 'Laura', 'González', '72557246', '925033437', 'usuario17@marketingmasters.lat', 'jato', '2025-06-18 19:00:27', 'Activo', NULL),
+(10, 'Juan', 'Pérez', '12345678', '987654321', 'juan@test.com', 'Av. Test 123', '2025-06-18 19:57:13', 'Activo', NULL),
+(13, 'yape', 'yape', '73452524', '925033437', 'fel10062003@gmail.com', 'jato', '2025-06-19 10:12:08', 'Activo', NULL),
+(14, 'Laura', 'González', '23456789', '925033437', 'mesero@gmail.com', 'jatp', '2025-06-19 20:57:48', 'Activo', NULL),
+(15, 'paypal', 'paypal', '73452524', '927481027', 'prupruebas090@gmail.com', 'jato', '2025-06-19 21:09:15', 'Activo', NULL),
+(17, 'AYNOR', 'ESPINOZA LEON', '72557246', '930791412', 'prupruebas090@gmail.com', 'jato', '2025-06-19 23:26:25', 'Activo', NULL),
+(23, 'invitado', 'invitado', '73452524', '923432567', 'fel10062003@gmail.com', 'Chavin de huantar', '2025-06-20 10:14:06', 'Activo', NULL),
+(24, 'AYNOR FIDENCIO', 'ESPINOZA LEON', '72557246', '930791412', 'espinozaleonaynor@gmail.com', 'jato - chavin de huantar', '2025-06-20 12:56:57', 'Activo', NULL);
 
 -- --------------------------------------------------------
 
@@ -125,7 +132,7 @@ CREATE TABLE `configuraciones` (
 --
 
 INSERT INTO `configuraciones` (`id`, `logo`, `favicon`, `pie_pagina_descripcion`, `pie_pagina_derechos`, `direccion_contacto`, `correo_contacto`, `telefono_contacto`, `fax_contacto`, `mapa_contacto`, `total_certificados_recientes`, `total_certificados_populares`, `servicios_activos`, `bienvenida_activa`, `certificados_activos`, `boletin_activo`) VALUES
-(1, 'logo_1749757156.png', 'favicon_1749494710.png', 'Sistema de Certificados Profesionales', 'Todos los derechos reservados', 'Calle Amauta José Carlos Mariátegui La Chira N° 001 - San Marcos - Huari', 'iestpsanmarcosoficial@gmail.com', '934235654', '123-456-789', 'https://maps.google.com', 6, 6, 1, 1, 1, 1);
+(1, 'logo_1749757156.png', 'favicon_1749494710.png', 'Sistema de Certificados Profesionales \r\nPlataforma confiable para gestionar cursos, inscripciones, pagos y emisión automatizada de certificados digitales profesionales.', 'Todos los derechos reservados', 'Calle Amauta José Carlos Mariátegui La Chira N° 001 - San Marcos - Huari', 'iestpsanmarcosoficial@gmail.com', '934235654', '123-456-789', '<iframe src=\"https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1798.3403420638315!2d-77.15725308695274!3d-9.52348190654787!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x91a8fd8c1d97cb3b%3A0xe9ed1dd0601725bc!2sSan%20Marcos-Huari-Ancash!5e1!3m2!1sen!2spe!4v1750436426833!5m2!1sen!2spe\" width=\"600\" height=\"450\" style=\"border:0;\" allowfullscreen=\"\" loading=\"lazy\" referrerpolicy=\"no-referrer-when-downgrade\"></iframe>', 6, 6, 1, 1, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -144,6 +151,13 @@ CREATE TABLE `configuracion_pago` (
   `plin_numero` varchar(20) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Volcado de datos para la tabla `configuracion_pago`
+--
+
+INSERT INTO `configuracion_pago` (`id`, `paypal_email`, `paypal_sandbox`, `banco_nombre`, `banco_cuenta`, `banco_titular`, `yape_numero`, `plin_numero`) VALUES
+(1, 'sb-qrscx43668697@personal.example.com', 1, 'Banco de Ejemplo BCP', '191-0000000-0-00', 'Nombre Titular Ejemplo', '987654321', '987654321');
+
 -- --------------------------------------------------------
 
 --
@@ -158,6 +172,7 @@ CREATE TABLE `curso` (
   `idcategoria` int(11) NOT NULL,
   `idinstructor` int(11) NOT NULL,
   `estado` varchar(20) NOT NULL,
+  `diseño` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `dias_semana` varchar(100) NOT NULL,
   `hora_inicio` time NOT NULL,
   `hora_fin` time NOT NULL,
@@ -166,17 +181,18 @@ CREATE TABLE `curso` (
   `fecha_inicio` date DEFAULT NULL,
   `fecha_fin` date DEFAULT NULL,
   `requisitos` text DEFAULT NULL,
-  `objetivos` text DEFAULT NULL
+  `objetivos` text DEFAULT NULL,
+  `config_certificado` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`config_certificado`))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
 -- Volcado de datos para la tabla `curso`
 --
 
-INSERT INTO `curso` (`idcurso`, `nombre_curso`, `descripcion`, `duracion`, `idcategoria`, `idinstructor`, `estado`, `dias_semana`, `hora_inicio`, `hora_fin`, `precio`, `cupos_disponibles`, `fecha_inicio`, `fecha_fin`, `requisitos`, `objetivos`) VALUES
-(1, 'PHP Avanzado', 'Curso de PHP para desarrolladores', 40, 1, 1, 'Activo', '', '00:00:00', '00:00:00', 20.00, 0, '2025-07-01', '2025-08-10', 'Conocimientos básicos de PHP', 'Dominar PHP orientado a objetos y MVC'),
-(2, 'Diseño Web', 'Curso de diseño web responsivo', 5, 1, 2, 'Activo', 'Martes,Miércoles,Jueves,Viernes', '02:02:00', '06:05:00', 70.00, 0, '2025-07-15', '2025-08-20', 'Conocimientos básicos de HTML y CSS', 'Aprender a crear sitios web adaptables a dispositivos móviles'),
-(4, 'test', 'test', 1, 1, 1, 'Activo', 'Lunes,Martes,Miércoles,Jueves,Viernes,Sábado,Domingo', '18:24:00', '18:25:00', 34.00, 47, '2025-06-09', '2025-06-13', 'expero', 'apredena dormianr test');
+INSERT INTO `curso` (`idcurso`, `nombre_curso`, `descripcion`, `duracion`, `idcategoria`, `idinstructor`, `estado`, `diseño`, `dias_semana`, `hora_inicio`, `hora_fin`, `precio`, `cupos_disponibles`, `fecha_inicio`, `fecha_fin`, `requisitos`, `objetivos`, `config_certificado`) VALUES
+(1, 'PHP Avanzado', 'Curso de PHP para desarrolladores', 40, 1, 1, 'Activo', 'curso_diseno_1750480476.png', 'Lunes,Martes,Miércoles,Jueves,Viernes', '00:00:00', '00:00:00', 20.00, 35, '2025-07-01', '2025-08-10', 'Conocimientos básicos de PHP', 'Dominar PHP orientado a objetos y MVC', '{\"campos\":[{\"tipo\":\"alumno\",\"left\":172,\"top\":273,\"width\":527,\"height\":52,\"fontSize\":30,\"fontFamily\":\"Arial\",\"color\":\"rgb(13, 13, 13)\",\"textAlign\":\"center\",\"fontWeight\":\"normal\",\"fontStyle\":\"normal\",\"textDecoration\":\"none\",\"lineHeight\":1.2,\"letterSpacing\":0,\"rotation\":0,\"opacity\":1,\"backgroundColor\":\"transparent\",\"borderWidth\":0,\"borderColor\":\"initial\",\"borderRadius\":0,\"shadowColor\":\"#000000\",\"shadowBlur\":0,\"shadowOffsetX\":0,\"shadowOffsetY\":0,\"texto\":\"AYNOR FIDENCIO ESPINOZA LEON\"},{\"tipo\":\"fecha\",\"left\":329,\"top\":536,\"width\":150,\"height\":25,\"fontSize\":16,\"fontFamily\":\"Arial\",\"color\":\"rgb(0, 0, 0)\",\"textAlign\":\"center\",\"fontWeight\":\"normal\",\"fontStyle\":\"normal\",\"textDecoration\":\"none\",\"lineHeight\":1.2,\"letterSpacing\":0,\"rotation\":0,\"opacity\":1,\"backgroundColor\":\"transparent\",\"borderWidth\":0,\"borderColor\":\"initial\",\"borderRadius\":0,\"shadowColor\":\"#000000\",\"shadowBlur\":0,\"shadowOffsetX\":0,\"shadowOffsetY\":0,\"texto\":\"FECHA\"},{\"tipo\":\"instructor\",\"left\":307,\"top\":490,\"width\":189,\"height\":41,\"fontSize\":16,\"fontFamily\":\"Arial\",\"color\":\"rgb(0, 0, 0)\",\"textAlign\":\"center\",\"fontWeight\":\"normal\",\"fontStyle\":\"normal\",\"textDecoration\":\"none\",\"lineHeight\":1.2,\"letterSpacing\":0,\"rotation\":0,\"opacity\":1,\"backgroundColor\":\"transparent\",\"borderWidth\":0,\"borderColor\":\"initial\",\"borderRadius\":0,\"shadowColor\":\"#000000\",\"shadowBlur\":0,\"shadowOffsetX\":0,\"shadowOffsetY\":0,\"texto\":\"NOMBRE DEL INSTRUCTOR\"},{\"tipo\":\"firma_instructor\",\"left\":282,\"top\":429,\"width\":240,\"height\":65,\"fontSize\":16,\"fontFamily\":\"Arial\",\"color\":\"rgb(0, 0, 0)\",\"textAlign\":\"left\",\"fontWeight\":\"normal\",\"fontStyle\":\"normal\",\"textDecoration\":\"none\",\"lineHeight\":1.2,\"letterSpacing\":0,\"rotation\":0,\"opacity\":1,\"backgroundColor\":\"transparent\",\"borderWidth\":0,\"borderColor\":\"initial\",\"borderRadius\":0,\"shadowColor\":\"#000000\",\"shadowBlur\":0,\"shadowOffsetX\":0,\"shadowOffsetY\":0,\"texto\":\"Firma Instructor\"},{\"tipo\":\"qr\",\"left\":615,\"top\":426,\"width\":120,\"height\":120,\"fontSize\":16,\"fontFamily\":\"Arial\",\"color\":\"rgb(0, 0, 0)\",\"textAlign\":\"left\",\"fontWeight\":\"normal\",\"fontStyle\":\"normal\",\"textDecoration\":\"none\",\"lineHeight\":1.2,\"letterSpacing\":0,\"rotation\":0,\"opacity\":1,\"backgroundColor\":\"transparent\",\"borderWidth\":0,\"borderColor\":\"initial\",\"borderRadius\":0,\"shadowColor\":\"#000000\",\"shadowBlur\":0,\"shadowOffsetX\":0,\"shadowOffsetY\":0,\"texto\":\"Código QR\"}],\"editorScaleX\":2.5,\"editorScaleY\":2.498233215547703,\"imagenOriginal\":{\"width\":2000,\"height\":1414},\"editorDisplay\":{\"width\":800,\"height\":566}}'),
+(2, 'Diseño Web', 'Curso de diseño web responsivo', 5, 1, 2, 'Activo', 'curso_diseno_1750480491.png', 'Martes,Miércoles,Jueves,Viernes', '02:02:00', '06:05:00', 70.00, 51, '2025-07-15', '2025-08-20', 'Conocimientos básicos de HTML y CSS', 'Aprender a crear sitios web adaptables a dispositivos', '[{\"id\":\"1750488571218\",\"tipo\":\"alumno\",\"texto\":\"Laura instrucor apellido\",\"left\":\"1350px\",\"top\":\"87px\"},{\"id\":\"1750488762568\",\"tipo\":\"alumno\",\"texto\":\"NOMBRE DEL ALUMNO\",\"left\":\"540px\",\"top\":\"257px\"},{\"id\":\"1750488769477\",\"tipo\":\"instructor\",\"texto\":\"Juan Pérez\",\"left\":\"574px\",\"top\":\"465px\"},{\"id\":\"1750488774570\",\"tipo\":\"especialista\",\"texto\":\"Laura Díaz\",\"left\":\"576px\",\"top\":\"465px\"},{\"id\":\"1750488779100\",\"tipo\":\"firma_instructor\",\"texto\":\"<img src=\\\"..\\/assets\\/uploads\\/firmas\\/instructor_firma_1750463403.png\\\" style=\\\"max-width: 120px; max-height: 60px;\\\">\",\"left\":\"583px\",\"top\":\"390px\"},{\"id\":\"1750488784712\",\"tipo\":\"firma_especialista\",\"texto\":\"<img src=\\\"..\\/assets\\/uploads\\/firmas\\/especialista_firma_1750463794.png\\\" style=\\\"max-width: 120px; max-height: 60px;\\\">\",\"left\":\"580px\",\"top\":\"388px\"},{\"id\":\"1750488790053\",\"tipo\":\"fecha\",\"texto\":\"FECHA DE EMISIÓN\",\"left\":\"556px\",\"top\":\"506px\"},{\"id\":\"1750488799365\",\"tipo\":\"qr\",\"texto\":\"<img src=\\\"https:\\/\\/api.qrserver.com\\/v1\\/create-qr-code\\/?size=200x200&amp;data=%257B%2522curso_id%2522%253A2%252C%2522alumno_id%2522%253A5%252C%2522fecha_emision%2522%253A%25222025-06-21%2522%252C%2522verificacion_url%2522%253A%2522http%253A%255C%252F%255C%252Flocalhost%255C%252Fcertificado%255C%252Fverificar-certificado.php%2522%257D&amp;format=png&amp;margin=2&amp;ecc=M&amp;logo=http%253A%252F%252Flocalhost%252Fcertificado%252Fadmin%252Fimg%252Flogo.png&amp;logo_size=30%25&amp;logo_bg=FFFFFF&amp;logo_radius=10\\\" style=\\\"width: 120px; height: 120px; border: 1px solid #ddd; border-radius: 8px;\\\" alt=\\\"QR con Logo\\\">\",\"left\":\"803px\",\"top\":\"373px\"}]'),
+(4, 'Excel Avanzado', 'Curso completo para dominar Excel avanzado', 1, 1, 1, 'Activo', 'curso_diseno_1750480506.png', 'Lunes,Martes,Miércoles,Jueves,Viernes,Sábado,Domingo', '18:24:00', '18:25:00', 34.00, 41, '2025-06-09', '2025-06-13', 'Conocimientos básicos de Excel', 'Aprender funciones avanzadas y herramientas para ser profesional en Excel', NULL);
 
 -- --------------------------------------------------------
 
@@ -239,16 +255,17 @@ CREATE TABLE `especialista` (
   `especialidad` varchar(100) NOT NULL,
   `experiencia` int(11) NOT NULL,
   `email` varchar(100) NOT NULL,
-  `telefono` varchar(20) NOT NULL
+  `telefono` varchar(20) NOT NULL,
+  `firma_especialista` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
 -- Volcado de datos para la tabla `especialista`
 --
 
-INSERT INTO `especialista` (`idespecialista`, `nombre`, `apellido`, `especialidad`, `experiencia`, `email`, `telefono`) VALUES
-(1, 'Roberto', 'Sánchez', 'Desarrollo Web', 8, 'roberto@ejemplo.com', '456-789-123'),
-(2, 'Laura', 'Díaz', 'Diseño UI/UX', 6, 'laura@ejemplo.com', '789-456-123');
+INSERT INTO `especialista` (`idespecialista`, `nombre`, `apellido`, `especialidad`, `experiencia`, `email`, `telefono`, `firma_especialista`) VALUES
+(1, 'Roberto', 'Sánchez', 'Desarrollo Web', 8, 'roberto@ejemplo.com', '456-789-123', 'especialista_firma_1750463803.png'),
+(2, 'Laura', 'Díaz', 'Diseño UI/UX', 6, 'laura@ejemplo.com', '789-456-123', 'especialista_firma_1750463794.png');
 
 -- --------------------------------------------------------
 
@@ -492,12 +509,15 @@ CREATE TABLE `inscripcion` (
 --
 
 INSERT INTO `inscripcion` (`idinscripcion`, `idcliente`, `idcurso`, `fecha_inscripcion`, `estado`, `nota_final`, `fecha_aprobacion`, `observaciones`, `monto_pago`, `estado_pago`, `metodo_pago`, `comprobante_pago`) VALUES
-(1, 1, 1, '2024-02-25', '', NULL, NULL, NULL, 0.00, 'Pendiente', NULL, NULL),
-(2, 2, 2, '2024-02-26', '', NULL, NULL, NULL, 0.00, 'Pendiente', NULL, NULL),
-(3, 5, 2, '2025-06-09', 'Pendiente', NULL, NULL, NULL, 0.00, 'Pendiente', NULL, NULL),
-(4, 6, 2, '2025-06-09', 'Pendiente', NULL, NULL, NULL, 0.00, 'Pendiente', 'Yape', NULL),
-(5, 7, 1, '2025-06-09', 'Pendiente', NULL, NULL, NULL, 0.00, 'Pendiente', 'Transferencia Bancaria', NULL),
-(6, 8, 2, '2025-06-09', 'Aprobado', NULL, NULL, 'nada', 0.00, 'Pagado', 'Transferencia Bancaria', NULL);
+(8, 5, 2, '2025-06-19', 'Pendiente', NULL, NULL, '', 70.00, 'Pendiente', 'PayPal', NULL),
+(16, 14, 4, '2025-06-19', 'Pendiente', NULL, NULL, NULL, 34.00, 'Pendiente', 'Plin', NULL),
+(17, 4, 4, '2025-06-19', 'Pendiente', NULL, NULL, NULL, 34.00, 'Pendiente', 'Yape', NULL),
+(18, 4, 4, '2025-06-19', 'Pendiente', NULL, NULL, NULL, 34.00, 'Pendiente', 'Yape', NULL),
+(19, 13, 4, '2025-06-19', 'Pendiente', NULL, NULL, NULL, 34.00, 'Pendiente', 'Yape', NULL),
+(20, 15, 4, '2025-06-19', 'Pendiente', NULL, NULL, NULL, 34.00, 'Pendiente', 'Yape', NULL),
+(21, 13, 4, '2025-06-19', 'Pendiente', NULL, NULL, NULL, 34.00, 'Pendiente', 'Yape', NULL),
+(22, 13, 1, '2025-06-19', 'Pendiente', NULL, NULL, NULL, 20.00, 'Pendiente', 'Yape', NULL),
+(23, 24, 1, '2025-06-20', 'Pendiente', NULL, NULL, NULL, 20.00, 'Pendiente', 'Yape', NULL);
 
 -- --------------------------------------------------------
 
@@ -512,16 +532,17 @@ CREATE TABLE `instructor` (
   `especialidad` varchar(100) NOT NULL,
   `experiencia` int(11) NOT NULL,
   `email` varchar(100) NOT NULL,
-  `telefono` varchar(20) NOT NULL
+  `telefono` varchar(20) NOT NULL,
+  `firma_digital` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
 -- Volcado de datos para la tabla `instructor`
 --
 
-INSERT INTO `instructor` (`idinstructor`, `nombre`, `apellido`, `especialidad`, `experiencia`, `email`, `telefono`) VALUES
-(1, 'Juan', 'Pérez', 'Desarrollo Web', 5, 'juan@ejemplo.com', '123-456-789'),
-(2, 'María', 'García', 'Diseño Gráfico', 3, 'maria@ejemplo.com', '987-654-321');
+INSERT INTO `instructor` (`idinstructor`, `nombre`, `apellido`, `especialidad`, `experiencia`, `email`, `telefono`, `firma_digital`) VALUES
+(1, 'Juan', 'Pérez', 'Desarrollo Web', 5, 'juan@ejemplo.com', '123-456-789', 'instructor_firma_1750496053.png'),
+(2, 'María', 'García', 'Diseño Gráfico', 3, 'maria@ejemplo.com', '987-654-321', 'instructor_firma_1750496041.png');
 
 -- --------------------------------------------------------
 
@@ -587,7 +608,7 @@ CREATE TABLE `paginas` (
 --
 
 INSERT INTO `paginas` (`id`, `nombre_pagina`, `slug_pagina`, `contenido_pagina`, `banner_pagina`, `meta_titulo`, `meta_palabras_clave`, `meta_descripcion`) VALUES
-(1, 'Acerca de Nosotros', 'acerca-de-nosotros', 'Somos una institución dedicada a la formación profesional...', '1749424670_usuario.png', 'Acerca de Nosotros', 'certificados, formación, profesional', 'Conozca más sobre nuestra institución');
+(1, 'Acerca de Nosotros', 'acerca-de-nosotros', '<p data-start=\"73\" data-end=\"409\"><strong data-start=\"73\" data-end=\"210\">Somos una institución comprometida con la formación profesional de calidad, orientada al desarrollo integral de nuestros estudiantes.</strong> Nuestro objetivo es brindar una educación actualizada, pertinente y accesible, que responda a las demandas del entorno laboral y fomente el crecimiento personal y profesional de cada participante.</p>\r\n<p data-start=\"411\" data-end=\"759\">Contamos con un equipo docente calificado, programas de estudio innovadores y recursos tecnológicos que permiten una enseñanza efectiva y dinámica. Nos enfocamos en fortalecer competencias técnicas, habilidades blandas y valores éticos, promoviendo así el éxito de nuestros egresados en un mercado laboral competitivo y en constante transformación.</p>', 'pagina_6855b894a56ab.jpg', 'Acerca de Nosotros', 'certificados, formación, profesional, formacion', 'Conozca más sobre nuestra institución');
 
 -- --------------------------------------------------------
 
@@ -607,6 +628,16 @@ CREATE TABLE `pago` (
   `observaciones` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Volcado de datos para la tabla `pago`
+--
+
+INSERT INTO `pago` (`idpago`, `idinscripcion`, `monto`, `fecha_pago`, `metodo_pago`, `estado`, `txn_id`, `comprobante`, `observaciones`) VALUES
+(16, 16, 40.12, '2025-06-19 21:08:14', 'Plin', '', NULL, 'plin_16_1750385294.png', NULL),
+(17, 20, 34.00, '2025-06-19 21:09:32', 'Yape', '', NULL, 'yape_20_1750385372.jpg', NULL),
+(18, 21, 34.00, '2025-06-19 21:11:27', 'Yape', '', NULL, 'yape_21_1750385487.jpg', NULL),
+(20, 23, 20.00, '2025-06-20 18:04:03', 'Yape', '', NULL, 'yape_23_1750460643.jpg', NULL);
+
 -- --------------------------------------------------------
 
 --
@@ -625,8 +656,9 @@ CREATE TABLE `preguntas_frecuentes` (
 --
 
 INSERT INTO `preguntas_frecuentes` (`id`, `titulo_pregunta`, `contenido_pregunta`, `orden_pregunta`) VALUES
-(1, '¿Cómo obtener un certificado?', 'Para obtener un certificado debe completar el curso...', 1),
-(2, '¿Son válidos los certificados?', 'Sí, nuestros certificados son reconocidos...', 2);
+(1, '¿Cómo obtener un certificado?', 'Una vez que te hayas inscrito a un curso, completado las clases, y tu inscripción sea aprobada, podrás descargar tu certificado desde tu panel de usuario. Si tu curso fue aprobado, aparecerá un botón que dice \"Descargar Certificado\". Haz clic allí para obtenerlo en formato PDF.', 1),
+(2, '¿Son válidos los certificados?', 'Sí, nuestros certificados son reconocidos', 2),
+(3, '¿Por qué no puedo descargar mi certificado?', 'Para poder descargar tu certificado, tu inscripción debe estar aprobada y tu nota final debe haber sido registrada. Si aún no aparece el botón de descarga, asegúrate de haber completado todas las clases y espera la revisión del instructor. También puedes comunicarte con soporte si el problema persiste.', 1);
 
 -- --------------------------------------------------------
 
@@ -719,8 +751,8 @@ CREATE TABLE `sliders` (
 --
 
 INSERT INTO `sliders` (`id`, `foto`, `titulo`, `contenido`, `texto_boton`, `url_boton`, `posicion`) VALUES
-(1, 'slider-1749481207.jpg', 'Certificados Profesionales', 'Obtén tu certificado profesional', 'Ver Cursos', 'cursos.php', 'Izquierda'),
-(2, 'slider-1749481381.jpg', 'Cursos Online', 'Aprende desde cualquier lugar', 'Inscribirse', 'registro.php', 'derecha');
+(1, 'slider-1750451732.jpg', 'Certificados Profesionales', 'Obtén tu certificado profesional', 'Ver Cursos', 'cursos.php', 'Izquierda'),
+(2, 'slider-1750497984.jpg', 'Cursos Online', 'Aprende desde cualquier lugar', 'Inscribirse', 'registro.php', 'derecha');
 
 -- --------------------------------------------------------
 
@@ -756,17 +788,19 @@ CREATE TABLE `usuario` (
   `nombre_usuario` varchar(100) NOT NULL,
   `password` varchar(255) NOT NULL,
   `idrol` int(11) NOT NULL,
-  `estado` varchar(20) NOT NULL
+  `estado` varchar(20) DEFAULT 'Activo',
+  `token` varchar(255) DEFAULT NULL,
+  `idcliente` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
 -- Volcado de datos para la tabla `usuario`
 --
 
-INSERT INTO `usuario` (`idusuario`, `nombre_usuario`, `password`, `idrol`, `estado`) VALUES
-(1, 'estudiante1', '$2y$10$abcdefghijklmnopqrstuv', 3, 'Activo'),
-(2, 'instructor1', '$2y$10$abcdefghijklmnopqrstuv', 3, 'Activo'),
-(4, 'nuevo_usuario', '$2y$10$abcdefghijklmnopqrstuv', 3, 'Activo');
+INSERT INTO `usuario` (`idusuario`, `nombre_usuario`, `password`, `idrol`, `estado`, `token`, `idcliente`) VALUES
+(17, 'prupruebas090@gmail.com', '$2y$10$j5atv4pVM0clphQsO.f1TuMZnSEXFOWZ/xo430ztxgOTgKegIpok2', 3, 'Activo', NULL, 17),
+(32, 'fel10062003@gmail.com', '$2y$10$ZT7qRHNkxnoWYuq.hj7nZeFdJsWrUwFjTK0yitHzXOQjHYHoG1dsi', 3, 'Activo', '0dc64cb6dbb5bf92c7275e0968e9abb5509a68ba99017cfd30ef0fd46c917374', 23),
+(33, 'espinozaleonaynor@gmail.com', '$2y$10$oNR3spr6flAo3xi0kITlN.FJE1ImoZIam22f9DRmfYg/0bZkDt1A6', 3, 'Activo', 'dbec9438bd3d4ffff50da837559dc07dadc7c88e2245089e8b217c30ffb14334', 24);
 
 -- --------------------------------------------------------
 
@@ -791,7 +825,7 @@ CREATE TABLE `usuarios_admin` (
 --
 
 INSERT INTO `usuarios_admin` (`id_usuario`, `nombre_completo`, `correo`, `telefono`, `contrasena`, `foto`, `rol`, `estado`, `remember_token`) VALUES
-(1, 'Admin', 'admin@admin.com', '123-456-789', '$2y$10$jzwQ.v1nvpa3QDmcJeszPu7p4fWtflVjllOvYp80YbSlli9oLc92a', 'user-1-1749423283.jpg', 'Super Admin', 'Activo', '910aa82456a265206660e0421671dc43d9142039a831db8f228656a7158ff170');
+(1, 'Admin', 'admin@admin.com', '123-456-789', '$2y$10$jzwQ.v1nvpa3QDmcJeszPu7p4fWtflVjllOvYp80YbSlli9oLc92a', 'user-1-1749423283.jpg', 'Super Admin', 'Activo', '0bc92ac253e8c1c070953c12d33182389566383ed0ff42d8631ed0f9389e3a2b');
 
 --
 -- Índices para tablas volcadas
@@ -963,7 +997,8 @@ ALTER TABLE `suscriptores`
 --
 ALTER TABLE `usuario`
   ADD PRIMARY KEY (`idusuario`),
-  ADD KEY `idrol` (`idrol`);
+  ADD KEY `idrol` (`idrol`),
+  ADD KEY `idx_idcliente` (`idcliente`);
 
 --
 -- Indices de la tabla `usuarios_admin`
@@ -991,7 +1026,7 @@ ALTER TABLE `categoria`
 -- AUTO_INCREMENT de la tabla `cliente`
 --
 ALTER TABLE `cliente`
-  MODIFY `idcliente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `idcliente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT de la tabla `configuraciones`
@@ -1003,7 +1038,7 @@ ALTER TABLE `configuraciones`
 -- AUTO_INCREMENT de la tabla `configuracion_pago`
 --
 ALTER TABLE `configuracion_pago`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `curso`
@@ -1051,7 +1086,7 @@ ALTER TABLE `idioma`
 -- AUTO_INCREMENT de la tabla `inscripcion`
 --
 ALTER TABLE `inscripcion`
-  MODIFY `idinscripcion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `idinscripcion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT de la tabla `instructor`
@@ -1081,13 +1116,13 @@ ALTER TABLE `paginas`
 -- AUTO_INCREMENT de la tabla `pago`
 --
 ALTER TABLE `pago`
-  MODIFY `idpago` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `idpago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT de la tabla `preguntas_frecuentes`
 --
 ALTER TABLE `preguntas_frecuentes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `redes_sociales`
@@ -1123,7 +1158,7 @@ ALTER TABLE `suscriptores`
 -- AUTO_INCREMENT de la tabla `usuario`
 --
 ALTER TABLE `usuario`
-  MODIFY `idusuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `idusuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
 --
 -- AUTO_INCREMENT de la tabla `usuarios_admin`
@@ -1186,6 +1221,7 @@ ALTER TABLE `pago`
 -- Filtros para la tabla `usuario`
 --
 ALTER TABLE `usuario`
+  ADD CONSTRAINT `fk_usuario_cliente` FOREIGN KEY (`idcliente`) REFERENCES `cliente` (`idcliente`) ON DELETE SET NULL ON UPDATE CASCADE,
   ADD CONSTRAINT `usuario_ibfk_1` FOREIGN KEY (`idrol`) REFERENCES `rol` (`idrol`);
 COMMIT;
 

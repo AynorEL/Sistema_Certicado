@@ -375,6 +375,7 @@ if ($clienteId && isset($_SESSION['carritos'][$clienteId])) {
 							<ul>
 								<li><a href="index.php">Inicio</a></li>
 								<li><a href="curso.php">Cursos</a></li>
+								<li><a href="verificar-qr.php"><i class="fa fa-qrcode"></i> Verificar Certificado</a></li>
 								<li><a href="about.php">Sobre Nosotros</a></li>
 								<li><a href="contact.php">Contáctanos</a></li>
 							</ul>

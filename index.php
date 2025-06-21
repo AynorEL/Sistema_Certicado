@@ -412,6 +412,130 @@ $(document).ready(function() {
 </section>
 <?php endif; ?>
 
+<!-- Verificación de Certificados -->
+<section class="verification-section py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2 class="verification-title">
+                    <i class="fa fa-shield"></i> Verificación de Certificados
+                </h2>
+                <p class="verification-subtitle">
+                    Todos nuestros certificados incluyen códigos QR únicos para verificar su autenticidad en tiempo real. 
+                    Escanea el código QR de tu certificado y verifica su validez instantáneamente.
+                </p>
+                <div class="verification-features">
+                    <div class="feature-item">
+                        <i class="fa fa-check-circle"></i>
+                        <span>Verificación instantánea</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fa fa-mobile"></i>
+                        <span>Acceso desde cualquier dispositivo</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fa fa-lock"></i>
+                        <span>Certificados seguros y auténticos</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="verification-actions">
+                    <a href="verificar-qr.php" class="btn btn-light btn-lg mb-3">
+                        <i class="fa fa-qrcode"></i> Verificar Certificado
+                    </a>
+                    <br>
+                    <a href="generar-qr-ejemplo.php" class="btn btn-outline-light btn-sm">
+                        <i class="fa fa-eye"></i> Ver Ejemplos
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.verification-section {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.verification-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    pointer-events: none;
+}
+
+.verification-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.verification-subtitle {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+    line-height: 1.6;
+    position: relative;
+    z-index: 1;
+}
+
+.verification-features {
+    position: relative;
+    z-index: 1;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.feature-item i {
+    margin-right: 10px;
+    font-size: 1.2rem;
+    color: #28a745;
+}
+
+.verification-actions {
+    position: relative;
+    z-index: 1;
+}
+
+.verification-actions .btn {
+    transition: all 0.3s ease;
+}
+
+.verification-actions .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+@media (max-width: 768px) {
+    .verification-title {
+        font-size: 2rem;
+    }
+    
+    .verification-subtitle {
+        font-size: 1rem;
+    }
+    
+    .verification-actions {
+        margin-top: 2rem;
+    }
+}
+</style>
+
 <!-- Cursos Recientes -->
 <?php if($certificados_activos): ?>
 <section class="recent-courses py-5 bg-light">
