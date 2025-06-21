@@ -246,7 +246,7 @@ CREATE TABLE `especialista` (
 - texto: Texto personalizado
 
 // Elementos de Imagen
-- firma_instructor: Firma digital del instructor
+- firma_digital: Firma digital del instructor
 - firma_especialista: Firma digital del especialista
 - qr: Código QR del certificado
 ```
