@@ -17,6 +17,7 @@ foreach ($result as $row) {
     $experiencia = $row['experiencia'];
     $email = $row['email'];
     $telefono = $row['telefono'];
+    $firma_digital = $row['firma_digital'];
 }
 ?>
 
@@ -43,7 +44,7 @@ foreach ($result as $row) {
                 </div>
             <?php endif; ?>
 
-            <form class="form-horizontal" action="" method="post">
+            <form class="form-horizontal" action="" method="post" enctype="multipart/form-data">
                 <div class="box box-info">
                     <div class="box-body">
                         <div class="form-group">
@@ -80,6 +81,24 @@ foreach ($result as $row) {
                             <label for="" class="col-sm-2 control-label">Teléfono <span>*</span></label>
                             <div class="col-sm-4">
                                 <input type="text" name="telefono" class="form-control" value="<?php echo $telefono; ?>" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="" class="col-sm-2 control-label">Firma Digital Actual</label>
+                            <div class="col-sm-4">
+                                <?php if (!empty($firma_digital)): ?>
+                                    <img src="<?php echo BASE_URL . 'assets/uploads/firmas/' . $firma_digital; ?>" alt="Firma Digital" style="max-width: 200px; max-height: 100px; border: 1px solid #ddd;">
+                                    <br><small class="text-muted"><?php echo $firma_digital; ?></small>
+                                <?php else: ?>
+                                    <span class="text-muted">No hay firma digital</span>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="" class="col-sm-2 control-label">Nueva Firma Digital</label>
+                            <div class="col-sm-4">
+                                <input type="file" name="firma_digital" class="form-control" accept="image/*">
+                                <small class="text-muted">Formatos permitidos: JPG, PNG, GIF. Tamaño máximo: 2MB. Deje vacío para mantener la actual.</small>
                             </div>
                         </div>
                         <div class="form-group">
@@ -130,8 +149,48 @@ if (isset($_POST['form1'])) {
         $_SESSION['error'] = "El teléfono es requerido";
     }
 
+    // Validar nueva firma digital si se subió
+    $new_firma_digital = '';
+    if (isset($_FILES['firma_digital']) && $_FILES['firma_digital']['error'] === UPLOAD_ERR_OK) {
+        $firma_digital_file = $_FILES['firma_digital'];
+        $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
+        $max_size = 2 * 1024 * 1024; // 2MB
+
+        if (!in_array($firma_digital_file['type'], $allowed_types)) {
+            $valid = 0;
+            $_SESSION['error'] = "Formato de imagen no válido. Use JPG, PNG o GIF";
+        }
+
+        if ($firma_digital_file['size'] > $max_size) {
+            $valid = 0;
+            $_SESSION['error'] = "El archivo es demasiado grande. Máximo 2MB";
+        }
+
+        if ($valid == 1) {
+            $file_extension = pathinfo($_FILES['firma_digital']['name'], PATHINFO_EXTENSION);
+            $new_firma_digital = 'instructor_firma_' . time() . '.' . $file_extension;
+            $upload_path = FIRMAS_PATH . $new_firma_digital;
+            
+            if (!move_uploaded_file($_FILES['firma_digital']['tmp_name'], $upload_path)) {
+                $valid = 0;
+                $_SESSION['error'] = "Error al subir la nueva firma digital";
+            }
+        }
+    }
+
     if ($valid == 1) {
-        $statement = $pdo->prepare("UPDATE instructor SET nombre=?, apellido=?, especialidad=?, experiencia=?, email=?, telefono=? WHERE idinstructor=?");
+        // Determinar qué firma digital usar
+        $firma_digital_to_save = $firma_digital; // Mantener la actual por defecto
+        
+        if (!empty($new_firma_digital)) {
+            // Si se subió una nueva firma, eliminar la anterior y usar la nueva
+            if (!empty($firma_digital) && file_exists(FIRMAS_PATH . $firma_digital)) {
+                unlink(FIRMAS_PATH . $firma_digital);
+            }
+            $firma_digital_to_save = $new_firma_digital;
+        }
+
+        $statement = $pdo->prepare("UPDATE instructor SET nombre=?, apellido=?, especialidad=?, experiencia=?, email=?, telefono=?, firma_digital=? WHERE idinstructor=?");
         $statement->execute(array(
             $_POST['nombre'],
             $_POST['apellido'],
@@ -139,6 +198,7 @@ if (isset($_POST['form1'])) {
             $_POST['experiencia'],
             $_POST['email'],
             $_POST['telefono'],
+            $firma_digital_to_save,
             $_GET['id']
         ));
 

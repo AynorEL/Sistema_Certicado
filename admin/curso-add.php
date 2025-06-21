@@ -110,6 +110,35 @@ if (isset($_POST['form1'])) {
         $error_message .= "Los objetivos son requeridos<br>";
     }
 
+    // Validación diseño (opcional)
+    $diseno_name = '';
+    if (isset($_FILES['diseno']) && $_FILES['diseno']['error'] === UPLOAD_ERR_OK) {
+        $diseno_file = $_FILES['diseno'];
+        $allowed_types = ['application/pdf'];
+        $max_size = 10 * 1024 * 1024; // 10MB
+
+        if (!in_array($diseno_file['type'], $allowed_types)) {
+            $valid = 0;
+            $error_message .= "Solo se permiten archivos PDF<br>";
+        }
+
+        if ($diseno_file['size'] > $max_size) {
+            $valid = 0;
+            $error_message .= "El archivo es demasiado grande. Máximo 10MB<br>";
+        }
+
+        if ($valid == 1) {
+            $file_extension = pathinfo($_FILES['diseno']['name'], PATHINFO_EXTENSION);
+            $diseno_name = 'curso_diseno_' . time() . '.' . $file_extension;
+            $upload_path = CURSOS_PATH . $diseno_name;
+            
+            if (!move_uploaded_file($_FILES['diseno']['tmp_name'], $upload_path)) {
+                $valid = 0;
+                $error_message .= "Error al subir el archivo de diseño<br>";
+            }
+        }
+    }
+
 	if ($valid == 1) {
 		// Insertar curso
 		$statement = $pdo->prepare("INSERT INTO curso(
@@ -122,13 +151,14 @@ if (isset($_POST['form1'])) {
             hora_inicio,
             hora_fin,
             estado,
+            diseño,
             precio,
             cupos_disponibles,
             fecha_inicio,
             fecha_fin,
             requisitos,
             objetivos
-        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 
 		$statement->execute(array(
 			$_POST['nombre_curso'],
@@ -140,6 +170,7 @@ if (isset($_POST['form1'])) {
 			$_POST['hora_inicio'],
 			$_POST['hora_fin'],
 			$_POST['estado'],
+			$diseno_name,
 			$_POST['precio'],
 			$_POST['cupos_disponibles'],
 			$_POST['fecha_inicio'],
@@ -177,7 +208,7 @@ if (isset($_POST['form1'])) {
 				</div>
 			<?php endif; ?>
 
-			<form class="form-horizontal" action="" method="post">
+			<form class="form-horizontal" action="" method="post" enctype="multipart/form-data">
 				<div class="box box-info">
 					<div class="box-body">
 						<div class="form-group">
@@ -298,6 +329,14 @@ if (isset($_POST['form1'])) {
 									<option value="Activo">Activo</option>
 									<option value="Inactivo">Inactivo</option>
 								</select>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="col-sm-3 control-label">Diseño del Curso (PDF)</label>
+							<div class="col-sm-4">
+								<input type="file" name="diseno" class="form-control" accept=".pdf">
+								<small class="text-muted">Formatos permitidos: PDF. Tamaño máximo: 10MB</small>
 							</div>
 						</div>
 

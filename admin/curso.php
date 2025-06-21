@@ -52,6 +52,7 @@ $timeout = 3;
 								<th>Categoría</th>
 								<th>Instructor</th>
 								<th>Estado</th>
+								<th>Diseño</th>
 								<th>Días</th>
 								<th>Horario</th>
 								<th>Precio</th>
@@ -90,6 +91,16 @@ $timeout = 3;
 											<span class="badge badge-success">Activo</span>
 										<?php else: ?>
 											<span class="badge badge-danger">Inactivo</span>
+										<?php endif; ?>
+									</td>
+									<td>
+										<?php if (!empty($row['diseño'])): ?>
+											<a href="<?php echo BASE_URL . 'assets/uploads/cursos/' . $row['diseño']; ?>" target="_blank" class="btn btn-info btn-xs" title="Ver Diseño">
+												<i class="fa fa-file-pdf-o"></i> Ver PDF
+											</a>
+											<br><small class="text-muted"><?php echo $row['diseño']; ?></small>
+										<?php else: ?>
+											<span class="text-muted">Sin diseño</span>
 										<?php endif; ?>
 									</td>
 									<td><?php echo $row['dias_semana']; ?></td>
@@ -216,18 +227,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 { "data": "3" }, // Duración
                 { "data": "4" }, // Categoría
                 { "data": "5" }, // Instructor
-                { "data": "6" }, // Días de la Semana
-                { "data": "7" }, // Horario
-                { "data": "8" }, // Estado
-                { "data": "9" }, // Precio
-                { "data": "10" }, // Cupos
-                { "data": "11" }, // Fechas
-                { "data": "12" }, // Requisitos
-                { "data": "13" }, // Objetivos
-                { "data": "14" }  // Acción
+                { "data": "6" }, // Estado
+                { "data": "7" }, // Diseño
+                { "data": "8" }, // Días de la Semana
+                { "data": "9" }, // Horario
+                { "data": "10" }, // Precio
+                { "data": "11" }, // Cupos
+                { "data": "12" }, // Fechas
+                { "data": "13" }, // Requisitos
+                { "data": "14" }, // Objetivos
+                { "data": "15" }  // Acción
             ],
             "columnDefs": [
-                { "orderable": false, "targets": [14] } // Deshabilitar ordenamiento en columna de acciones
+                { "orderable": false, "targets": [15] } // Deshabilitar ordenamiento en columna de acciones
             ]
         });
     }

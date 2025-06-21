@@ -132,7 +132,7 @@ $cursos_inscritos = $statement->fetchAll(PDO::FETCH_ASSOC);
                             </div>
                         <?php else: ?>
                             <p class="text-muted">No estás inscrito en ningún curso todavía.</p>
-                            <a href="cursos.php" class="btn btn-primary">Ver Cursos Disponibles</a>
+                            <a href="curso.php" class="btn btn-primary">Ver Cursos Disponibles</a>
                         <?php endif; ?>
                     </div>
                 </div>

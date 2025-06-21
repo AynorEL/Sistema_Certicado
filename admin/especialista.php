@@ -38,6 +38,7 @@ require_once('header.php');
 								<th>Experiencia</th>
 								<th>Email</th>
 								<th>Teléfono</th>
+								<th>Firma Especialista</th>
 								<th>Acción</th>
 							</tr>
 						</thead>
@@ -58,6 +59,14 @@ require_once('header.php');
 									<td><?php echo $row['experiencia']; ?> años</td>
 									<td><?php echo $row['email']; ?></td>
 									<td><?php echo $row['telefono']; ?></td>
+									<td>
+										<?php if (!empty($row['firma_especialista'])): ?>
+											<img src="<?php echo BASE_URL . 'assets/uploads/firmas/' . $row['firma_especialista']; ?>" alt="Firma Especialista" style="max-width: 100px; max-height: 50px; border: 1px solid #ddd;">
+											<br><small class="text-muted"><?php echo $row['firma_especialista']; ?></small>
+										<?php else: ?>
+											<span class="text-muted">Sin firma</span>
+										<?php endif; ?>
+									</td>
 									<td>
 										<a href="especialista-edit.php?id=<?php echo $row['idespecialista']; ?>" class="btn btn-primary btn-xs">Editar</a>
 										<a href="#" class="btn btn-danger btn-xs" data-href="especialista-delete.php?id=<?php echo $row['idespecialista']; ?>" data-toggle="modal" data-target="#confirm-delete">Eliminar</a>
@@ -103,7 +112,7 @@ require_once('header.php');
 				"url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
 			},
 			"columnDefs": [{
-				"targets": [7],
+				"targets": [8],
 				"orderable": false
 			}]
 		});

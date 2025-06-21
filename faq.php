@@ -34,7 +34,7 @@ $preguntas_frecuentes = $statement->fetchAll(PDO::FETCH_ASSOC);
                                     data-bs-target="#collapse<?php echo $faq['id']; ?>" 
                                     aria-expanded="<?php echo $key == 0 ? 'true' : 'false'; ?>" 
                                     aria-controls="collapse<?php echo $faq['id']; ?>">
-                                <?php echo $faq['titulo_pregunta']; ?>
+                                <?php echo htmlspecialchars($faq['titulo_pregunta']); ?>
                             </button>
                         </h2>
                         <div id="collapse<?php echo $faq['id']; ?>" 
@@ -42,7 +42,7 @@ $preguntas_frecuentes = $statement->fetchAll(PDO::FETCH_ASSOC);
                              aria-labelledby="heading<?php echo $faq['id']; ?>" 
                              data-bs-parent="#faqAccordion">
                             <div class="accordion-body">
-                                <?php echo $faq['contenido_pregunta']; ?>
+                                <?php echo nl2br(htmlspecialchars($faq['contenido_pregunta'])); ?>
                             </div>
                         </div>
                     </div>
@@ -53,15 +53,15 @@ $preguntas_frecuentes = $statement->fetchAll(PDO::FETCH_ASSOC);
     </div>
 </section>
 
+<!-- Styles -->
 <style>
 .page-banner {
-    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('assets/uploads/banner-faq.jpg');
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('assets/img/banerpreguntas.jpg');
     background-size: cover;
     background-position: center;
     padding: 100px 0;
     color: #fff;
     text-align: center;
-    margin-top: -20px;
 }
 
 .banner-title {
@@ -127,16 +127,16 @@ $preguntas_frecuentes = $statement->fetchAll(PDO::FETCH_ASSOC);
     .banner-title {
         font-size: 2rem;
     }
-    
+
     .banner-subtitle {
         font-size: 1rem;
     }
-    
+
     .accordion-button {
         font-size: 1rem;
         padding: 1rem;
     }
-    
+
     .accordion-body {
         padding: 1rem;
     }

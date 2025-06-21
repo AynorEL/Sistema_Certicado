@@ -18,6 +18,7 @@ if (!isset($_REQUEST['id'])) {
 		$experiencia = $row['experiencia'];
 		$email = $row['email'];
 		$telefono = $row['telefono'];
+		$firma_especialista = $row['firma_especialista'];
 	}
 }
 ?>
@@ -45,7 +46,7 @@ if (!isset($_REQUEST['id'])) {
 				</div>
 			<?php endif; ?>
 
-			<form class="form-horizontal" action="" method="post">
+			<form class="form-horizontal" action="" method="post" enctype="multipart/form-data">
 				<input type="hidden" name="idespecialista" value="<?php echo $_REQUEST['id']; ?>">
 				<div class="box box-info">
 					<div class="box-body">
@@ -83,6 +84,24 @@ if (!isset($_REQUEST['id'])) {
 							<label for="" class="col-sm-2 control-label">Teléfono <span>*</span></label>
 							<div class="col-sm-4">
 								<input type="text" name="telefono" class="form-control" value="<?php echo $telefono; ?>" required>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="" class="col-sm-2 control-label">Firma Especialista Actual</label>
+							<div class="col-sm-4">
+								<?php if (!empty($firma_especialista)): ?>
+									<img src="<?php echo BASE_URL . 'assets/uploads/firmas/' . $firma_especialista; ?>" alt="Firma Especialista" style="max-width: 200px; max-height: 100px; border: 1px solid #ddd;">
+									<br><small class="text-muted"><?php echo $firma_especialista; ?></small>
+								<?php else: ?>
+									<span class="text-muted">No hay firma especialista</span>
+								<?php endif; ?>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="" class="col-sm-2 control-label">Nueva Firma Especialista</label>
+							<div class="col-sm-4">
+								<input type="file" name="firma_especialista" class="form-control" accept="image/*">
+								<small class="text-muted">Formatos permitidos: JPG, PNG, GIF. Tamaño máximo: 2MB. Deje vacío para mantener la actual.</small>
 							</div>
 						</div>
 						<div class="form-group">
@@ -133,8 +152,48 @@ if (isset($_POST['form1'])) {
 		$_SESSION['error'] = "El teléfono es requerido";
 	}
 
+	// Validar nueva firma especialista si se subió
+	$new_firma_especialista = '';
+	if (isset($_FILES['firma_especialista']) && $_FILES['firma_especialista']['error'] === UPLOAD_ERR_OK) {
+		$firma_especialista_file = $_FILES['firma_especialista'];
+		$allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
+		$max_size = 2 * 1024 * 1024; // 2MB
+
+		if (!in_array($firma_especialista_file['type'], $allowed_types)) {
+			$valid = 0;
+			$_SESSION['error'] = "Formato de imagen no válido. Use JPG, PNG o GIF";
+		}
+
+		if ($firma_especialista_file['size'] > $max_size) {
+			$valid = 0;
+			$_SESSION['error'] = "El archivo es demasiado grande. Máximo 2MB";
+		}
+
+		if ($valid == 1) {
+			$file_extension = pathinfo($_FILES['firma_especialista']['name'], PATHINFO_EXTENSION);
+			$new_firma_especialista = 'especialista_firma_' . time() . '.' . $file_extension;
+			$upload_path = FIRMAS_PATH . $new_firma_especialista;
+			
+			if (!move_uploaded_file($_FILES['firma_especialista']['tmp_name'], $upload_path)) {
+				$valid = 0;
+				$_SESSION['error'] = "Error al subir la nueva firma especialista";
+			}
+		}
+	}
+
 	if ($valid == 1) {
-		$statement = $pdo->prepare("UPDATE especialista SET nombre=?, apellido=?, especialidad=?, experiencia=?, email=?, telefono=? WHERE idespecialista=?");
+		// Determinar qué firma especialista usar
+		$firma_especialista_to_save = $firma_especialista; // Mantener la actual por defecto
+		
+		if (!empty($new_firma_especialista)) {
+			// Si se subió una nueva firma, eliminar la anterior y usar la nueva
+			if (!empty($firma_especialista) && file_exists(FIRMAS_PATH . $firma_especialista)) {
+				unlink(FIRMAS_PATH . $firma_especialista);
+			}
+			$firma_especialista_to_save = $new_firma_especialista;
+		}
+
+		$statement = $pdo->prepare("UPDATE especialista SET nombre=?, apellido=?, especialidad=?, experiencia=?, email=?, telefono=?, firma_especialista=? WHERE idespecialista=?");
 		$statement->execute(array(
 			$_POST['nombre'],
 			$_POST['apellido'],
@@ -142,6 +201,7 @@ if (isset($_POST['form1'])) {
 			$_POST['experiencia'],
 			$_POST['email'],
 			$_POST['telefono'],
+			$firma_especialista_to_save,
 			$_POST['idespecialista']
 		));
 

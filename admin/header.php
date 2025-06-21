@@ -232,6 +232,14 @@ $userRole = isset($current_user['rol']) ? htmlspecialchars($current_user['rol'])
                         <a href="cliente.php"><i class="fa fa-users"></i> Clientes</a>
                     </li>
 
+                    <li class="<?php if($cur_page == 'usuario.php') { echo 'active'; } ?>">
+                        <a href="usuario.php"><i class="fa fa-user"></i> Usuarios</a>
+                    </li>
+                    
+                    <li class="<?php if($cur_page == 'faq.php') { echo 'active'; } ?>">
+                     <a href="faq.php"><i class="fa fa-question-circle"></i> Preguntas frecuentes</a>
+                       </li>
+
                     <li class="<?php if($cur_page == 'curso.php') { echo 'active'; } ?>">
                         <a href="curso.php"><i class="fa fa-book"></i> Cursos</a>
                     </li>

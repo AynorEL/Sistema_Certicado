@@ -15,6 +15,14 @@ if (!isset($_REQUEST['id'])) {
 		header('location: especialista.php');
 		exit();
 	}
+	
+	// Obtener información del especialista antes de eliminar
+	$firma_especialista = $result[0]['firma_especialista'];
+	
+	// Eliminar el archivo de firma especialista si existe
+	if (!empty($firma_especialista) && file_exists(FIRMAS_PATH . $firma_especialista)) {
+		unlink(FIRMAS_PATH . $firma_especialista);
+	}
 }
 
 // Delete from especialista

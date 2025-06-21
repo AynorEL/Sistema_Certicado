@@ -42,3 +42,13 @@ if (!defined('ADMIN_URL')) {
 if (!defined('UPLOAD_PATH')) {
 	define('UPLOAD_PATH', $_SERVER['DOCUMENT_ROOT'] . '/certificado/assets/uploads/');
 }
+
+// Configuración del directorio de firmas - Verificar si no está ya definida
+if (!defined('FIRMAS_PATH')) {
+	define('FIRMAS_PATH', $_SERVER['DOCUMENT_ROOT'] . '/certificado/assets/uploads/firmas/');
+}
+
+// Configuración del directorio de cursos - Verificar si no está ya definida
+if (!defined('CURSOS_PATH')) {
+	define('CURSOS_PATH', $_SERVER['DOCUMENT_ROOT'] . '/certificado/assets/uploads/cursos/');
+}

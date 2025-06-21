@@ -26,7 +26,7 @@ require_once('header.php');
 				</div>
 			<?php endif; ?>
 
-			<form class="form-horizontal" action="" method="post">
+			<form class="form-horizontal" action="" method="post" enctype="multipart/form-data">
 				<div class="box box-info">
 					<div class="box-body">
 						<div class="form-group">
@@ -63,6 +63,13 @@ require_once('header.php');
 							<label for="" class="col-sm-2 control-label">Teléfono <span>*</span></label>
 							<div class="col-sm-4">
 								<input type="text" name="telefono" class="form-control" required>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="" class="col-sm-2 control-label">Firma Digital <span>*</span></label>
+							<div class="col-sm-4">
+								<input type="file" name="firma_digital" class="form-control" accept="image/*" required>
+								<small class="text-muted">Formatos permitidos: JPG, PNG, GIF. Tamaño máximo: 2MB</small>
 							</div>
 						</div>
 						<div class="form-group">
@@ -113,20 +120,56 @@ if (isset($_POST['form1'])) {
 		$_SESSION['error'] = "El teléfono es requerido";
 	}
 
-	if ($valid == 1) {
-		$statement = $pdo->prepare("INSERT INTO instructor (nombre, apellido, especialidad, experiencia, email, telefono) VALUES (?, ?, ?, ?, ?, ?)");
-		$statement->execute(array(
-			$_POST['nombre'],
-			$_POST['apellido'],
-			$_POST['especialidad'],
-			$_POST['experiencia'],
-			$_POST['email'],
-			$_POST['telefono']
-		));
+	// Validar firma digital
+	if (!isset($_FILES['firma_digital']) || $_FILES['firma_digital']['error'] !== UPLOAD_ERR_OK) {
+		$valid = 0;
+		$_SESSION['error'] = "La firma digital es requerida";
+	} else {
+		$firma_digital = $_FILES['firma_digital'];
+		$allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
+		$max_size = 2 * 1024 * 1024; // 2MB
 
-		$_SESSION['success'] = "Instructor agregado exitosamente";
-		header('location: instructor.php');
-		exit();
+		if (!in_array($firma_digital['type'], $allowed_types)) {
+			$valid = 0;
+			$_SESSION['error'] = "Formato de imagen no válido. Use JPG, PNG o GIF";
+		}
+
+		if ($firma_digital['size'] > $max_size) {
+			$valid = 0;
+			$_SESSION['error'] = "El archivo es demasiado grande. Máximo 2MB";
+		}
+	}
+
+	if ($valid == 1) {
+		// Procesar la firma digital
+		$firma_digital_name = '';
+		if (isset($_FILES['firma_digital']) && $_FILES['firma_digital']['error'] === UPLOAD_ERR_OK) {
+			$file_extension = pathinfo($_FILES['firma_digital']['name'], PATHINFO_EXTENSION);
+			$firma_digital_name = 'instructor_firma_' . time() . '.' . $file_extension;
+			$upload_path = FIRMAS_PATH . $firma_digital_name;
+			
+			if (!move_uploaded_file($_FILES['firma_digital']['tmp_name'], $upload_path)) {
+				$valid = 0;
+				$_SESSION['error'] = "Error al subir la firma digital";
+			}
+		}
+
+		if ($valid == 1) {
+			$statement = $pdo->prepare("INSERT INTO instructor (nombre, apellido, especialidad, experiencia, email, telefono, firma_digital) VALUES (?, ?, ?, ?, ?, ?, ?)");
+			$statement->execute(array(
+				$_POST['nombre'],
+				$_POST['apellido'],
+				$_POST['especialidad'],
+				$_POST['experiencia'],
+				$_POST['email'],
+				$_POST['telefono'],
+				$firma_digital_name
+			));
+
+			$_SESSION['success'] = "Instructor agregado exitosamente";
+			header('location: instructor.php');
+			exit();
+		}
 	}
 }
 ?>

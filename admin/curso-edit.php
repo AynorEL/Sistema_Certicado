@@ -5,7 +5,7 @@ $error_message = '';
 $success_message = '';
 
 // Validar ID del curso al inicio
-if (!isset($_REQUEST['idcurso']) || empty($_REQUEST['idcurso'])) {
+if (!isset($_REQUEST['id']) || empty($_REQUEST['id'])) {
 	$_SESSION['error'] = "ID de curso no válido";
 	header('location: curso.php');
 	exit;
@@ -13,7 +13,7 @@ if (!isset($_REQUEST['idcurso']) || empty($_REQUEST['idcurso'])) {
 
 // Verificar si el curso existe
 $statement = $pdo->prepare("SELECT * FROM curso WHERE idcurso=?");
-$statement->execute(array($_REQUEST['idcurso']));
+$statement->execute(array($_REQUEST['id']));
 $total = $statement->rowCount();
 $result = $statement->fetchAll(PDO::FETCH_ASSOC);
 
@@ -37,6 +37,13 @@ $objetivos = $curso['objetivos'];
 $estado = $curso['estado'];
 $idcategoria = $curso['idcategoria'];
 $idinstructor = $curso['idinstructor'];
+$dias_semana = $curso['dias_semana'];
+$hora_inicio = $curso['hora_inicio'];
+$hora_fin = $curso['hora_fin'];
+$diseno = $curso['diseño'];
+
+// Convertir días de la semana a array
+$dias_array = !empty($dias_semana) ? explode(',', $dias_semana) : array();
 
 // Obtener datos de la categoría
 $statement = $pdo->prepare("SELECT * FROM categoria WHERE idcategoria=?");
@@ -52,16 +59,6 @@ $nombre_instructor = $instructor ? $instructor['nombre'] . ' ' . $instructor['ap
 
 if (isset($_POST['form1'])) {
 	$valid = 1;
-
-	if (empty($_POST['idcategoria'])) {
-		$valid = 0;
-		$error_message .= "Debe seleccionar una categoría<br>";
-	}
-
-	if (empty($_POST['idinstructor'])) {
-		$valid = 0;
-		$error_message .= "Debe seleccionar un instructor<br>";
-	}
 
 	if (empty($_POST['nombre_curso'])) {
 		$valid = 0;
@@ -113,7 +110,72 @@ if (isset($_POST['form1'])) {
 		$error_message .= "El estado del curso no puede estar vacío<br>";
 	}
 
+	if (empty($_POST['idcategoria'])) {
+		$valid = 0;
+		$error_message .= "Debe seleccionar una categoría<br>";
+	}
+
+	if (empty($_POST['idinstructor'])) {
+		$valid = 0;
+		$error_message .= "Debe seleccionar un instructor<br>";
+	}
+
+	if (empty($_POST['dias_semana'])) {
+		$valid = 0;
+		$error_message .= "Debe seleccionar al menos un día de la semana<br>";
+	}
+
+	if (empty($_POST['hora_inicio'])) {
+		$valid = 0;
+		$error_message .= "La hora de inicio no puede estar vacía<br>";
+	}
+
+	if (empty($_POST['hora_fin'])) {
+		$valid = 0;
+		$error_message .= "La hora de fin no puede estar vacía<br>";
+	}
+
+	// Validar nuevo diseño si se subió
+	$new_diseno = '';
+	if (isset($_FILES['diseno']) && $_FILES['diseno']['error'] === UPLOAD_ERR_OK) {
+		$diseno_file = $_FILES['diseno'];
+		$allowed_types = ['application/pdf'];
+		$max_size = 10 * 1024 * 1024; // 10MB
+
+		if (!in_array($diseno_file['type'], $allowed_types)) {
+			$valid = 0;
+			$error_message .= "Solo se permiten archivos PDF<br>";
+		}
+
+		if ($diseno_file['size'] > $max_size) {
+			$valid = 0;
+			$error_message .= "El archivo es demasiado grande. Máximo 10MB<br>";
+		}
+
+		if ($valid == 1) {
+			$file_extension = pathinfo($_FILES['diseno']['name'], PATHINFO_EXTENSION);
+			$new_diseno = 'curso_diseno_' . time() . '.' . $file_extension;
+			$upload_path = CURSOS_PATH . $new_diseno;
+			
+			if (!move_uploaded_file($_FILES['diseno']['tmp_name'], $upload_path)) {
+				$valid = 0;
+				$error_message .= "Error al subir el nuevo archivo de diseño<br>";
+			}
+		}
+	}
+
 	if ($valid == 1) {
+		// Determinar qué diseño usar
+		$diseno_to_save = $diseno; // Mantener el actual por defecto
+		
+		if (!empty($new_diseno)) {
+			// Si se subió un nuevo diseño, eliminar el anterior y usar el nuevo
+			if (!empty($diseno) && file_exists(CURSOS_PATH . $diseno)) {
+				unlink(CURSOS_PATH . $diseno);
+			}
+			$diseno_to_save = $new_diseno;
+		}
+
 		// Actualizar curso
 		$statement = $pdo->prepare("UPDATE curso SET 
 			nombre_curso = ?,
@@ -127,7 +189,11 @@ if (isset($_POST['form1'])) {
 			objetivos = ?,
 			idcategoria = ?,
 			idinstructor = ?,
-			estado = ?
+			estado = ?,
+			dias_semana = ?,
+			hora_inicio = ?,
+			hora_fin = ?,
+			diseño = ?
 			WHERE idcurso = ?");
 
 		$statement->execute(array(
@@ -143,7 +209,11 @@ if (isset($_POST['form1'])) {
 			$_POST['idcategoria'],
 			$_POST['idinstructor'],
 			$_POST['estado'],
-			$_REQUEST['idcurso']
+			implode(',', $_POST['dias_semana']),
+			$_POST['hora_inicio'],
+			$_POST['hora_fin'],
+			$diseno_to_save,
+			$_REQUEST['id']
 		));
 
 		$success_message = 'El curso se actualizó correctamente.';
@@ -200,44 +270,51 @@ if (isset($_POST['form1'])) {
 						</div>
 
 						<div class="form-group">
-							<label class="col-sm-3 control-label">Precio (S/) <span>*</span></label>
-							<div class="col-sm-4">
-								<input type="number" step="0.01" name="precio" class="form-control" value="<?php echo $precio; ?>">
-							</div>
-						</div>
-
-						<div class="form-group">
-							<label class="col-sm-3 control-label">Cupos Disponibles <span>*</span></label>
-							<div class="col-sm-4">
-								<input type="number" name="cupos_disponibles" class="form-control" value="<?php echo $cupos_disponibles; ?>">
-							</div>
-						</div>
-
-						<div class="form-group">
-							<label class="col-sm-3 control-label">Fecha de Inicio <span>*</span></label>
-							<div class="col-sm-4">
-								<input type="date" name="fecha_inicio" class="form-control" value="<?php echo $fecha_inicio; ?>">
-							</div>
-						</div>
-
-						<div class="form-group">
-							<label class="col-sm-3 control-label">Fecha de Fin <span>*</span></label>
-							<div class="col-sm-4">
-								<input type="date" name="fecha_fin" class="form-control" value="<?php echo $fecha_fin; ?>">
-							</div>
-						</div>
-
-						<div class="form-group">
-							<label class="col-sm-3 control-label">Requisitos</label>
+							<label class="col-sm-3 control-label">Días de la Semana <span>*</span></label>
 							<div class="col-sm-8">
-								<textarea name="requisitos" class="form-control" cols="30" rows="10"><?php echo $requisitos; ?></textarea>
+								<div class="checkbox">
+									<label>
+										<input type="checkbox" name="dias_semana[]" value="Lunes" <?php echo in_array('Lunes', $dias_array) ? 'checked' : ''; ?>> Lunes
+									</label>
+									&nbsp;&nbsp;
+									<label>
+										<input type="checkbox" name="dias_semana[]" value="Martes" <?php echo in_array('Martes', $dias_array) ? 'checked' : ''; ?>> Martes
+									</label>
+									&nbsp;&nbsp;
+									<label>
+										<input type="checkbox" name="dias_semana[]" value="Miércoles" <?php echo in_array('Miércoles', $dias_array) ? 'checked' : ''; ?>> Miércoles
+									</label>
+									&nbsp;&nbsp;
+									<label>
+										<input type="checkbox" name="dias_semana[]" value="Jueves" <?php echo in_array('Jueves', $dias_array) ? 'checked' : ''; ?>> Jueves
+									</label>
+									&nbsp;&nbsp;
+									<label>
+										<input type="checkbox" name="dias_semana[]" value="Viernes" <?php echo in_array('Viernes', $dias_array) ? 'checked' : ''; ?>> Viernes
+									</label>
+									&nbsp;&nbsp;
+									<label>
+										<input type="checkbox" name="dias_semana[]" value="Sábado" <?php echo in_array('Sábado', $dias_array) ? 'checked' : ''; ?>> Sábado
+									</label>
+									&nbsp;&nbsp;
+									<label>
+										<input type="checkbox" name="dias_semana[]" value="Domingo" <?php echo in_array('Domingo', $dias_array) ? 'checked' : ''; ?>> Domingo
+									</label>
+								</div>
 							</div>
 						</div>
 
 						<div class="form-group">
-							<label class="col-sm-3 control-label">Objetivos</label>
-							<div class="col-sm-8">
-								<textarea name="objetivos" class="form-control" cols="30" rows="10"><?php echo $objetivos; ?></textarea>
+							<label class="col-sm-3 control-label">Hora de Inicio <span>*</span></label>
+							<div class="col-sm-4">
+								<input type="time" name="hora_inicio" class="form-control" value="<?php echo $hora_inicio; ?>">
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="col-sm-3 control-label">Hora de Fin <span>*</span></label>
+							<div class="col-sm-4">
+								<input type="time" name="hora_fin" class="form-control" value="<?php echo $hora_fin; ?>">
 							</div>
 						</div>
 
@@ -295,6 +372,70 @@ if (isset($_POST['form1'])) {
 						</div>
 
 						<div class="form-group">
+							<label class="col-sm-3 control-label">Diseño Actual</label>
+							<div class="col-sm-4">
+								<?php if (!empty($diseno)): ?>
+									<a href="<?php echo BASE_URL . 'assets/uploads/cursos/' . $diseno; ?>" target="_blank" class="btn btn-info btn-xs">
+										<i class="fa fa-file-pdf-o"></i> Ver PDF Actual
+									</a>
+									<br><small class="text-muted"><?php echo $diseno; ?></small>
+								<?php else: ?>
+									<span class="text-muted">No hay diseño</span>
+								<?php endif; ?>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="col-sm-3 control-label">Nuevo Diseño (PDF)</label>
+							<div class="col-sm-4">
+								<input type="file" name="diseno" class="form-control" accept=".pdf">
+								<small class="text-muted">Formatos permitidos: PDF. Tamaño máximo: 10MB. Deje vacío para mantener el actual.</small>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="col-sm-3 control-label">Precio (S/) <span>*</span></label>
+							<div class="col-sm-4">
+								<input type="number" step="0.01" name="precio" class="form-control" value="<?php echo $precio; ?>">
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="col-sm-3 control-label">Cupos Disponibles <span>*</span></label>
+							<div class="col-sm-4">
+								<input type="number" name="cupos_disponibles" class="form-control" value="<?php echo $cupos_disponibles; ?>">
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="col-sm-3 control-label">Fecha de Inicio <span>*</span></label>
+							<div class="col-sm-4">
+								<input type="date" name="fecha_inicio" class="form-control" value="<?php echo $fecha_inicio; ?>">
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="col-sm-3 control-label">Fecha de Fin <span>*</span></label>
+							<div class="col-sm-4">
+								<input type="date" name="fecha_fin" class="form-control" value="<?php echo $fecha_fin; ?>">
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="col-sm-3 control-label">Requisitos</label>
+							<div class="col-sm-8">
+								<textarea name="requisitos" class="form-control" cols="30" rows="10"><?php echo $requisitos; ?></textarea>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="col-sm-3 control-label">Objetivos</label>
+							<div class="col-sm-8">
+								<textarea name="objetivos" class="form-control" cols="30" rows="10"><?php echo $objetivos; ?></textarea>
+							</div>
+						</div>
+
+						<div class="form-group">
 							<label class="col-sm-3 control-label"></label>
 							<div class="col-sm-6">
 								<button type="submit" class="btn btn-success pull-left" name="form1">Actualizar</button>
@@ -306,5 +447,13 @@ if (isset($_POST['form1'])) {
 		</div>
 	</div>
 </section>
+
+<script>
+$(document).ready(function() {
+    $('.select2').select2({
+        width: '100%'
+    });
+});
+</script>
 
 <?php require_once('footer.php'); ?>

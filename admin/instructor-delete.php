@@ -7,6 +7,21 @@ if (!isset($_GET['id'])) {
     exit();
 }
 
+// Obtener información del instructor antes de eliminar
+$statement = $pdo->prepare("SELECT firma_digital FROM instructor WHERE idinstructor=?");
+$statement->execute(array($_GET['id']));
+$result = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+if (!empty($result)) {
+    $firma_digital = $result[0]['firma_digital'];
+    
+    // Eliminar el archivo de firma digital si existe
+    if (!empty($firma_digital) && file_exists(FIRMAS_PATH . $firma_digital)) {
+        unlink(FIRMAS_PATH . $firma_digital);
+    }
+}
+
+// Eliminar el instructor de la base de datos
 $statement = $pdo->prepare("DELETE FROM instructor WHERE idinstructor=?");
 $statement->execute(array($_GET['id']));
 
