@@ -81,7 +81,7 @@ CREATE TABLE `curso` (
   `duracion` int(11) NOT NULL,
   `idcategoria` int(11) NOT NULL,
   `idinstructor` int(11) NOT NULL,
-  `estado` varchar(20) NOT NULL,
+  `estado` varchar(20) NOT NULL,                                                              
   `dias_semana` varchar(100) NOT NULL,
   `hora_inicio` time NOT NULL,
   `hora_fin` time NOT NULL,
@@ -92,6 +92,7 @@ CREATE TABLE `curso` (
   `requisitos` text DEFAULT NULL,
   `objetivos` text DEFAULT NULL
   diseño text 
+  config_certificado	longtext	utf8mb4_bin		Sí	NULL		
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 

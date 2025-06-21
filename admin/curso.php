@@ -60,6 +60,7 @@ $timeout = 3;
 								<th>Fechas</th>
 								<th>Requisitos</th>
 								<th>Objetivos</th>
+								<th>Diseñar Certificado</th>
 								<th>Acciones</th>
 							</tr>
 						</thead>
@@ -95,9 +96,12 @@ $timeout = 3;
 									</td>
 									<td>
 										<?php if (!empty($row['diseño'])): ?>
-											<a href="<?php echo BASE_URL . 'assets/uploads/cursos/' . $row['diseño']; ?>" target="_blank" class="btn btn-info btn-xs" title="Ver Diseño">
-												<i class="fa fa-file-pdf-o"></i> Ver PDF
-											</a>
+											<img src="<?php echo BASE_URL . 'assets/uploads/cursos/' . $row['diseño']; ?>" 
+												 alt="Diseño del curso" 
+												 class="img-responsive" 
+												 style="max-width: 80px; max-height: 60px; border: 1px solid #ddd; cursor: pointer;"
+												 onclick="window.open('<?php echo BASE_URL . 'assets/uploads/cursos/' . $row['diseño']; ?>', '_blank')"
+												 title="Hacer clic para ver imagen completa">
 											<br><small class="text-muted"><?php echo $row['diseño']; ?></small>
 										<?php else: ?>
 											<span class="text-muted">Sin diseño</span>
@@ -162,6 +166,11 @@ $timeout = 3;
 										<?php endif; ?>
 									</td>
 									<td>
+									<a href="editor_certificado.php?id=<?php echo $row['idcurso']; ?>" class="btn btn-warning btn-xs" title="Diseñar certificado">
+                                   <i class="fa fa-paint-brush"></i> Diseñar Certificado
+									</a>
+									</td>
+									<td>
 										<a href="curso-edit.php?id=<?php echo $row['idcurso']; ?>" class="btn btn-primary btn-xs" title="Editar">
 											<i class="fa fa-pencil"></i>
 										</a>
@@ -206,19 +215,42 @@ document.addEventListener('DOMContentLoaded', function() {
     if (deleteModal) {
         deleteModal.addEventListener('show.bs.modal', function(e) {
             var button = e.relatedTarget;
-            var href = button.getAttribute('data-href');
-            var confirmButton = this.querySelector('.btn-ok');
-            if (confirmButton) {
-                confirmButton.setAttribute('href', href);
+            if (button) {
+                var href = button.getAttribute('data-href');
+                var confirmButton = this.querySelector('.btn-ok');
+                if (confirmButton && href) {
+                    confirmButton.setAttribute('href', href);
+                }
             }
         });
     }
 
-    // Inicializar DataTable
+    // Inicializar DataTable con configuración local para evitar CORS
     if (typeof $.fn.DataTable !== 'undefined') {
         $('#example1').DataTable({
             "language": {
-                "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
+                "sProcessing":     "Procesando...",
+                "sLengthMenu":     "Mostrar _MENU_ registros",
+                "sZeroRecords":    "No se encontraron resultados",
+                "sEmptyTable":     "Ningún dato disponible en esta tabla",
+                "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+                "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+                "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+                "sInfoPostFix":    "",
+                "sSearch":         "Buscar:",
+                "sUrl":            "",
+                "sInfoThousands":  ",",
+                "sLoadingRecords": "Cargando...",
+                "oPaginate": {
+                    "sFirst":    "Primero",
+                    "sLast":     "Último",
+                    "sNext":     "Siguiente",
+                    "sPrevious": "Anterior"
+                },
+                "oAria": {
+                    "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+                    "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+                }
             },
             "columns": [
                 { "data": "0" }, // SL
@@ -236,10 +268,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 { "data": "12" }, // Fechas
                 { "data": "13" }, // Requisitos
                 { "data": "14" }, // Objetivos
-                { "data": "15" }  // Acción
+                { "data": "15" }, // Diseñar Certificado
+                { "data": "16" }  // Acción
             ],
             "columnDefs": [
-                { "orderable": false, "targets": [15] } // Deshabilitar ordenamiento en columna de acciones
+                { "orderable": false, "targets": [15, 16] } // Deshabilitar ordenamiento en columnas de acciones y diseño de certificado
             ]
         });
     }

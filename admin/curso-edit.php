@@ -139,17 +139,17 @@ if (isset($_POST['form1'])) {
 	$new_diseno = '';
 	if (isset($_FILES['diseno']) && $_FILES['diseno']['error'] === UPLOAD_ERR_OK) {
 		$diseno_file = $_FILES['diseno'];
-		$allowed_types = ['application/pdf'];
-		$max_size = 10 * 1024 * 1024; // 10MB
+		$allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
+		$max_size = 5 * 1024 * 1024; // 5MB
 
 		if (!in_array($diseno_file['type'], $allowed_types)) {
 			$valid = 0;
-			$error_message .= "Solo se permiten archivos PDF<br>";
+			$error_message .= "Solo se permiten archivos de imagen (JPG, PNG, GIF)<br>";
 		}
 
 		if ($diseno_file['size'] > $max_size) {
 			$valid = 0;
-			$error_message .= "El archivo es demasiado grande. Máximo 10MB<br>";
+			$error_message .= "El archivo es demasiado grande. Máximo 5MB<br>";
 		}
 
 		if ($valid == 1) {
@@ -375,9 +375,10 @@ if (isset($_POST['form1'])) {
 							<label class="col-sm-3 control-label">Diseño Actual</label>
 							<div class="col-sm-4">
 								<?php if (!empty($diseno)): ?>
-									<a href="<?php echo BASE_URL . 'assets/uploads/cursos/' . $diseno; ?>" target="_blank" class="btn btn-info btn-xs">
-										<i class="fa fa-file-pdf-o"></i> Ver PDF Actual
-									</a>
+									<img src="<?php echo BASE_URL . 'assets/uploads/cursos/' . $diseno; ?>" 
+										 alt="Diseño del curso" 
+										 class="img-responsive" 
+										 style="max-width: 200px; max-height: 200px; border: 1px solid #ddd; padding: 5px;">
 									<br><small class="text-muted"><?php echo $diseno; ?></small>
 								<?php else: ?>
 									<span class="text-muted">No hay diseño</span>
@@ -386,10 +387,10 @@ if (isset($_POST['form1'])) {
 						</div>
 
 						<div class="form-group">
-							<label class="col-sm-3 control-label">Nuevo Diseño (PDF)</label>
+							<label class="col-sm-3 control-label">Nuevo Diseño (Imagen)</label>
 							<div class="col-sm-4">
-								<input type="file" name="diseno" class="form-control" accept=".pdf">
-								<small class="text-muted">Formatos permitidos: PDF. Tamaño máximo: 10MB. Deje vacío para mantener el actual.</small>
+								<input type="file" name="diseno" class="form-control" accept="image/*">
+								<small class="text-muted">Formatos permitidos: JPG, PNG, GIF. Tamaño máximo: 5MB. Deje vacío para mantener el actual.</small>
 							</div>
 						</div>
 

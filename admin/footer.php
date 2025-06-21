@@ -152,27 +152,32 @@
 
 <script type="text/javascript">
 	function showDiv(elem) {
+		var photoDiv = document.getElementById('photo_div');
+		var photoDivExisting = document.getElementById('photo_div_existing');
+		var iconDiv = document.getElementById('icon_div');
+		
 		if (elem.value == 0) {
-			document.getElementById('photo_div').style.display = "none";
-			document.getElementById('icon_div').style.display = "none";
+			if (photoDiv) photoDiv.style.display = "none";
+			if (iconDiv) iconDiv.style.display = "none";
 		}
 		if (elem.value == 1) {
-			document.getElementById('photo_div').style.display = "block";
-			document.getElementById('photo_div_existing').style.display = "block";
-			document.getElementById('icon_div').style.display = "none";
+			if (photoDiv) photoDiv.style.display = "block";
+			if (photoDivExisting) photoDivExisting.style.display = "block";
+			if (iconDiv) iconDiv.style.display = "none";
 		}
 		if (elem.value == 2) {
-			document.getElementById('photo_div').style.display = "none";
-			document.getElementById('photo_div_existing').style.display = "none";
-			document.getElementById('icon_div').style.display = "block";
+			if (photoDiv) photoDiv.style.display = "none";
+			if (photoDivExisting) photoDivExisting.style.display = "none";
+			if (iconDiv) iconDiv.style.display = "block";
 		}
 	}
 
 	function showContentInputArea(elem) {
+		var showPageContent = document.getElementById('showPageContent');
 		if (elem.value == 'Diseño de página a ancho completo') {
-			document.getElementById('showPageContent').style.display = "block";
+			if (showPageContent) showPageContent.style.display = "block";
 		} else {
-			document.getElementById('showPageContent').style.display = "none";
+			if (showPageContent) showPageContent.style.display = "none";
 		}
 	}
 </script>
@@ -208,136 +213,138 @@
 
 	});
 
-
-
 	var items = [];
 	for (i = 1; i <= 24; i++) {
-		items[i] = document.getElementById("tabField" + i);
+		var element = document.getElementById("tabField" + i);
+		if (element) {
+			items[i] = element;
+		}
 	}
 
-	items[1].style.display = 'block';
-	items[2].style.display = 'block';
-	items[3].style.display = 'block';
-	items[4].style.display = 'none';
+	// Solo aplicar estilos si los elementos existen
+	if (items[1]) items[1].style.display = 'block';
+	if (items[2]) items[2].style.display = 'block';
+	if (items[3]) items[3].style.display = 'block';
+	if (items[4]) items[4].style.display = 'none';
 
-	items[5].style.display = 'block';
-	items[6].style.display = 'block';
-	items[7].style.display = 'block';
-	items[8].style.display = 'none';
+	if (items[5]) items[5].style.display = 'block';
+	if (items[6]) items[6].style.display = 'block';
+	if (items[7]) items[7].style.display = 'block';
+	if (items[8]) items[8].style.display = 'none';
 
-	items[9].style.display = 'block';
-	items[10].style.display = 'block';
-	items[11].style.display = 'block';
-	items[12].style.display = 'none';
+	if (items[9]) items[9].style.display = 'block';
+	if (items[10]) items[10].style.display = 'block';
+	if (items[11]) items[11].style.display = 'block';
+	if (items[12]) items[12].style.display = 'none';
 
-	items[13].style.display = 'block';
-	items[14].style.display = 'block';
-	items[15].style.display = 'block';
-	items[16].style.display = 'none';
+	if (items[13]) items[13].style.display = 'block';
+	if (items[14]) items[14].style.display = 'block';
+	if (items[15]) items[15].style.display = 'block';
+	if (items[16]) items[16].style.display = 'none';
 
-	items[17].style.display = 'block';
-	items[18].style.display = 'block';
-	items[19].style.display = 'block';
-	items[20].style.display = 'none';
+	if (items[17]) items[17].style.display = 'block';
+	if (items[18]) items[18].style.display = 'block';
+	if (items[19]) items[19].style.display = 'block';
+	if (items[20]) items[20].style.display = 'none';
 
-	items[21].style.display = 'block';
-	items[22].style.display = 'block';
-	items[23].style.display = 'block';
-	items[24].style.display = 'none';
+	if (items[21]) items[21].style.display = 'block';
+	if (items[22]) items[22].style.display = 'block';
+	if (items[23]) items[23].style.display = 'block';
+	if (items[24]) items[24].style.display = 'none';
 
 	function funcTab1(elem) {
 		var txt = elem.value;
 		if (txt == 'Publicidad en Imagen') {
-			items[1].style.display = 'block';
-			items[2].style.display = 'block';
-			items[3].style.display = 'block';
-			items[4].style.display = 'none';
+			if (items[1]) items[1].style.display = 'block';
+			if (items[2]) items[2].style.display = 'block';
+			if (items[3]) items[3].style.display = 'block';
+			if (items[4]) items[4].style.display = 'none';
 		}
 		if (txt == 'Código Adsense') {
-			items[1].style.display = 'none';
-			items[2].style.display = 'none';
-			items[3].style.display = 'none';
-			items[4].style.display = 'block';
+			if (items[1]) items[1].style.display = 'none';
+			if (items[2]) items[2].style.display = 'none';
+			if (items[3]) items[3].style.display = 'none';
+			if (items[4]) items[4].style.display = 'block';
 		}
 	};
 
 	function funcTab2(elem) {
 		var txt = elem.value;
 		if (txt == 'Publicidad en Imagen') {
-			items[5].style.display = 'block';
-			items[6].style.display = 'block';
-			items[7].style.display = 'block';
-			items[8].style.display = 'none';
+			if (items[5]) items[5].style.display = 'block';
+			if (items[6]) items[6].style.display = 'block';
+			if (items[7]) items[7].style.display = 'block';
+			if (items[8]) items[8].style.display = 'none';
 		}
 		if (txt == 'Código Adsense') {
-			items[5].style.display = 'none';
-			items[6].style.display = 'none';
-			items[7].style.display = 'none';
-			items[8].style.display = 'block';
+			if (items[5]) items[5].style.display = 'none';
+			if (items[6]) items[6].style.display = 'none';
+			if (items[7]) items[7].style.display = 'none';
+			if (items[8]) items[8].style.display = 'block';
 		}
 	};
 
 	function funcTab3(elem) {
 		var txt = elem.value;
 		if (txt == 'Publicidad en Imagen') {
-			items[9].style.display = 'block';
-			items[10].style.display = 'block';
-			items[11].style.display = 'block';
-			items[12].style.display = 'none';
+			if (items[9]) items[9].style.display = 'block';
+			if (items[10]) items[10].style.display = 'block';
+			if (items[11]) items[11].style.display = 'block';
+			if (items[12]) items[12].style.display = 'none';
 		}
 		if (txt == 'Código Adsense') {
-			items[9].style.display = 'none';
-			items[10].style.display = 'none';
-			items[11].style.display = 'none';
-			items[12].style.display = 'block';
+			if (items[9]) items[9].style.display = 'none';
+			if (items[10]) items[10].style.display = 'none';
+			if (items[11]) items[11].style.display = 'none';
+			if (items[12]) items[12].style.display = 'block';
 		}
 	};
 
 	function funcTab4(elem) {
 		var txt = elem.value;
 		if (txt == 'Publicidad en Imagen') {
-			items[13].style.display = 'block';
-			items[14].style.display = 'block';
-			items[15].style.display = 'block';
-			items[16].style.display = 'none';
+			if (items[13]) items[13].style.display = 'block';
+			if (items[14]) items[14].style.display = 'block';
+			if (items[15]) items[15].style.display = 'block';
+			if (items[16]) items[16].style.display = 'none';
 		}
 		if (txt == 'Código Adsense') {
-			items[13].style.display = 'none';
-			items[14].style.display = 'none';
-			items[15].style.display = 'none';
-			items[16].style.display = 'block';
+			if (items[13]) items[13].style.display = 'none';
+			if (items[14]) items[14].style.display = 'none';
+			if (items[15]) items[15].style.display = 'none';
+			if (items[16]) items[16].style.display = 'block';
 		}
 	};
 
 	function funcTab5(elem) {
 		var txt = elem.value;
 		if (txt == 'Publicidad en Imagen') {
-			items[17].style.display = 'block';
-			items[18].style.display = 'block';
-			items[19].style.display = 'block';
-			items[20].style.display = 'none';
+			if (items[17]) items[17].style.display = 'block';
+			if (items[18]) items[18].style.display = 'block';
+			if (items[19]) items[19].style.display = 'block';
+			if (items[20]) items[20].style.display = 'none';
 		}
 		if (txt == 'Código Adsense') {
-			items[17].style.display = 'none';
-			items[18].style.display = 'none';
-			items[19].style.display = 'none';
-			items[20].style.display = 'block';
+			if (items[17]) items[17].style.display = 'none';
+			if (items[18]) items[18].style.display = 'none';
+			if (items[19]) items[19].style.display = 'none';
+			if (items[20]) items[20].style.display = 'block';
 		}
 	};
 
 	function funcTab6(elem) {
 		var txt = elem.value;
 		if (txt == 'Publicidad en Imagen') {
-			items[21].style.display = 'block';
-			items[22].style.display = 'block';
-			items[23].style.display = 'block';
-			items[24].style.display = 'none';
+			if (items[21]) items[21].style.display = 'block';
+			if (items[22]) items[22].style.display = 'block';
+			if (items[23]) items[23].style.display = 'block';
+			if (items[24]) items[24].style.display = 'none';
 		}
 		if (txt == 'Código Adsense') {
-			items[21].style.display = 'none';
-			items[22].style.display = 'none';
-			items[23].style.display = 'none';
-			items[24].style.display = 'block';
+			if (items[21]) items[21].style.display = 'none';
+			if (items[22]) items[22].style.display = 'none';
+			if (items[23]) items[23].style.display = 'none';
+			if (items[24]) items[24].style.display = 'block';
 		}
 	};
 </script>

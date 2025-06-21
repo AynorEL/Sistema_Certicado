@@ -114,17 +114,17 @@ if (isset($_POST['form1'])) {
     $diseno_name = '';
     if (isset($_FILES['diseno']) && $_FILES['diseno']['error'] === UPLOAD_ERR_OK) {
         $diseno_file = $_FILES['diseno'];
-        $allowed_types = ['application/pdf'];
-        $max_size = 10 * 1024 * 1024; // 10MB
+        $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
+        $max_size = 5 * 1024 * 1024; // 5MB
 
         if (!in_array($diseno_file['type'], $allowed_types)) {
             $valid = 0;
-            $error_message .= "Solo se permiten archivos PDF<br>";
+            $error_message .= "Solo se permiten archivos de imagen (JPG, PNG, GIF)<br>";
         }
 
         if ($diseno_file['size'] > $max_size) {
             $valid = 0;
-            $error_message .= "El archivo es demasiado grande. Máximo 10MB<br>";
+            $error_message .= "El archivo es demasiado grande. Máximo 5MB<br>";
         }
 
         if ($valid == 1) {
@@ -333,10 +333,10 @@ if (isset($_POST['form1'])) {
 						</div>
 
 						<div class="form-group">
-							<label class="col-sm-3 control-label">Diseño del Curso (PDF)</label>
+							<label class="col-sm-3 control-label">Diseño del Curso (Imagen)</label>
 							<div class="col-sm-4">
-								<input type="file" name="diseno" class="form-control" accept=".pdf">
-								<small class="text-muted">Formatos permitidos: PDF. Tamaño máximo: 10MB</small>
+								<input type="file" name="diseno" class="form-control" accept="image/*">
+								<small class="text-muted">Formatos permitidos: JPG, PNG, GIF. Tamaño máximo: 5MB</small>
 							</div>
 						</div>
 

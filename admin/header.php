@@ -248,6 +248,10 @@ $userRole = isset($current_user['rol']) ? htmlspecialchars($current_user['rol'])
                         <a href="inscripcion.php"><i class="fa fa-check-square-o"></i> Inscripciones</a>
                     </li>
 
+                    <li class="<?php if($cur_page == 'gestionar_certificados.php') { echo 'active'; } ?>">
+                        <a href="gestionar_certificados.php"><i class="fa fa-certificate"></i>Detalles Certificados</a>
+                    </li>
+
                     <li class="<?php if($cur_page == 'pago.php') { echo 'active'; } ?>">
                         <a href="pago.php"><i class="fa fa-money"></i> Pagos</a>
                     </li>

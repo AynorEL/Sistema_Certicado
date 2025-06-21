@@ -1,0 +1,64 @@
+/* Fondo general */
+body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  /* Contenedor del editor */
+  .editor-container {
+    position: relative;
+    overflow: auto;
+    border: 2px dashed #6c757d;
+    background-color: white;
+    border-radius: 6px;
+    min-height: 700px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Estilo de campos agregados */
+  .campo-draggable {
+    position: absolute;
+    padding: 6px 12px;
+    border: 1px dashed #007bff;
+    border-radius: 4px;
+    background-color: rgba(0, 123, 255, 0.1);
+    cursor: move;
+    user-select: none;
+    font-weight: bold;
+    font-size: 14px;
+    color: #003366;
+    white-space: nowrap;
+  }
+  
+  /* Imagen QR especial */
+  .campo-draggable[data-type="qr"] img {
+    width: 70px;
+    height: 70px;
+    display: block;
+  }
+  
+  /* Barra de herramientas superior */
+  .toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: #ffffff;
+    padding: 10px 0;
+    border-bottom: 1px solid #dee2e6;
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  
+  /* Botones personalizados si deseas diferenciarlos */
+  .toolbar button {
+    min-width: 120px;
+  }
+  
+  /* Imagen de fondo (certificado) */
+  #fondoCertificado {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  
