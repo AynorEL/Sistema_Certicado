@@ -20,6 +20,4 @@ Este sistema web permite gestionar cursos, inscripciones, usuarios y generar cer
 - CKEditor
 - FontAwesome
 
-## 📁 Estructura del Proyecto
-
 
