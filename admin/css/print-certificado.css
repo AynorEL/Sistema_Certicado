@@ -1,0 +1,134 @@
+/* Estilos de Impresión para Certificados */
+
+@media print {
+    /* Resetear todos los estilos de pantalla */
+    * {
+        margin: 0 !important;
+        padding: 0 !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* Ocultar elementos innecesarios para impresión */
+    .content-header,
+    .breadcrumb,
+    .card-header,
+    .btn,
+    .toolbar,
+    .properties-panel,
+    .noSelectionMessage,
+    .form-group,
+    .col-md-3,
+    .editor-wrapper {
+        display: none !important;
+    }
+    
+    /* Configurar el certificado para impresión */
+    .canvas-area {
+        width: 100% !important;
+        height: 100vh !important;
+        max-width: none !important;
+        max-height: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        overflow: visible !important;
+        position: relative !important;
+        page-break-inside: avoid !important;
+        page-break-after: avoid !important;
+        page-break-before: avoid !important;
+    }
+    
+    /* Asegurar que la imagen de fondo se ajuste a una página */
+    #fondoCertificado {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: contain !important;
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        z-index: 1 !important;
+    }
+    
+    /* Configurar campos editables para impresión */
+    .editable-field {
+        position: absolute !important;
+        z-index: 10 !important;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        resize: none !important;
+        overflow: visible !important;
+        page-break-inside: avoid !important;
+    }
+    
+    /* Ocultar handles de redimensionamiento */
+    .resize-handle {
+        display: none !important;
+    }
+    
+    /* Configurar página para impresión */
+    @page {
+        size: A4 landscape !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    /* Asegurar que el contenido se ajuste a una página */
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        overflow: hidden !important;
+    }
+    
+    /* Configurar el contenedor principal */
+    .content,
+    .container-fluid,
+    .row,
+    .col-md-9 {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+    }
+    
+    /* Asegurar que las imágenes se impriman correctamente */
+    img {
+        max-width: 100% !important;
+        height: auto !important;
+        page-break-inside: avoid !important;
+    }
+    
+    /* Configurar texto para impresión */
+    .editable-field {
+        color: #000 !important;
+        font-family: Arial, sans-serif !important;
+        line-height: 1.2 !important;
+    }
+    
+    /* Ocultar elementos de interfaz */
+    .card,
+    .card-body {
+        border: none !important;
+        background: transparent !important;
+        box-shadow: none !important;
+    }
+}
+
+/* Estilos adicionales para previsualización de impresión */
+@media screen and (max-width: 1200px) {
+    .canvas-area {
+        transform: scale(0.8);
+        transform-origin: top left;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .canvas-area {
+        transform: scale(0.6);
+        transform-origin: top left;
+    }
+} 

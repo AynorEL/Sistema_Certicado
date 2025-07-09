@@ -1,0 +1,759 @@
+/* Editor Visual de Certificados - CSS Mejorado */
+
+/* Variables CSS */
+:root {
+  --primary-color: #007bff;
+  --success-color: #28a745;
+  --warning-color: #ffc107;
+  --danger-color: #dc3545;
+  --info-color: #17a2b8;
+  --light-color: #f8f9fa;
+  --dark-color: #343a40;
+  --border-color: #dee2e6;
+  --shadow: 0 2px 10px rgba(0,0,0,0.1);
+  --shadow-lg: 0 4px 20px rgba(0,0,0,0.15);
+  --border-radius: 8px;
+  --transition: all 0.3s ease;
+}
+
+/* ===== CONTENEDOR PRINCIPAL ===== */
+.editor-wrapper {
+  overflow: auto;
+  max-height: 80vh;
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background: var(--light-color);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  position: relative;
+}
+
+/* ===== ÁREA DEL CANVAS ===== */
+.canvas-area {
+  width: 2000px;
+  height: 1414px;
+  position: relative;
+  background: white;
+  box-shadow: var(--shadow-lg);
+  margin: 0 auto;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  transition: var(--transition);
+  border: 1px solid #ddd;
+}
+
+/* ===== IMAGEN DE FONDO ===== */
+#fondoCertificado {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* ===== ESTADO SIN FONDO ===== */
+.no-background {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: var(--light-color);
+  color: #6c757d;
+  font-size: 24px;
+}
+
+.no-background i {
+  margin-bottom: 15px;
+  opacity: 0.5;
+}
+
+/* ===== CAMPOS EDITABLES ===== */
+.editable-field {
+  position: absolute;
+  min-width: 100px;
+  min-height: 30px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px dashed var(--primary-color);
+  border-radius: 4px;
+  padding: 8px;
+  cursor: move;
+  z-index: 10;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  color: #000;
+  text-align: left;
+  word-wrap: break-word;
+  overflow: hidden;
+  transition: var(--transition);
+  user-select: none;
+  box-sizing: border-box;
+}
+
+.editable-field:hover {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: #0056b3;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transform: translateY(-1px);
+}
+
+.editable-field.selected {
+  border: 2px solid var(--success-color);
+  background: rgba(40, 167, 69, 0.1);
+  box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.2);
+  transform: scale(1.02);
+}
+
+.editable-field[contenteditable="true"]:focus {
+  outline: none;
+  border-color: var(--success-color);
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.3);
+}
+
+/* ===== HANDLES DE REDIMENSIONAMIENTO ===== */
+.resize-handle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: var(--primary-color);
+  border: 2px solid white;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 11;
+  transition: var(--transition);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.resize-handle:hover {
+  background: #0056b3;
+  transform: scale(1.2);
+}
+
+.resize-handle.nw { top: -5px; left: -5px; cursor: nw-resize; }
+.resize-handle.n { top: -5px; left: 50%; transform: translateX(-50%); cursor: n-resize; }
+.resize-handle.ne { top: -5px; right: -5px; cursor: ne-resize; }
+.resize-handle.e { top: 50%; right: -5px; transform: translateY(-50%); cursor: e-resize; }
+.resize-handle.se { bottom: -5px; right: -5px; cursor: se-resize; }
+.resize-handle.s { bottom: -5px; left: 50%; transform: translateX(-50%); cursor: s-resize; }
+.resize-handle.sw { bottom: -5px; left: -5px; cursor: sw-resize; }
+.resize-handle.w { top: 50%; left: -5px; transform: translateY(-50%); cursor: w-resize; }
+
+/* ===== PANEL DE PROPIEDADES - INSPECTOR DINÁMICO ===== */
+.properties-panel {
+  min-height: 200px;
+  transition: var(--transition);
+  background: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+.properties-panel:empty {
+  display: none;
+}
+
+/* Header del inspector */
+.inspector-header {
+  background: linear-gradient(135deg, var(--primary-color) 0%, #0056b3 100%);
+  color: white;
+  padding: 15px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.inspector-header h6 {
+  margin: 0;
+  font-weight: 600;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.inspector-header small {
+  opacity: 0.8;
+  font-size: 11px;
+  display: block;
+  margin-top: 4px;
+}
+
+/* Secciones de propiedades */
+.property-section {
+  padding: 15px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.property-section:last-child {
+  border-bottom: none;
+}
+
+.section-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--dark-color);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 5px;
+}
+
+/* Grupos de propiedades */
+.property-group {
+  margin-bottom: 15px;
+}
+
+.property-group:last-child {
+  margin-bottom: 0;
+}
+
+.property-group label {
+  font-weight: 600;
+  font-size: 11px;
+  color: var(--dark-color);
+  margin-bottom: 6px;
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.property-group input,
+.property-group select {
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 12px;
+  transition: var(--transition);
+  background: white;
+  box-sizing: border-box;
+}
+
+.property-group input:focus,
+.property-group select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.property-group input[type="color"] {
+  height: 35px;
+  padding: 2px;
+  cursor: pointer;
+}
+
+.property-group input[type="number"] {
+  text-align: center;
+}
+
+/* ===== INFORMACIÓN DEL CAMPO ===== */
+.field-info {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  font-size: 11px;
+  border: 1px solid #e0e0e0;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.info-row:last-child {
+  margin-bottom: 0;
+}
+
+.info-label {
+  font-weight: 600;
+  color: var(--dark-color);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.info-value {
+  font-weight: 500;
+  color: var(--primary-color);
+  font-size: 11px;
+  font-family: 'Courier New', monospace;
+}
+
+/* ===== CHECKBOXES PERSONALIZADOS ===== */
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 8px;
+  border-radius: 4px;
+  transition: var(--transition);
+}
+
+.checkbox-group:hover {
+  background: rgba(0, 123, 255, 0.05);
+}
+
+.checkbox-group input[type="checkbox"] {
+  width: auto;
+  margin-right: 10px;
+  transform: scale(1.2);
+}
+
+.checkbox-group label {
+  margin-bottom: 0;
+  font-weight: normal;
+  text-transform: none;
+  letter-spacing: normal;
+  cursor: pointer;
+}
+
+/* ===== BOTONES DE ALINEACIÓN ===== */
+.alignment-buttons {
+  display: flex;
+  gap: 4px;
+}
+
+.alignment-buttons .btn {
+  flex: 1;
+  padding: 6px 8px;
+  font-size: 11px;
+  border-radius: 4px;
+  transition: var(--transition);
+}
+
+.alignment-buttons .btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* ===== BOTONES DE ACCIÓN ===== */
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.action-buttons .btn {
+  padding: 8px 12px;
+  font-size: 12px;
+  border-radius: 6px;
+  transition: var(--transition);
+  min-width: 40px;
+}
+
+.action-buttons .btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* ===== MENSAJE DE NO SELECCIÓN ===== */
+#noSelectionMessage {
+  color: #6c757d;
+  background: #f8f9fa;
+  border-radius: var(--border-radius);
+  border: 2px dashed #dee2e6;
+  text-align: center;
+  padding: 40px 20px;
+}
+
+#noSelectionMessage i {
+  color: #adb5bd;
+  margin-bottom: 15px;
+  display: block;
+}
+
+#noSelectionMessage h6 {
+  color: #495057;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+#noSelectionMessage p {
+  color: #6c757d;
+  font-size: 13px;
+  margin: 0;
+}
+
+/* ===== BARRA DE HERRAMIENTAS ===== */
+.toolbar {
+  background: white;
+  border-bottom: 1px solid var(--border-color);
+  padding: 15px 0;
+  margin-bottom: 20px;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+}
+
+.toolbar .btn {
+  margin-right: 8px;
+  margin-bottom: 5px;
+  transition: var(--transition);
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.toolbar .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+/* ===== BOTONES DE ACCIÓN PRINCIPALES ===== */
+.btn-action {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: var(--transition);
+  border: none;
+  cursor: pointer;
+}
+
+.btn-action:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.btn-primary {
+  background: var(--primary-color);
+  color: white;
+}
+
+.btn-success {
+  background: var(--success-color);
+  color: white;
+}
+
+.btn-warning {
+  background: var(--warning-color);
+  color: #212529;
+}
+
+.btn-danger {
+  background: var(--danger-color);
+  color: white;
+}
+
+.btn-info {
+  background: var(--info-color);
+  color: white;
+}
+
+/* ===== ANIMACIONES ===== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.editable-field {
+  animation: fadeIn 0.3s ease;
+}
+
+.editable-field.selected {
+  animation: pulse 0.3s ease;
+}
+
+/* ===== ESTADOS DE CARGA ===== */
+.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid var(--primary-color);
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ===== NOTIFICACIONES ===== */
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 15px 20px;
+  border-radius: var(--border-radius);
+  color: white;
+  font-weight: 500;
+  z-index: 10000;
+  animation: slideIn 0.3s ease;
+  box-shadow: var(--shadow-lg);
+  max-width: 300px;
+}
+
+.notification.success {
+  background: var(--success-color);
+}
+
+.notification.error {
+  background: var(--danger-color);
+}
+
+.notification.info {
+  background: var(--info-color);
+}
+
+/* ===== SCROLLBAR PERSONALIZADO ===== */
+.editor-wrapper::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.editor-wrapper::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.editor-wrapper::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.editor-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* ===== TOOLTIPS ===== */
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -60px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  font-size: 12px;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1200px) {
+  .editor-wrapper {
+    max-height: 70vh;
+    padding: 15px;
+  }
+  
+  .canvas-area {
+    width: 100%;
+    height: auto;
+    max-width: 1000px;
+    max-height: 707px;
+  }
+}
+
+@media (max-width: 768px) {
+  .editor-wrapper {
+    max-height: 60vh;
+    padding: 10px;
+  }
+  
+  .canvas-area {
+    max-width: 800px;
+    max-height: 566px;
+  }
+  
+  .toolbar .btn {
+    font-size: 11px;
+    padding: 6px 10px;
+  }
+  
+  .property-group {
+    margin-bottom: 15px;
+  }
+  
+  .property-group label {
+    font-size: 11px;
+  }
+  
+  .property-group input,
+  .property-group select {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+  
+  .inspector-header {
+    padding: 12px;
+  }
+  
+  .inspector-header h6 {
+    font-size: 13px;
+  }
+  
+  .property-section {
+    padding: 12px;
+  }
+}
+
+/* ===== MODO OSCURO (OPCIONAL) ===== */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --light-color: #2d3748;
+    --dark-color: #f7fafc;
+    --border-color: #4a5568;
+  }
+  
+  .editor-wrapper {
+    background: var(--light-color);
+  }
+  
+  .canvas-area {
+    background: #1a202c;
+  }
+  
+  .property-group input,
+  .property-group select {
+    background: #2d3748;
+    color: #f7fafc;
+    border-color: #4a5568;
+  }
+  
+  .properties-panel {
+    background: #2d3748;
+    color: #f7fafc;
+  }
+  
+  .inspector-header {
+    background: linear-gradient(135deg, #2b6cb0 0%, #1a365d 100%);
+  }
+}
+
+/* ===== MEJORAS DE ACCESIBILIDAD ===== */
+.editable-field:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* ===== ESTADOS DE ERROR ===== */
+.editable-field.error {
+  border-color: var(--danger-color);
+  background: rgba(220, 53, 69, 0.1);
+}
+
+.editable-field.error::after {
+  content: '⚠️';
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: var(--danger-color);
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+}
+
+/* ===== ESTADOS DE ÉXITO ===== */
+.editable-field.success {
+  border-color: var(--success-color);
+  background: rgba(40, 167, 69, 0.1);
+}
+
+/* ===== MEJORAS DE RENDIMIENTO ===== */
+.editable-field {
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+.canvas-area {
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* ===== ESTILOS PARA CAMPOS ESPECIALES ===== */
+.editable-field[data-tipo="qr"] img,
+.editable-field[data-tipo="firma_instructor"] img,
+.editable-field[data-tipo="firma_especialista"] img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* ===== ESTILOS PARA TEXTO LARGO ===== */
+.editable-field[data-tipo="alumno"] {
+  min-width: 200px;
+  min-height: 40px;
+}
+
+.editable-field[data-tipo="fecha"] {
+  min-width: 150px;
+  min-height: 30px;
+}
+
+/* ===== ESTILOS PARA CAMPOS DE FIRMA ===== */
+.editable-field[data-tipo="firma_instructor"],
+.editable-field[data-tipo="firma_especialista"] {
+  min-width: 120px;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ===== ESTILOS PARA QR ===== */
+.editable-field[data-tipo="qr"] {
+  min-width: 120px;
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+} 

@@ -1,0 +1,231 @@
+# ========================================
+# DOCKER COMPOSE - SISTEMA DE CERTIFICADOS
+# ========================================
+
+version: '3.8'
+
+services:
+  # ========================================
+  # APLICACIÓN PRINCIPAL
+  # ========================================
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: certificados-app
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+      - "8443:443"
+    volumes:
+      - ./assets/uploads:/var/www/html/assets/uploads
+      - ./admin/img/qr:/var/www/html/admin/img/qr
+      - ./admin/temp:/var/www/html/admin/temp
+      - ./logs:/var/www/html/logs
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=certificados
+      - DB_USERNAME=certificados_user
+      - DB_PASSWORD=${DB_PASSWORD}
+      - MAIL_HOST=${MAIL_HOST}
+      - MAIL_USER=${MAIL_USER}
+      - MAIL_PASS=${MAIL_PASS}
+      - MAIL_PORT=${MAIL_PORT}
+      - MAIL_FROM_NAME=${MAIL_FROM_NAME}
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - certificados-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health.php"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ========================================
+  # BASE DE DATOS MYSQL
+  # ========================================
+  mysql:
+    image: mysql:8.0
+    container_name: certificados-mysql
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: certificados
+      MYSQL_USER: certificados_user
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d
+      - ./docker/mysql/conf:/etc/mysql/conf.d
+      - ./backup:/backup
+    networks:
+      - certificados-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    command: --default-authentication-plugin=mysql_native_password
+
+  # ========================================
+  # CACHE REDIS
+  # ========================================
+  redis:
+    image: redis:7-alpine
+    container_name: certificados-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+      - ./docker/redis/redis.conf:/usr/local/etc/redis/redis.conf
+    networks:
+      - certificados-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    command: redis-server /usr/local/etc/redis/redis.conf
+
+  # ========================================
+  # NGINX REVERSE PROXY
+  # ========================================
+  nginx:
+    image: nginx:alpine
+    container_name: certificados-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d
+      - ./docker/nginx/ssl:/etc/nginx/ssl
+      - ./logs/nginx:/var/log/nginx
+    depends_on:
+      - app
+    networks:
+      - certificados-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ========================================
+  # MONITOREO CON PROMETHEUS
+  # ========================================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: certificados-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - certificados-network
+
+  # ========================================
+  # GRAFANA PARA VISUALIZACIÓN
+  # ========================================
+  grafana:
+    image: grafana/grafana:latest
+    container_name: certificados-grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning
+      - ./docker/grafana/dashboards:/var/lib/grafana/dashboards
+    depends_on:
+      - prometheus
+    networks:
+      - certificados-network
+
+  # ========================================
+  # JOB DE BACKUP AUTOMÁTICO
+  # ========================================
+  backup:
+    image: mysql:8.0
+    container_name: certificados-backup
+    restart: "no"
+    volumes:
+      - ./backup:/backup
+      - ./docker/scripts/backup.sh:/backup.sh
+    environment:
+      - DB_HOST=mysql
+      - DB_USER=certificados_user
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=certificados
+    depends_on:
+      - mysql
+    networks:
+      - certificados-network
+    command: ["/backup.sh"]
+
+  # ========================================
+  # JOB DE LIMPIEZA
+  # ========================================
+  cleanup:
+    image: alpine:latest
+    container_name: certificados-cleanup
+    restart: "no"
+    volumes:
+      - ./admin/temp:/temp
+      - ./logs:/logs
+    command: |
+      sh -c "
+        find /temp -name '*.pdf' -mtime +7 -delete;
+        find /temp -name '*.png' -mtime +7 -delete;
+        find /logs -name '*.log' -mtime +30 -delete;
+        echo 'Limpieza completada: $(date)'
+      "
+    networks:
+      - certificados-network
+
+# ========================================
+# VOLÚMENES
+# ========================================
+volumes:
+  mysql_data:
+    driver: local
+  redis_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+
+# ========================================
+# REDES
+# ========================================
+networks:
+  certificados-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16 

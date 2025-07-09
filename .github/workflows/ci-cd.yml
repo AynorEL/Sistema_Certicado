@@ -1,0 +1,367 @@
+name: CI/CD - SOLO index.php y admin/index.php (SIN herramientas externas)
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "index.php"
+      - "admin/index.php"
+      - ".github/workflows/ci-cd.yml"
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - "index.php"
+      - "admin/index.php"
+      - ".github/workflows/ci-cd.yml"
+  release:
+    types: [published]
+
+env:
+  PHP_VERSION: "8.2"
+
+jobs:
+  # ========================================
+  # ANÁLISIS BÁSICO SIN HERRAMIENTAS EXTERNAS
+  # ========================================
+  basic-analysis:
+    name: Análisis Básico (SOLO 2 archivos)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            index.php
+            admin/index.php
+          sparse-checkout-cone-mode: false
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: mbstring, intl, mysql, gd, zip, curl, xml, dom, pdo, pdo_mysql
+
+      - name: Verificar archivos objetivo
+        run: |
+          echo "🔍 VERIFICANDO ARCHIVOS OBJETIVO..."
+
+          # Listar TODOS los archivos en el workspace
+          echo "📁 Archivos en el workspace:"
+          find . -type f -name "*.php" | head -20
+
+          # Verificar que SOLO tenemos los archivos objetivo
+          if [ -f "index.php" ] && [ -f "admin/index.php" ]; then
+            echo "✅ Archivos objetivo encontrados"
+          else
+            echo "❌ Archivos objetivo NO encontrados"
+            exit 1
+          fi
+
+          # Contar archivos PHP
+          PHP_COUNT=$(find . -name "*.php" | wc -l)
+          echo "📊 Total archivos PHP encontrados: $PHP_COUNT"
+
+          if [ $PHP_COUNT -gt 2 ]; then
+            echo "⚠️ ADVERTENCIA: Se encontraron más archivos PHP de los esperados"
+            echo "📋 Lista completa:"
+            find . -name "*.php"
+          fi
+
+      - name: Análisis de sintaxis PHP
+        run: |
+          echo "🧪 ANÁLISIS DE SINTAXIS PHP..."
+
+          # Verificar sintaxis de index.php
+          echo "Verificando: index.php"
+          php -l index.php || exit 1
+
+          # Verificar sintaxis de admin/index.php
+          echo "Verificando: admin/index.php"
+          php -l admin/index.php || exit 1
+
+          echo "✅ Sintaxis PHP correcta en ambos archivos"
+
+      - name: Análisis de código básico (SIN herramientas externas)
+        run: |
+          echo "🔍 ANÁLISIS DE CÓDIGO BÁSICO..."
+
+          # Función para analizar un archivo
+          analyze_file() {
+            local file="$1"
+            echo ""
+            echo "🔍 Analizando: $file"
+            echo "----------------------------------------"
+            
+            # Verificar longitud de líneas
+            echo "📏 Líneas largas (>120 caracteres):"
+            awk 'length > 120 { print NR ": " $0 }' "$file" | head -5 || echo "✅ No encontradas"
+            
+            # Verificar espacios en blanco al final
+            echo "🔲 Espacios en blanco al final:"
+            grep -n " $" "$file" | head -3 || echo "✅ No encontrados"
+            
+            # Verificar tabulaciones mixtas
+            echo "🔤 Tabulaciones mixtas:"
+            grep -n $'\t' "$file" | head -3 || echo "✅ No encontradas"
+            
+            # Verificar etiquetas PHP
+            echo "🏷️ Etiquetas PHP:"
+            if grep -q "<?php" "$file"; then
+              echo "✅ Contiene etiquetas PHP"
+            else
+              echo "❌ No contiene etiquetas PHP"
+            fi
+            
+            # Estadísticas básicas
+            echo "📊 Estadísticas:"
+            echo "   - Líneas: $(wc -l < "$file")"
+            echo "   - Palabras: $(wc -w < "$file")"
+            echo "   - Caracteres: $(wc -c < "$file")"
+          }
+
+          # Analizar solo los archivos objetivo
+          analyze_file "index.php"
+          analyze_file "admin/index.php"
+
+      - name: Análisis de seguridad básico
+        run: |
+          echo "🔒 ANÁLISIS DE SEGURIDAD BÁSICO..."
+
+          # Función para escanear seguridad
+          security_scan() {
+            local file="$1"
+            echo ""
+            echo "🔒 Escaneando: $file"
+            echo "----------------------------------------"
+            
+            # Funciones peligrosas
+            echo "🚨 Funciones peligrosas:"
+            grep -n "eval\|exec\|system\|shell_exec\|passthru" "$file" || echo "✅ No encontradas"
+            
+            # SQL injection básico
+            echo "🗄️ SQL injection potencial:"
+            grep -n "SELECT.*\$_\|INSERT.*\$_\|UPDATE.*\$_\|DELETE.*\$_" "$file" || echo "✅ No encontrado"
+            
+            # XSS básico
+            echo "🔗 XSS potencial:"
+            grep -n "echo.*\$_\|print.*\$_" "$file" || echo "✅ No encontrado"
+            
+            # Variables superglobales sin validar
+            echo "🌐 Variables superglobales:"
+            grep -n "\$_GET\|\$_POST\|\$_REQUEST\|\$_COOKIE" "$file" | head -3 || echo "✅ No encontradas"
+            
+            # File inclusion
+            echo "📂 File inclusion:"
+            grep -n "include.*\$\|require.*\$" "$file" || echo "✅ No encontrado"
+          }
+
+          # Escanear solo archivos objetivo
+          security_scan "index.php"
+          security_scan "admin/index.php"
+
+  # ========================================
+  # TESTS FUNCIONALES BÁSICOS
+  # ========================================
+  functional-tests:
+    name: Tests Funcionales (SOLO 2 archivos)
+    runs-on: ubuntu-latest
+    needs: basic-analysis
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            index.php
+            admin/index.php
+          sparse-checkout-cone-mode: false
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: mbstring, intl, mysql, gd, zip, curl, xml, dom, pdo, pdo_mysql
+
+      - name: Test estructura de archivos
+        run: |
+          echo "🧪 TESTING ESTRUCTURA DE ARCHIVOS..."
+
+          # Verificar que solo tenemos 2 archivos
+          TOTAL_FILES=$(find . -name "*.php" | wc -l)
+          if [ $TOTAL_FILES -eq 2 ]; then
+            echo "✅ Correcto: Solo 2 archivos PHP encontrados"
+          else
+            echo "❌ Error: Se encontraron $TOTAL_FILES archivos PHP (esperados: 2)"
+            find . -name "*.php"
+            exit 1
+          fi
+
+      - name: Test contenido básico
+        run: |
+          echo "🧪 TESTING CONTENIDO BÁSICO..."
+
+          # Test para index.php
+          echo "Testing index.php:"
+          if [ -s "index.php" ]; then
+            echo "✅ index.php tiene contenido"
+            # Verificar que es un archivo PHP válido
+            if head -1 "index.php" | grep -q "<?php"; then
+              echo "✅ index.php comienza con <?php"
+            else
+              echo "⚠️ index.php no comienza con <?php"
+            fi
+          else
+            echo "❌ index.php está vacío"
+            exit 1
+          fi
+
+          # Test para admin/index.php
+          echo "Testing admin/index.php:"
+          if [ -s "admin/index.php" ]; then
+            echo "✅ admin/index.php tiene contenido"
+            # Verificar que es un archivo PHP válido
+            if head -1 "admin/index.php" | grep -q "<?php"; then
+              echo "✅ admin/index.php comienza con <?php"
+            else
+              echo "⚠️ admin/index.php no comienza con <?php"
+            fi
+          else
+            echo "❌ admin/index.php está vacío"
+            exit 1
+          fi
+
+      - name: Test parsing PHP
+        run: |
+          echo "🧪 TESTING PARSING PHP..."
+
+          # Crear script de test temporal
+          cat > test_parse.php << 'EOF'
+          <?php
+          $files = ['index.php', 'admin/index.php'];
+
+          foreach ($files as $file) {
+            echo "Parseando: $file\n";
+            
+            $content = file_get_contents($file);
+            if ($content === false) {
+              echo "❌ Error leyendo $file\n";
+              exit(1);
+            }
+            
+            // Verificar que no hay errores de sintaxis básicos
+            $tokens = token_get_all($content);
+            if (empty($tokens)) {
+              echo "❌ Error parseando $file\n";
+              exit(1);
+            }
+            
+            echo "✅ $file parseado correctamente\n";
+          }
+
+          echo "✅ Todos los archivos parseados correctamente\n";
+          EOF
+
+          php test_parse.php
+
+  # ========================================
+  # BUILD SUPER SIMPLE
+  # ========================================
+  build:
+    name: Build Simple (SOLO 2 archivos)
+    runs-on: ubuntu-latest
+    needs: functional-tests
+    if: github.event_name == 'push' || github.event_name == 'release'
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            index.php
+            admin/index.php
+          sparse-checkout-cone-mode: false
+
+      - name: Crear build package
+        run: |
+          echo "🏗️ CREANDO BUILD PACKAGE..."
+
+          # Crear directorio de build
+          mkdir -p build/files
+
+          # Copiar SOLO los archivos objetivo
+          cp index.php build/files/
+          mkdir -p build/files/admin
+          cp admin/index.php build/files/admin/
+
+          # Crear archivo de información
+          cat > build/files/BUILD_INFO.txt << EOF
+          Build Date: $(date)
+          Build Number: ${{ github.run_number }}
+          Commit: ${{ github.sha }}
+
+          Files included:
+          - index.php
+          - admin/index.php
+
+          Total files: 2
+          Workflow: Optimized for specific files only
+          No external dependencies analyzed
+          EOF
+
+          # Verificar contenido del build
+          echo "📦 Contenido del build:"
+          find build/ -type f
+
+          # Crear archivo comprimido
+          cd build
+          tar -czf files-v${{ github.run_number }}.tar.gz files/
+
+          echo "✅ Build package creado: files-v${{ github.run_number }}.tar.gz"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: files-only-v${{ github.run_number }}
+          path: build/
+          retention-days: 7
+
+  # ========================================
+  # RESUMEN FINAL
+  # ========================================
+  summary:
+    name: Resumen Final
+    runs-on: ubuntu-latest
+    needs: [basic-analysis, functional-tests]
+    if: always()
+
+    steps:
+      - name: Generar resumen completo
+        run: |
+          echo "📊 RESUMEN FINAL DEL WORKFLOW OPTIMIZADO"
+          echo "=================================================="
+          echo ""
+          echo "🎯 ARCHIVOS ANALIZADOS:"
+          echo "   ✅ index.php"
+          echo "   ✅ admin/index.php"
+          echo "   📊 Total: 2 archivos únicamente"
+          echo ""
+          echo "🔍 ANÁLISIS REALIZADOS:"
+          echo "   ✅ Sintaxis PHP: ${{ needs.basic-analysis.result }}"
+          echo "   ✅ Seguridad básica: ${{ needs.basic-analysis.result }}"
+          echo "   ✅ Tests funcionales: ${{ needs.functional-tests.result }}"
+          echo ""
+          echo "⚡ OPTIMIZACIONES APLICADAS:"
+          echo "   ✅ Sparse checkout (solo archivos objetivo)"
+          echo "   ✅ Sin herramientas externas que escaneen todo"
+          echo "   ✅ Sin composer dependencies"
+          echo "   ✅ Sin vendor/ ni node_modules/"
+          echo "   ✅ Análisis manual específico"
+          echo ""
+          echo "💡 RESULTADO:"
+          echo "   ✅ 0% de archivos no objetivo analizados"
+          echo "   ✅ 100% enfoque en archivos específicos"
+          echo "   ✅ Tiempo de ejecución mínimo"
+          echo "   ✅ Sin falsos positivos de dependencias"
+          echo "
+          echo "🚀 ESTE WORKFLOW SOLO ANALIZA 2 ARCHIVOS, NADA MÁS!"
