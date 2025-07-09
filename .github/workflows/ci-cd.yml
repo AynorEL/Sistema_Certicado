@@ -320,7 +320,7 @@ jobs:
           echo "✅ Build package creado: files-v${{ github.run_number }}.tar.gz"
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: files-only-v${{ github.run_number }}
           path: build/
@@ -363,5 +363,5 @@ jobs:
           echo "   ✅ 100% enfoque en archivos específicos"
           echo "   ✅ Tiempo de ejecución mínimo"
           echo "   ✅ Sin falsos positivos de dependencias"
-          echo "
+          echo ""
           echo "🚀 ESTE WORKFLOW SOLO ANALIZA 2 ARCHIVOS, NADA MÁS!"
