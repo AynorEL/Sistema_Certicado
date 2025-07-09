@@ -57,5 +57,4 @@ RewriteEngine On
 </IfModule>
 
 # 7. Opcional: Evitar listado de directorios
-
 Options -Indexes
