@@ -327,12 +327,46 @@ jobs:
           retention-days: 7
 
   # ========================================
+  # DESPLIEGUE FTP
+  # ========================================
+  deploy:
+    name: Despliegue FTP (SOLO 2 archivos)
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'push' || github.event_name == 'release'
+
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: files-only-v${{ github.run_number }}
+          path: build/
+
+      - name: Desplegar a FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./build/files/
+          server-dir: ${{ secrets.FTP_TARGET_DIR }}
+
+      - name: Verificar despliegue
+        run: |
+          echo "✅ DESPLIEGUE COMPLETADO"
+          echo "📁 Archivos desplegados:"
+          echo "   - index.php"
+          echo "   - admin/index.php"
+          echo "🌐 Servidor: ${{ secrets.FTP_SERVER }}"
+          echo "📂 Directorio: ${{ secrets.FTP_TARGET_DIR }}"
+
+  # ========================================
   # RESUMEN FINAL
   # ========================================
   summary:
     name: Resumen Final
     runs-on: ubuntu-latest
-    needs: [basic-analysis, functional-tests]
+    needs: [basic-analysis, functional-tests, build, deploy]
     if: always()
 
     steps:
@@ -350,6 +384,8 @@ jobs:
           echo "   ✅ Sintaxis PHP: ${{ needs.basic-analysis.result }}"
           echo "   ✅ Seguridad básica: ${{ needs.basic-analysis.result }}"
           echo "   ✅ Tests funcionales: ${{ needs.functional-tests.result }}"
+          echo "   ✅ Build creado: ${{ needs.build.result }}"
+          echo "   ✅ Despliegue FTP: ${{ needs.deploy.result }}"
           echo ""
           echo "⚡ OPTIMIZACIONES APLICADAS:"
           echo "   ✅ Sparse checkout (solo archivos objetivo)"
@@ -363,5 +399,6 @@ jobs:
           echo "   ✅ 100% enfoque en archivos específicos"
           echo "   ✅ Tiempo de ejecución mínimo"
           echo "   ✅ Sin falsos positivos de dependencias"
+          echo "   ✅ Despliegue automático a FTP"
           echo ""
-          echo "🚀 ESTE WORKFLOW SOLO ANALIZA 2 ARCHIVOS, NADA MÁS!"
+          echo "🚀 ESTE WORKFLOW SOLO ANALIZA 2 ARCHIVOS Y LOS DESPLIEGA!"
