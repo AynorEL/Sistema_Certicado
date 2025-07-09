@@ -216,7 +216,6 @@ $ruta_cert = $protocolo . '://' . $host . '/certificado/verificar-certificado.ph
 </section>
 
 <?php require_once 'footer.php'; ?>
-
 <!-- Script para inicializar AdminLTE -->
 <script>
     $(document).ready(function () {
