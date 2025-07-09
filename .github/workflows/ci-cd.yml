@@ -187,15 +187,18 @@ jobs:
         run: |
           echo "🧪 TESTING ESTRUCTURA DE ARCHIVOS..."
 
-          # Verificar que solo tenemos 2 archivos
-          TOTAL_FILES=$(find . -name "*.php" | wc -l)
-          if [ $TOTAL_FILES -eq 2 ]; then
-            echo "✅ Correcto: Solo 2 archivos PHP encontrados"
+          # Verificar que tenemos los archivos objetivo
+          if [ -f "index.php" ] && [ -f "admin/index.php" ]; then
+            echo "✅ Archivos objetivo encontrados"
           else
-            echo "❌ Error: Se encontraron $TOTAL_FILES archivos PHP (esperados: 2)"
-            find . -name "*.php"
+            echo "❌ Archivos objetivo NO encontrados"
             exit 1
           fi
+
+          # Mostrar total de archivos (pero no fallar si hay más)
+          TOTAL_FILES=$(find . -name "*.php" | wc -l)
+          echo "📊 Total archivos PHP en el proyecto: $TOTAL_FILES"
+          echo "🎯 Solo analizamos: index.php y admin/index.php"
 
       - name: Test contenido básico
         run: |
@@ -265,64 +268,71 @@ jobs:
           php test_parse.php
 
   # ========================================
-  # BUILD SUPER SIMPLE
+  # BUILD COMPLETO DEL SISTEMA
   # ========================================
   build:
-    name: Build Simple (SOLO 2 archivos)
+    name: Build Completo del Sistema
     runs-on: ubuntu-latest
     needs: functional-tests
     if: github.event_name == 'push' || github.event_name == 'release'
 
     steps:
-      - name: Checkout código
+      - name: Checkout código completo
         uses: actions/checkout@v4
-        with:
-          sparse-checkout: |
-            index.php
-            admin/index.php
-          sparse-checkout-cone-mode: false
 
-      - name: Crear build package
+      - name: Crear build package completo
         run: |
-          echo "🏗️ CREANDO BUILD PACKAGE..."
+          echo "🏗️ CREANDO BUILD PACKAGE COMPLETO..."
 
           # Crear directorio de build
           mkdir -p build/files
 
-          # Copiar SOLO los archivos objetivo
-          cp index.php build/files/
-          mkdir -p build/files/admin
-          cp admin/index.php build/files/admin/
+          # Copiar TODO el sistema web
+          echo "📁 Copiando todo el sistema web..."
+          cp -r * build/files/ 2>/dev/null || true
+          cp -r .* build/files/ 2>/dev/null || true
+
+          # Remover archivos que no deben ir al servidor
+          echo "🧹 Limpiando archivos innecesarios..."
+          cd build/files
+          rm -rf .git .github .idea .gitignore .gitattributes .php-cs-fixer.cache 2>/dev/null || true
+          rm -rf node_modules vendor/composer vendor/autoload.php 2>/dev/null || true
 
           # Crear archivo de información
-          cat > build/files/BUILD_INFO.txt << EOF
+          cat > BUILD_INFO.txt << EOF
           Build Date: $(date)
           Build Number: ${{ github.run_number }}
           Commit: ${{ github.sha }}
 
-          Files included:
+          Sistema Web Completo Desplegado
+          - Análisis realizado en: index.php y admin/index.php
+          - Despliegue: TODO el sistema web
+
+          Archivos principales incluidos:
           - index.php
           - admin/index.php
-
-          Total files: 2
-          Workflow: Optimized for specific files only
-          No external dependencies analyzed
+          - Todos los archivos PHP del sistema
+          - Assets (CSS, JS, imágenes)
+          - Configuraciones
+          - Y todo el resto del sistema
           EOF
 
           # Verificar contenido del build
           echo "📦 Contenido del build:"
-          find build/ -type f
+          echo "📊 Total archivos: $(find . -type f | wc -l)"
+          echo "📁 Directorios principales:"
+          ls -la | head -10
 
           # Crear archivo comprimido
-          cd build
-          tar -czf files-v${{ github.run_number }}.tar.gz files/
+          cd ..
+          tar -czf sistema-completo-v${{ github.run_number }}.tar.gz files/
 
-          echo "✅ Build package creado: files-v${{ github.run_number }}.tar.gz"
+          echo "✅ Build package completo creado: sistema-completo-v${{ github.run_number }}.tar.gz"
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: files-only-v${{ github.run_number }}
+          name: sistema-completo-v${{ github.run_number }}
           path: build/
           retention-days: 7
 
@@ -339,7 +349,7 @@ jobs:
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
-          name: files-only-v${{ github.run_number }}
+          name: sistema-completo-v${{ github.run_number }}
           path: build/
 
       - name: Desplegar a FTP
@@ -353,12 +363,17 @@ jobs:
 
       - name: Verificar despliegue
         run: |
-          echo "✅ DESPLIEGUE COMPLETADO"
-          echo "📁 Archivos desplegados:"
+          echo "✅ DESPLIEGUE COMPLETO DEL SISTEMA"
+          echo "📁 Sistema web completo desplegado:"
           echo "   - index.php"
           echo "   - admin/index.php"
+          echo "   - Todos los archivos PHP del sistema"
+          echo "   - Assets (CSS, JS, imágenes)"
+          echo "   - Configuraciones y base de datos"
+          echo "   - Y todo el resto del sistema web"
           echo "🌐 Servidor: ${{ secrets.FTP_SERVER }}"
           echo "📂 Directorio: ${{ secrets.FTP_TARGET_DIR }}"
+          echo "📊 Total archivos desplegados: $(find ./build/files -type f | wc -l)"
 
   # ========================================
   # RESUMEN FINAL
@@ -375,10 +390,10 @@ jobs:
           echo "📊 RESUMEN FINAL DEL WORKFLOW OPTIMIZADO"
           echo "=================================================="
           echo ""
-          echo "🎯 ARCHIVOS ANALIZADOS:"
-          echo "   ✅ index.php"
-          echo "   ✅ admin/index.php"
-          echo "   📊 Total: 2 archivos únicamente"
+          echo "🎯 ANÁLISIS Y DESPLIEGUE:"
+          echo "   ✅ Análisis: Solo index.php y admin/index.php"
+          echo "   ✅ Despliegue: TODO el sistema web completo"
+          echo "   📊 Optimización: Análisis rápido, despliegue completo"
           echo ""
           echo "🔍 ANÁLISIS REALIZADOS:"
           echo "   ✅ Sintaxis PHP: ${{ needs.basic-analysis.result }}"
@@ -395,10 +410,10 @@ jobs:
           echo "   ✅ Análisis manual específico"
           echo ""
           echo "💡 RESULTADO:"
-          echo "   ✅ 0% de archivos no objetivo analizados"
-          echo "   ✅ 100% enfoque en archivos específicos"
-          echo "   ✅ Tiempo de ejecución mínimo"
+          echo "   ✅ Análisis rápido: Solo 2 archivos críticos"
+          echo "   ✅ Despliegue completo: Todo el sistema web"
+          echo "   ✅ Tiempo de ejecución optimizado"
           echo "   ✅ Sin falsos positivos de dependencias"
-          echo "   ✅ Despliegue automático a FTP"
+          echo "   ✅ Despliegue automático completo a FTP"
           echo ""
-          echo "🚀 ESTE WORKFLOW SOLO ANALIZA 2 ARCHIVOS Y LOS DESPLIEGA!"
+          echo "🚀 ANÁLISIS RÁPIDO + DESPLIEGUE COMPLETO DEL SISTEMA!"
