@@ -1,4 +1,4 @@
-name: 🚀 FTP Upload Solo (rápido y sin análisis)
+name: 🚀 FTP Upload Solo
 
 on:
   push:
@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: 🚀 Subir por FTP
-        uses: SamKirkland/FTP-Deploy-Action@4.3.4
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
