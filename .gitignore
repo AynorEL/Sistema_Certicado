@@ -1,2 +1,88 @@
+# ============================================
+# 🔐 Archivos de configuración sensibles
 .env
+.env.*
+config_email.php
+config_email_fix.php
+phpmailer-config.php
+search-config.php
 sftp.json
+
+# ============================================
+# 💾 Archivos de base de datos y backups
+*.sql
+*.sqlite
+*.db
+*.bak
+*.backup
+*.sh
+*.z
+
+# ============================================
+# 🐘 Archivos de dependencias de Composer
+/vendor/
+composer.lock
+
+# ============================================
+# 📦 Dependencias Node (si algún día usas)
+node_modules/
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# ============================================
+# 💻 Archivos del sistema o IDEs
+.DS_Store
+Thumbs.db
+*.log
+*.swp
+*.swo
+*.tmp
+*.bak
+*.old
+
+# VS Code
+.vscode/
+.history/
+
+# JetBrains (PHPStorm, WebStorm)
+.idea/
+
+# ============================================
+# 📁 Carpetas que pueden ser grandes o de librerías
+PHPMailer/
+fpdf186/
+admin/fontawesome-free-6.7.2-web/
+admin/fonts/
+admin/js/
+admin/css/all/
+admin/css/font-awesome.css
+admin/css/font-awesome.min1.css
+
+# ============================================
+# 🖼️ Archivos generados / temporales
+*.pdf
+*.zip
+*.rar
+*.7z
+*.tar.gz
+
+# ============================================
+# 🚀 CI/CD y scripts que no deben ir a producción
+.github/
+scripts/
+docker-compose.yml
+Dockerfile
+Jenkinsfile
+.gitlab-ci.yml
+
+# ============================================
+# 🧪 Archivos de prueba o documentación interna
+*.md
+base de datos.txt
+DOCUMENTACION_SISTEMA_CERTIFICADOS.md
+CHECKLIST_PRODUCCION.md
+CI_CD_DOCUMENTATION.md
+MEJORAS_BUSQUEDA.md
+README.md
+reporte.md

@@ -1,35 +1,35 @@
-name: 🚀 FTP Upload Solo
+# name: 🚀 FTP Upload Solo
 
-on:
-  push:
-    branches: [main, develop]
+# on:
+#   push:
+#     branches: [main, develop]
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
 
-    steps:
-      - name: 📥 Clonar repositorio
-        uses: actions/checkout@v3
+#     steps:
+#       - name: 📥 Clonar repositorio
+#         uses: actions/checkout@v3
 
-      - name: 🚀 Subir por FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: ${{ secrets.FTP_TARGET_DIR }}
-          local-dir: ./
-          dangerous-clean-slate: false
-          exclude: |
-            **/.git*
-            **/.github*
-            **/vendor/**
-            **/.env
-            **/admin/fontawesome-free-6.7.2-web/**
-            **/admin/fonts/**
-            **/admin/fpdf186/**
-            **/admin/reports/**
-            **/assets/fonts/**
-            **/PHPMailer/**
-            **/scripts/**
+#       - name: 🚀 Subir por FTP
+#         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+#         with:
+#           server: ${{ secrets.FTP_SERVER }}
+#           username: ${{ secrets.FTP_USERNAME }}
+#           password: ${{ secrets.FTP_PASSWORD }}
+#           server-dir: ${{ secrets.FTP_TARGET_DIR }}
+#           local-dir: ./
+#           dangerous-clean-slate: false
+#           exclude: |
+#             **/.git*
+#             **/.github*
+#             **/vendor/**
+#             **/.env
+#             **/admin/fontawesome-free-6.7.2-web/**
+#             **/admin/fonts/**
+#             **/admin/fpdf186/**
+#             **/admin/reports/**
+#             **/assets/fonts/**
+#             **/PHPMailer/**
+#             **/scripts/**
