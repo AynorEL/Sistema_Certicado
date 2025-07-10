@@ -12,8 +12,8 @@ jobs:
       - name: 📥 Clonar repositorio
         uses: actions/checkout@v3
 
-      - name: 🚀 Subir por FTP (exclusión rápida)
-        uses: SamKirkland/FTP-Deploy-Action@v3
+      - name: 🚀 Subir por FTP
+        uses: SamKirkland/FTP-Deploy-Action@4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
