@@ -142,18 +142,54 @@ try {
     <style>
         body {
             margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-            background: #fff;
+            padding: 20px;
+            font-family: 'Roboto', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
+        
+        .verification-wrapper {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .verification-header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .verification-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .verification-subtitle {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
         .certificado-container {
-            width: 2000px;
-            height: 1414px;
+            width: 100%;
+            max-width: 800px;
+            height: auto;
+            aspect-ratio: 1.414;
             position: relative;
             background: white;
             margin: 0 auto;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            border-radius: 8px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            border-radius: 15px;
             overflow: hidden;
         }
         .certificate-background {
@@ -184,29 +220,81 @@ try {
             pointer-events: none;
             z-index: 20;
         }
+        /* Responsive design */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .verification-header {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+            
+            .verification-title {
+                font-size: 2rem;
+            }
+            
+            .verification-subtitle {
+                font-size: 1rem;
+            }
+            
+            .certificado-container {
+                max-width: 100%;
+                border-radius: 10px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .verification-title {
+                font-size: 1.5rem;
+            }
+            
+            .verification-subtitle {
+                font-size: 0.9rem;
+            }
+            
+            .verification-header {
+                padding: 15px;
+            }
+        }
+        
         @media print {
             body {
                 background: white !important;
+                padding: 0 !important;
             }
             .no-print {
+                display: none !important;
+            }
+            .verification-header {
                 display: none !important;
             }
             .certificado-container {
                 box-shadow: none !important;
                 border-radius: 0 !important;
+                max-width: none !important;
+                width: 100% !important;
             }
         }
     </style>
 </head>
 <body>
-    <div class="no-print" style="text-align:center; margin: 20px 0;">
-        <a href="index.php" style="color: #007bff; text-decoration: none; font-size: 18px;">
+    <div class="verification-wrapper">
+        <div class="verification-header">
+            <h1 class="verification-title">✅ Certificado Verificado</h1>
+            <p class="verification-subtitle">
+                El certificado ha sido validado exitosamente en nuestro sistema
+            </p>
+            <div class="no-print" style="margin-top: 20px;">
+                <a href="index.php" style="color: #007bff; text-decoration: none; font-size: 16px; margin-right: 20px;">
             ← Volver al inicio
         </a>
         <a href="generar-certificado.php?codigo=<?php echo urlencode($datos_certificado['codigo_validacion']); ?>" 
-           style="margin-left: 30px; color: #28a745; text-decoration: none; font-size: 18px;">
+                   style="color: #28a745; text-decoration: none; font-size: 16px;">
             <i class="fa fa-download"></i> Descargar PDF
         </a>
+            </div>
     </div>
     <div class="certificado-container">
         <?php if (!empty($certificado['diseño'])): ?>
@@ -256,6 +344,7 @@ try {
                 </div>
             <?php endforeach; ?>
         <?php endif; ?>
+    </div>
     </div>
 </body>
 </html> 

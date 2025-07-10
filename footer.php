@@ -22,13 +22,13 @@ $cursos_recientes = $statement->fetchAll(PDO::FETCH_ASSOC);
         <div class="container">
             <div class="row">
                 <!-- Información de la empresa -->
-                <div class="col-lg-4 col-md-6 mb-4">
+                <div class="col-lg-4 col-md-6 col-sm-12" style="margin-bottom: 30px;">
                     <div class="footer-widget">
-                        <div class="footer-logo mb-3">
+                        <div class="footer-logo" style="margin-bottom: 20px;">
                             <?php if (file_exists('assets/uploads/' . $config['logo'])): ?>
-                                <img src="assets/uploads/<?php echo $config['logo']; ?>" alt="Logo" class="img-fluid" style="max-height: 60px;">
+                                <img src="assets/uploads/<?php echo $config['logo']; ?>" alt="Logo" class="img-responsive" style="max-height: 60px;">
                             <?php else: ?>
-                                <h4 class="text-white mb-0">Sistema de Certificados</h4>
+                                <h4 class="text-white" style="margin-bottom: 0;">Sistema de Certificados</h4>
                             <?php endif; ?>
                         </div>
                         <p class="footer-description">
@@ -55,7 +55,7 @@ $cursos_recientes = $statement->fetchAll(PDO::FETCH_ASSOC);
                 </div>
 
                 <!-- Enlaces rápidos -->
-                <div class="col-lg-2 col-md-6 mb-4">
+                <div class="col-lg-2 col-md-6 col-sm-12" style="margin-bottom: 30px;">
                     <div class="footer-widget">
                         <h5 class="widget-title">Enlaces Rápidos</h5>
                         <ul class="footer-links">
@@ -69,7 +69,7 @@ $cursos_recientes = $statement->fetchAll(PDO::FETCH_ASSOC);
                 </div>
 
                 <!-- Categorías de cursos -->
-                <div class="col-lg-2 col-md-6 mb-4">
+                <div class="col-lg-2 col-md-6 col-sm-12" style="margin-bottom: 30px;">
                     <div class="footer-widget">
                         <h5 class="widget-title">Categorías</h5>
                         <ul class="footer-links">
@@ -83,7 +83,7 @@ $cursos_recientes = $statement->fetchAll(PDO::FETCH_ASSOC);
                 </div>
 
                 <!-- Cursos recientes -->
-                <div class="col-lg-4 col-md-6 mb-4">
+                <div class="col-lg-4 col-md-6 col-sm-12" style="margin-bottom: 30px;">
                     <div class="footer-widget">
                         <h5 class="widget-title">Cursos Recientes</h5>
                         <div class="recent-courses">
@@ -113,7 +113,7 @@ $cursos_recientes = $statement->fetchAll(PDO::FETCH_ASSOC);
     <div class="footer-contact">
         <div class="container">
             <div class="row">
-                <div class="col-lg-3 col-md-6 mb-3">
+                <div class="col-lg-3 col-md-6 col-sm-12" style="margin-bottom: 20px;">
                     <div class="contact-item">
                         <div class="contact-icon">
                             <i class="fas fa-map-marker-alt"></i>
@@ -124,7 +124,7 @@ $cursos_recientes = $statement->fetchAll(PDO::FETCH_ASSOC);
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-3 col-md-6 mb-3">
+                <div class="col-lg-3 col-md-6 col-sm-12" style="margin-bottom: 20px;">
                     <div class="contact-item">
                         <div class="contact-icon">
                             <i class="fas fa-phone"></i>
@@ -135,7 +135,7 @@ $cursos_recientes = $statement->fetchAll(PDO::FETCH_ASSOC);
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-3 col-md-6 mb-3">
+                <div class="col-lg-3 col-md-6 col-sm-12" style="margin-bottom: 20px;">
                     <div class="contact-item">
                         <div class="contact-icon">
                             <i class="fas fa-envelope"></i>
@@ -146,7 +146,7 @@ $cursos_recientes = $statement->fetchAll(PDO::FETCH_ASSOC);
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-3 col-md-6 mb-3">
+                <div class="col-lg-3 col-md-6 col-sm-12" style="margin-bottom: 20px;">
                     <div class="contact-item">
                         <div class="contact-icon">
                             <i class="fas fa-clock"></i>
@@ -164,13 +164,13 @@ $cursos_recientes = $statement->fetchAll(PDO::FETCH_ASSOC);
     <!-- Footer inferior -->
     <div class="footer-bottom">
         <div class="container">
-            <div class="row align-items-center">
-                <div class="col-md-6">
+            <div class="row" style="display: flex; align-items: center;">
+                <div class="col-md-6 col-sm-12">
                     <p class="copyright">
                         <?php echo $config['pie_pagina_derechos'] ?? '&copy; ' . date('Y') . ' Sistema de Certificados. Todos los derechos reservados.'; ?>
                     </p>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-6 col-sm-12">
                     <ul class="footer-bottom-links">
                         <li><a href="#">Política de Privacidad</a></li>
                         <li><a href="#">Términos de Servicio</a></li>
@@ -185,309 +185,196 @@ $cursos_recientes = $statement->fetchAll(PDO::FETCH_ASSOC);
 <!-- Estilos CSS para el footer moderno -->
 <style>
 .footer-modern {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #1e40af 0%, #7c3aed 50%, #be185d 100%);
     color: #fff;
     position: relative;
     overflow: hidden;
+    box-shadow: 0 -4px 16px rgba(0,0,0,0.06);
+    font-size: 16px;
+    font-family: 'Roboto', Arial, sans-serif;
 }
 
-.footer-modern::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-    pointer-events: none;
+.footer-modern .footer-main {
+    padding: 40px 0 20px 0;
 }
 
-.footer-main {
-    padding: 60px 0 40px;
-    position: relative;
-    z-index: 1;
-}
-
-.footer-widget {
-    margin-bottom: 30px;
-}
-
-.footer-logo img {
-    filter: brightness(0) invert(1);
-}
-
-.footer-description {
-    color: rgba(255, 255, 255, 0.8);
-    line-height: 1.6;
-    margin-bottom: 25px;
-}
-
-.widget-title {
-    color: #fff;
-    font-size: 1.2rem;
-    font-weight: 600;
+.footer-modern .footer-widget {
     margin-bottom: 20px;
-    position: relative;
-    padding-bottom: 10px;
 }
 
-.widget-title::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 30px;
-    height: 2px;
-    background: #fff;
+.footer-modern .footer-logo img {
+    max-height: 60px;
 }
 
-.footer-links {
+.footer-modern .widget-title {
+    color: #007bff;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 18px;
+}
+
+.footer-modern .footer-links {
     list-style: none;
     padding: 0;
     margin: 0;
 }
 
-.footer-links li {
-    margin-bottom: 12px;
+.footer-modern .footer-links li {
+    margin-bottom: 10px;
 }
 
-.footer-links a {
-    color: rgba(255, 255, 255, 0.8);
+.footer-modern .footer-links a {
+    color: #222;
     text-decoration: none;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    font-size: 0.9rem;
-}
-
-.footer-links a i {
-    margin-right: 8px;
-    width: 16px;
-    text-align: center;
-}
-
-.footer-links a:hover {
-    color: #fff;
-    transform: translateX(5px);
-}
-
-.social-links {
-    display: flex;
-    gap: 15px;
-    margin-top: 20px;
-}
-
-.social-link {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
-    border-radius: 50%;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
-}
-
-.social-link:hover {
-    background: rgba(255, 255, 255, 0.2);
-    color: #fff;
-    transform: translateY(-3px);
-}
-
-.social-link.facebook:hover { background: #1877f2; }
-.social-link.twitter:hover { background: #1da1f2; }
-.social-link.linkedin:hover { background: #0077b5; }
-.social-link.instagram:hover { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
-.social-link.youtube:hover { background: #ff0000; }
-
-.recent-courses {
-    max-height: 200px;
-    overflow-y: auto;
-}
-
-.course-item {
-    padding: 12px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.course-item:last-child {
-    border-bottom: none;
-}
-
-.course-title {
-    margin: 0 0 5px 0;
-    font-size: 0.9rem;
-}
-
-.course-title a {
-    color: #fff;
-    text-decoration: none;
+    transition: color 0.2s;
     font-weight: 500;
 }
 
-.course-title a:hover {
-    color: rgba(255, 255, 255, 0.8);
+.footer-modern .footer-links a:hover {
+    color: #007bff;
+    text-decoration: underline;
 }
 
-.course-meta {
-    font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.7);
-    margin: 0;
-    display: flex;
-    gap: 15px;
-}
-
-.course-meta span {
-    display: flex;
-    align-items: center;
-}
-
-.course-meta i {
-    margin-right: 5px;
-}
-
-.footer-contact {
-    background: rgba(255, 255, 255, 0.1);
-    padding: 30px 0;
-    position: relative;
-    z-index: 1;
-    backdrop-filter: blur(10px);
-}
-
-.contact-item {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.contact-icon {
-    width: 50px;
-    height: 50px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-    color: #fff;
-}
-
-.contact-info h6 {
-    margin: 0 0 5px 0;
-    font-size: 0.9rem;
+.footer-modern .recent-courses .course-title a {
+    color: #007bff;
     font-weight: 600;
+    font-size: 15px;
+}
+
+.footer-modern .recent-courses .course-title a:hover {
+    text-decoration: underline;
+}
+
+.footer-modern .course-meta {
+    font-size: 14px;
+    color: #555;
+}
+
+.footer-modern .social-links {
+    margin-top: 18px;
+}
+
+.footer-modern .social-link {
+    display: inline-block;
+    margin-right: 10px;
+    color: #007bff;
+    font-size: 20px;
+    transition: color 0.2s;
+}
+
+.footer-modern .social-link:hover {
+    color: #0056b3;
+}
+
+.footer-modern .footer-contact {
+    background: rgba(255,255,255,0.13); /* Semitransparente para contraste sobre el degradado */
+    padding: 25px 0 10px 0;
     color: #fff;
+    font-size: 15px;
+    border-top: 1px solid rgba(255,255,255,0.12);
 }
 
-.contact-info p {
+.footer-modern .contact-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+
+.footer-modern .contact-icon {
+    color: #60a5fa; /* Azul claro para resaltar iconos */
+    font-size: 22px;
+    margin-right: 12px;
+    margin-top: 2px;
+}
+
+.footer-modern .contact-info h6 {
+    margin: 0 0 2px 0;
+    font-size: 15px;
+    color: #60a5fa;
+    font-weight: 600;
+}
+
+.footer-modern .contact-info p {
     margin: 0;
-    font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.8);
+    color: #fff;
+    font-size: 15px;
 }
 
-.footer-bottom {
-    background: rgba(0, 0, 0, 0.2);
-    padding: 20px 0;
-    position: relative;
-    z-index: 1;
+.footer-modern .footer-bottom {
+    background: #181e2a; /* Sólido oscuro para resaltar el cierre */
+    padding: 12px 0;
+    font-size: 15px;
+    color: #fff;
+    border-top: 1px solid rgba(255,255,255,0.12);
 }
 
-.copyright {
-    margin: 0;
-    font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.8);
-}
-
-.footer-bottom-links {
+.footer-modern .footer-bottom-links {
     list-style: none;
     padding: 0;
     margin: 0;
     display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
     justify-content: flex-end;
-    gap: 20px;
 }
 
-.footer-bottom-links a {
-    color: rgba(255, 255, 255, 0.8);
+.footer-modern .footer-bottom-links a {
+    color: #60a5fa;
     text-decoration: none;
-    font-size: 0.85rem;
-    transition: color 0.3s ease;
+    font-weight: 500;
+    transition: color 0.2s;
 }
 
-.footer-bottom-links a:hover {
+.footer-modern .footer-bottom-links a:hover {
+    text-decoration: underline;
     color: #fff;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-    .footer-main {
-        padding: 40px 0 20px;
+@media (max-width: 991px) {
+    .footer-modern .footer-main .row > div {
+        margin-bottom: 30px;
     }
-    
-    .footer-contact {
-        padding: 20px 0;
-    }
-    
-    .contact-item {
-        margin-bottom: 20px;
-    }
-    
-    .footer-bottom-links {
+    .footer-modern .footer-bottom-links {
         justify-content: center;
-        margin-top: 15px;
+        margin-top: 10px;
     }
-    
-    .social-links {
+}
+@media (max-width: 767px) {
+    .footer-modern .footer-main {
+        padding: 30px 0 10px 0;
+    }
+    .footer-modern .footer-bottom {
+        text-align: center;
+    }
+    .footer-modern .footer-bottom-links {
         justify-content: center;
     }
-}
-
-/* Scrollbar personalizado para cursos recientes */
-.recent-courses::-webkit-scrollbar {
-    width: 4px;
-}
-
-.recent-courses::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 2px;
-}
-
-.recent-courses::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.3);
-    border-radius: 2px;
-}
-
-.recent-courses::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.5);
 }
 </style>
 
 <!-- Scripts adicionales -->
-<script src="js/jquery-3.7.1.min.js"></script>
-<script src="js/bootstrap.min.js"></script>
-<script src="js/jquery.dataTables.min.js"></script>
-<script src="js/dataTables.bootstrap.min.js"></script>
-<script src="js/select2.full.min.js"></script>
-<script src="js/jquery.inputmask.js"></script>
-<script src="js/jquery.inputmask.date.extensions.js"></script>
-<script src="js/jquery.inputmask.extensions.js"></script>
-<script src="js/moment.min.js"></script>
-<script src="js/bootstrap-datepicker.js"></script>
-<script src="js/icheck.min.js"></script>
-<script src="js/fastclick.js"></script>
-<script src="js/jquery.sparkline.min.js"></script>
-<script src="js/jquery.slimscroll.min.js"></script>
-<script src="js/jquery.fancybox.pack.js"></script>
-<script src="js/app.min.js"></script>
-<script src="js/jscolor.js"></script>
-<script src="js/on-off-switch.js"></script>
-<script src="js/on-off-switch-onload.js"></script>
-<script src="js/clipboard.min.js"></script>
-<script src="js/demo.js"></script>
-<script src="js/summernote.js"></script>
+<script src="admin/js/jquery-2.2.4.min.js"></script>
+<script src="admin/js/bootstrap.min.js"></script>
+<script src="admin/js/jquery.dataTables.min.js"></script>
+<script src="admin/js/dataTables.bootstrap.min.js"></script>
+<script src="admin/js/select2.full.min.js"></script>
+<script src="admin/js/jquery.inputmask.js"></script>
+<script src="admin/js/jquery.inputmask.date.extensions.js"></script>
+<script src="admin/js/jquery.inputmask.extensions.js"></script>
+<script src="admin/js/moment.min.js"></script>
+<script src="admin/js/bootstrap-datepicker.js"></script>
+<script src="admin/js/icheck.min.js"></script>
+<script src="admin/js/fastclick.js"></script>
+<script src="admin/js/jquery.sparkline.min.js"></script>
+<script src="admin/js/jquery.slimscroll.min.js"></script>
+<script src="admin/js/jquery.fancybox.pack.js"></script>
+<script src="admin/js/app.min.js"></script>
+<script src="admin/js/jscolor.js"></script>
+<script src="admin/js/on-off-switch.js"></script>
+<script src="admin/js/on-off-switch-onload.js"></script>
+<script src="admin/js/clipboard.min.js"></script>
+<script src="admin/js/demo.js"></script>
+<script src="admin/js/summernote.js"></script>
 
 <script>
 	$(document).ready(function() {

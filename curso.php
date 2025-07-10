@@ -63,7 +63,9 @@ $horas_lectivas = $statement->fetchAll(PDO::FETCH_ASSOC);
     <div class="row">
       <div class="col-md-8">
         <div class="course-info">
-          <h1><?php echo htmlspecialchars($nombre_curso); ?></h1>
+          <h1 id="curso-<?php echo htmlspecialchars($_REQUEST['id']); ?>">
+            <?php echo htmlspecialchars($nombre_curso); ?>
+          </h1>
           <div class="course-meta mb-3">
             <span><i class="fa fa-clock-o"></i> Duración: <?php echo htmlspecialchars($duracion); ?> horas</span> |
             <span><i class="fa fa-calendar"></i> Estado: <?php echo htmlspecialchars($estado); ?></span> |
@@ -212,5 +214,8 @@ $(document).ready(function() {
   });
 });
 </script>
+
+<!-- Script de resaltado -->
+<script src="assets/js/search-highlight.js"></script>
 
 <?php require_once('footer.php'); ?>

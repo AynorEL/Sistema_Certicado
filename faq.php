@@ -26,7 +26,7 @@ $preguntas_frecuentes = $statement->fetchAll(PDO::FETCH_ASSOC);
             <div class="col-lg-8">
                 <div class="accordion" id="faqAccordion">
                     <?php foreach($preguntas_frecuentes as $key => $faq): ?>
-                    <div class="accordion-item">
+                    <div class="accordion-item" id="faq-<?php echo $faq['id']; ?>">
                         <h2 class="accordion-header" id="heading<?php echo $faq['id']; ?>">
                             <button class="accordion-button <?php echo $key == 0 ? '' : 'collapsed'; ?>" 
                                     type="button" 
@@ -52,6 +52,9 @@ $preguntas_frecuentes = $statement->fetchAll(PDO::FETCH_ASSOC);
         </div>
     </div>
 </section>
+
+<!-- Script de resaltado -->
+<script src="assets/js/search-highlight.js"></script>
 
 <!-- Styles -->
 <style>

@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['form1'])) {
 
 <?php require_once('header.php'); ?>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="admin/js/jquery-2.2.4.min.js"></script>
 
 <div class="container py-5">
     <div class="row justify-content-center">

@@ -4,5 +4,8 @@
         "vlucas/phpdotenv": "^5.6",
         "phpmailer/phpmailer": "^6.10",
         "endroid/qr-code": "^6.0"
+    },
+    "require-dev": {
+        "squizlabs/php_codesniffer": "^3.13"
     }
 }

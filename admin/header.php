@@ -8,6 +8,20 @@ $csrf = new CSRF_Protect();
 $error_message = '';
 $success_message = '';
 
+// Obtener configuraciones del sitio
+$statement = $pdo->prepare("SELECT * FROM configuraciones WHERE id=1");
+$statement->execute();
+$result = $statement->fetchAll(PDO::FETCH_ASSOC);
+foreach ($result as $row) {
+    $logo = $row['logo'] ?? '';
+    $favicon = $row['favicon'] ?? '';
+    $whatsapp_numero = $row['whatsapp_numero'] ?? '51999999999';
+    $whatsapp_mensaje = $row['whatsapp_mensaje'] ?? 'Hola, me interesa saber más sobre sus cursos';
+}
+
+// Generar enlace de WhatsApp
+$whatsapp_link = "https://wa.me/{$whatsapp_numero}?text=" . urlencode($whatsapp_mensaje);
+
 // Check if the user is logged in
 if (!isset($_SESSION['user']) || !isset($_SESSION['user']['id_usuario'])) {
     header('location: login.php');
@@ -44,10 +58,25 @@ $userRole = isset($current_user['rol']) ? htmlspecialchars($current_user['rol'])
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Administración</title>
     
-    <link rel="stylesheet" href="css/style.css">          
-    <!-- jQuery 2.2.4 (Local) -->
-    <script src="js/jquery-2.2.4.min.js"></script>
+    <!-- Favicon dinámico -->
+    <?php if (!empty($favicon)): ?>
+    <link rel="icon" type="image/x-icon" href="../assets/uploads/<?php echo $favicon; ?>">
+    <link rel="shortcut icon" type="image/x-icon" href="../assets/uploads/<?php echo $favicon; ?>">
+    <?php endif; ?>
+    
+    <!-- Local CSS Assets -->
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/datepicker3.css">
+    <link rel="stylesheet" href="assets/css/select2.min.css">
+    <link rel="stylesheet" href="assets/css/dataTables.bootstrap.css">
+    <link rel="stylesheet" href="assets/css/jquery.fancybox.css">
+    <link rel="stylesheet" href="assets/css/on-off-switch.css">
+    <link rel="stylesheet" href="assets/css/summernote.css">
+    
+    <!-- Local JavaScript Assets -->
+    <script src="assets/js/jquery-2.2.4.min.js"></script>
 
+    <!-- External CDN Resources -->
     <!-- Bootstrap CSS + JS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
@@ -64,24 +93,12 @@ $userRole = isset($current_user['rol']) ? htmlspecialchars($current_user['rol'])
     <!-- FontAwesome 6.7.2 -->
     <link rel="stylesheet" href="fontawesome-free-6.7.2-web/css/all.min.css">
 
-  
-
-    <!-- AdminLTE JS -->
+    <!-- AdminLTE CSS + JS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/2.4.18/css/AdminLTE.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/2.4.18/css/skins/_all-skins.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/2.4.18/js/adminlte.min.js"></script>
 
-    <!-- CSS locales adicionales -->
-    <link rel="stylesheet" href="css/datepicker3.css">
-    <link rel="stylesheet" href="css/select2.min.css">
-    <link rel="stylesheet" href="css/dataTables.bootstrap.css">
-    <link rel="stylesheet" href="css/jquery.fancybox.css">
-    <link rel="stylesheet" href="css/on-off-switch.css">
-    <link rel="stylesheet" href="css/summernote.css">
-  <!-- AdminLTE CSS -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/2.4.18/css/AdminLTE.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/2.4.18/css/skins/_all-skins.min.css">
-   
-
-    <!-- JS personalizado -->
+    <!-- Custom JavaScript -->
     <script>
         $(document).ready(function () {
             // Inicializar el menú desplegable
@@ -98,7 +115,6 @@ $userRole = isset($current_user['rol']) ? htmlspecialchars($current_user['rol'])
         });
     </script>
 </head>
-
 
 <body class="hold-transition fixed skin-blue sidebar-mini">
 
@@ -155,7 +171,6 @@ $userRole = isset($current_user['rol']) ? htmlspecialchars($current_user['rol'])
 
             </nav>
         </header>
-
 
         <?php $cur_page = substr($_SERVER["SCRIPT_NAME"], strrpos($_SERVER["SCRIPT_NAME"], "/") + 1); ?>
         <!-- Side Bar to Manage Shop Activities -->
@@ -282,6 +297,5 @@ $userRole = isset($current_user['rol']) ? htmlspecialchars($current_user['rol'])
                 </ul>
             </section>
         </aside>
-
 
         <div class="content-wrapper">

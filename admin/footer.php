@@ -2,6 +2,76 @@
 
 </div>
 
+<!-- Botón flotante de WhatsApp -->
+<div class="whatsapp-float">
+    <a href="<?php echo $whatsapp_link; ?>" target="_blank" class="whatsapp-btn">
+        <i class="fa fa-whatsapp"></i>
+    </a>
+</div>
+
+<style>
+.whatsapp-float {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.whatsapp-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    background-color: #25d366;
+    color: white;
+    border-radius: 50%;
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
+    transition: all 0.3s ease;
+}
+
+.whatsapp-btn:hover {
+    background-color: #128c7e;
+    transform: scale(1.1);
+    color: white;
+    text-decoration: none;
+}
+
+.whatsapp-btn i {
+    font-size: 30px;
+}
+</style>
+
+<script>
+// Detectar modo del navegador y actualizar favicon dinámicamente
+function updateFavicon() {
+    const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const favicon = '<?php echo $favicon; ?>';
+    
+    if (favicon) {
+        const faviconLink = document.querySelector('link[rel="icon"]');
+        const shortcutLink = document.querySelector('link[rel="shortcut icon"]');
+        const faviconPath = '../assets/uploads/' + favicon;
+        
+        if (faviconLink) {
+            faviconLink.href = faviconPath;
+        }
+        if (shortcutLink) {
+            shortcutLink.href = faviconPath;
+        }
+    }
+}
+
+// Ejecutar al cargar la página
+document.addEventListener('DOMContentLoaded', updateFavicon);
+
+// Escuchar cambios en el modo del navegador
+if (window.matchMedia) {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateFavicon);
+}
+</script>
+
 <!-- Bootstrap 3.4.1 -->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>

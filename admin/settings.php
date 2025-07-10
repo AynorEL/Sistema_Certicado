@@ -102,6 +102,8 @@ if (isset($_POST['form3'])) {
         direccion_contacto=?,
         correo_contacto=?,
         telefono_contacto=?,
+        whatsapp_numero=?,
+        whatsapp_mensaje=?,
         fax_contacto=?,
         mapa_contacto=?,
         boletin_activo=?
@@ -112,6 +114,8 @@ if (isset($_POST['form3'])) {
         $_POST['direccion_contacto'],
         $_POST['correo_contacto'],
         $_POST['telefono_contacto'],
+        $_POST['whatsapp_numero'],
+        $_POST['whatsapp_mensaje'],
         $_POST['fax_contacto'],
         $_POST['mapa_contacto'],
         $_POST['boletin_activo']
@@ -269,6 +273,20 @@ if (isset($_POST['form4'])) {
                                         <label for="" class="col-sm-2 control-label">Teléfono de Contacto</label>
                                         <div class="col-sm-6">
                                             <input type="text" class="form-control" name="telefono_contacto" value="<?php echo $row['telefono_contacto']; ?>">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="" class="col-sm-2 control-label">WhatsApp</label>
+                                        <div class="col-sm-6">
+                                            <input type="text" class="form-control" name="whatsapp_numero" value="<?php echo $row['whatsapp_numero'] ?? '51999999999'; ?>" placeholder="Ej: 51999999999">
+                                            <small class="text-muted">Solo números, incluir código de país</small>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="" class="col-sm-2 control-label">Mensaje de WhatsApp</label>
+                                        <div class="col-sm-6">
+                                            <textarea class="form-control" name="whatsapp_mensaje" style="height:80px;" placeholder="Mensaje predeterminado para WhatsApp"><?php echo $row['whatsapp_mensaje'] ?? 'Hola, me interesa saber más sobre sus cursos'; ?></textarea>
+                                            <small class="text-muted">Este mensaje aparecerá automáticamente cuando los usuarios hagan clic en WhatsApp</small>
                                         </div>
                                     </div>
                                     <div class="form-group">
