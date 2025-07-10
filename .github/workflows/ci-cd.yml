@@ -1,49 +1,37 @@
-name: FTP Deploy - Solo PHP Modificados
+name: Subir solo archivos PHP modificados por FTP
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
+
+env:
+  FTP_SERVER: ${{ secrets.FTP_SERVER }}
+  FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+  FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+  FTP_TARGET_DIR: ${{ secrets.FTP_TARGET_DIR }}
 
 jobs:
-  deploy-php-changes:
-    name: Subir solo archivos PHP modificados por FTP
+  deploy-php-only:
+    name: Desplegar solo archivos PHP por FTP
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout del repositorio
         uses: actions/checkout@v4
 
-      - name: Obtener archivos PHP modificados
-        id: get_changes
+      - name: Mostrar archivos PHP a subir
         run: |
-          echo "📂 Obteniendo archivos PHP modificados..."
-          git fetch origin main --depth=2
-          ARCHIVOS=$(git diff --name-only HEAD~1 HEAD | grep '\.php$' || true)
-          echo "MODIFICADOS<<EOF" >> $GITHUB_ENV
-          echo "$ARCHIVOS" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
-          echo "$ARCHIVOS"
+          echo "📝 Archivos PHP detectados:"
+          find . -type f -name "*.php"
 
-      - name: Mostrar archivos detectados
-        run: |
-          echo "📝 Archivos PHP modificados:"
-          echo "${{ env.MODIFICADOS }}"
-
-      - name: Subir archivos modificados por FTP
-        if: env.MODIFICADOS != ''
+      - name: Desplegar solo archivos PHP por FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./
-          server-dir: ${{ secrets.FTP_TARGET_DIR }}
+          server: ${{ env.FTP_SERVER }}
+          username: ${{ env.FTP_USERNAME }}
+          password: ${{ env.FTP_PASSWORD }}
+          server-dir: ${{ env.FTP_TARGET_DIR }}
+          local-dir: ./  # Carpeta raíz del proyecto
           exclude: |
-            **/*
-          include: |
-            ${{ env.MODIFICADOS }}
-
-      - name: Finalización
-        if: env.MODIFICADOS == ''
-        run: echo "✅ No hay archivos PHP modificados. No se despliega nada."
+            **
+            !*.php
