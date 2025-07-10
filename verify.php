@@ -19,6 +19,7 @@ if ((!isset($_REQUEST['email'])) || (isset($_REQUEST['token']))) {
             exit;
         }
     }
+    
     // Todo está correcto. Ahora activa al usuario eliminando el valor del token de la base de datos.
     if ($var != 0) {
         $statement = $pdo->prepare("UPDATE cliente SET token=?, estado=? WHERE email=?");
