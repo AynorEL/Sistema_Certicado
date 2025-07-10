@@ -13,6 +13,9 @@ $categorias = $statement->fetchAll(PDO::FETCH_ASSOC);
 $statement = $pdo->prepare("SELECT * FROM curso WHERE estado = 'Activo' ORDER BY idcurso DESC LIMIT 4");
 $statement->execute();
 $cursos_recientes = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+// Detectar si estamos en admin
+$is_admin = strpos($_SERVER['SCRIPT_NAME'], '/admin/') !== false;
 ?>
 
 <!-- Footer Moderno -->
@@ -34,23 +37,26 @@ $cursos_recientes = $statement->fetchAll(PDO::FETCH_ASSOC);
                         <p class="footer-description">
                             <?php echo $config['pie_pagina_descripcion'] ?? 'Plataforma especializada en la emisión y gestión de certificados profesionales. Ofrecemos soluciones digitales para validar y verificar la autenticidad de tus logros académicos.'; ?>
                         </p>
-                        <div class="social-links">
-                            <a href="#" class="social-link facebook">
-                                <i class="fab fa-facebook-f"></i>
-                            </a>
-                            <a href="#" class="social-link twitter">
-                                <i class="fab fa-twitter"></i>
-                            </a>
-                            <a href="#" class="social-link linkedin">
-                                <i class="fab fa-linkedin-in"></i>
-                            </a>
-                            <a href="#" class="social-link instagram">
-                                <i class="fab fa-instagram"></i>
-                            </a>
-                            <a href="#" class="social-link youtube">
-                                <i class="fab fa-youtube"></i>
-                            </a>
-                        </div>
+                        <?php if (!$is_admin && isset($redes_sociales) && is_array($redes_sociales)):
+                            $hay_redes = false;
+                            foreach ($redes_sociales as $red) {
+                                if (!empty($red['url_red'])) {
+                                    $hay_redes = true;
+                                    break;
+                                }
+                            }
+                            if ($hay_redes): ?>
+                            <div class="social-links">
+                                <?php foreach ($redes_sociales as $red): ?>
+                                    <?php if (!empty($red['url_red'])): ?>
+                                        <a href="<?php echo $red['url_red']; ?>" class="social-link <?php echo $red['nombre_red']; ?>" target="_blank">
+                                            <i class="<?php echo $red['icono_red']; ?>"></i>
+                                        </a>
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
+                            </div>
+                            <?php endif; ?>
+                        <?php endif; ?>
                     </div>
                 </div>
 
@@ -349,6 +355,29 @@ $cursos_recientes = $statement->fetchAll(PDO::FETCH_ASSOC);
     .footer-modern .footer-bottom-links {
         justify-content: center;
     }
+}
+
+.whatsapp-float {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: #25d366;
+    color: #fff;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2rem;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+    z-index: 9999;
+    transition: background 0.2s;
+    text-decoration: none;
+}
+.whatsapp-float:hover {
+    background: #128c7e;
+    color: #fff;
 }
 </style>
 
@@ -699,6 +728,13 @@ $cursos_recientes = $statement->fetchAll(PDO::FETCH_ASSOC);
 		}
 	};
 </script>
+
+<!-- Botón flotante de WhatsApp -->
+<?php if (!$is_admin && isset($whatsapp_link) && !empty($whatsapp_link)): ?>
+    <a href="<?php echo $whatsapp_link; ?>" class="whatsapp-float" target="_blank" title="Contáctanos por WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+<?php endif; ?>
 
 </body>
 </html>

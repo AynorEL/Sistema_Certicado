@@ -45,6 +45,8 @@ if ($clienteId && isset($_SESSION['carritos'][$clienteId])) {
     $cart_count = count($_SESSION['carritos'][$clienteId]);
 }
 
+// Detectar si estamos en admin
+$is_admin = strpos($_SERVER['SCRIPT_NAME'], '/admin/') !== false;
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -802,17 +804,28 @@ if ($clienteId && isset($_SESSION['carritos'][$clienteId])) {
 				</div>
 				<div class="col-md-6">
 					<div class="right">
-						<ul>
-							<?php foreach($redes_sociales as $red): ?>
-								<?php if(!empty($red['url_red'])): ?>
-									<li>
-										<a href="<?php echo $red['url_red']; ?>" target="_blank">
-											<i class="<?php echo $red['icono_red']; ?>"></i>
-										</a>
-									</li>
-								<?php endif; ?>
-							<?php endforeach; ?>
-						</ul>
+						<?php if (!$is_admin && isset($redes_sociales) && is_array($redes_sociales)):
+							$hay_redes = false;
+							foreach ($redes_sociales as $red) {
+								if (!empty($red['url_red'])) {
+									$hay_redes = true;
+									break;
+								}
+							}
+							if ($hay_redes): ?>
+							<ul>
+								<?php foreach ($redes_sociales as $red): ?>
+									<?php if (!empty($red['url_red'])): ?>
+										<li>
+											<a href="<?php echo $red['url_red']; ?>" target="_blank">
+												<i class="<?php echo $red['icono_red']; ?>"></i>
+											</a>
+										</li>
+									<?php endif; ?>
+								<?php endforeach; ?>
+							</ul>
+							<?php endif; ?>
+						<?php endif; ?>
 					</div>
 				</div>
 			</div>
@@ -1563,3 +1576,8 @@ if ($clienteId && isset($_SESSION['carritos'][$clienteId])) {
 	
 	<!-- Estilos de búsqueda -->
 	<link rel="stylesheet" href="assets/css/search-results.css">
+
+	<!-- Botón flotante de WhatsApp -->
+	<?php if (!$is_admin && isset($whatsapp_link) && !empty($whatsapp_link)): ?>
+	<!-- Aquí va el botón flotante de WhatsApp -->
+	<?php endif; ?>

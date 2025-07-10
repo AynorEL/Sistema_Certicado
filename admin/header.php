@@ -65,16 +65,15 @@ $userRole = isset($current_user['rol']) ? htmlspecialchars($current_user['rol'])
     <?php endif; ?>
     
     <!-- Local CSS Assets -->
-    <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="stylesheet" href="assets/css/datepicker3.css">
-    <link rel="stylesheet" href="assets/css/select2.min.css">
-    <link rel="stylesheet" href="assets/css/dataTables.bootstrap.css">
-    <link rel="stylesheet" href="assets/css/jquery.fancybox.css">
-    <link rel="stylesheet" href="assets/css/on-off-switch.css">
-    <link rel="stylesheet" href="assets/css/summernote.css">
-    
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/select2.min.css">
+    <link rel="stylesheet" href="../admin/css/dataTables.bootstrap.css">
+    <link rel="stylesheet" href="../admin/css/jquery.fancybox.css">
+    <link rel="stylesheet" href="../admin/css/on-off-switch.css">
+    <link rel="stylesheet" href="../admin/css/summernote.css">
+
     <!-- Local JavaScript Assets -->
-    <script src="assets/js/jquery-2.2.4.min.js"></script>
+    <script src="../assets/js/jquery-2.2.4.min.js"></script>
 
     <!-- External CDN Resources -->
     <!-- Bootstrap CSS + JS -->
@@ -90,7 +89,7 @@ $userRole = isset($current_user['rol']) ? htmlspecialchars($current_user['rol'])
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-    <!-- FontAwesome 6.7.2 -->
+    <!-- FontAwesome -->
     <link rel="stylesheet" href="fontawesome-free-6.7.2-web/css/all.min.css">
 
     <!-- AdminLTE CSS + JS -->
@@ -101,10 +100,8 @@ $userRole = isset($current_user['rol']) ? htmlspecialchars($current_user['rol'])
     <!-- Custom JavaScript -->
     <script>
         $(document).ready(function () {
-            // Inicializar el menú desplegable
             $('.dropdown-toggle').dropdown();
 
-            // Desplegar con animación
             $('.dropdown').on('show.bs.dropdown', function () {
                 $(this).find('.dropdown-menu').first().stop(true, true).slideDown(200);
             });
@@ -115,6 +112,7 @@ $userRole = isset($current_user['rol']) ? htmlspecialchars($current_user['rol'])
         });
     </script>
 </head>
+
 
 <body class="hold-transition fixed skin-blue sidebar-mini">
 
@@ -249,7 +247,7 @@ $userRole = isset($current_user['rol']) ? htmlspecialchars($current_user['rol'])
                     </li>
 
                     <li class="<?php if($cur_page == 'inscripcion.php') { echo 'active'; } ?>">
-                        <a href="inscripcion.php"><i class="fa fa-check-square-o"></i> Inscripciones</a>
+                        <a href="inscripcion.php"><i class="fas fa-user-check"></i> Inscripciones</a>
                     </li>
 
                     <li class="treeview <?php if(in_array($cur_page, ['aprobar_alumno.php', 'certificados_generados.php', 'previsualizar_certificado_final.php', 'gestionar_certificados.php'])) { echo 'active'; } ?>">
@@ -261,12 +259,6 @@ $userRole = isset($current_user['rol']) ? htmlspecialchars($current_user['rol'])
                             <li class="<?php if($cur_page == 'aprobar_alumno.php') { echo 'active'; } ?>">
                                 <a href="aprobar_alumno.php"><i class="fa fa-user-check"></i> Aprobar Alumnos</a>
                             </li>
-                            <li class="<?php if($cur_page == 'certificados_generados.php') { echo 'active'; } ?>">
-                                <a href="certificados_generados.php"><i class="fa fa-list"></i> Certificados Generados</a>
-                            </li>
-                            <li class="<?php if($cur_page == 'previsualizar_certificado_final.php') { echo 'active'; } ?>">
-                                <a href="previsualizar_certificado_final.php"><i class="fa fa-eye"></i> Previsualizar</a>
-                            </li>
                             <li class="<?php if($cur_page == 'gestionar_certificados.php') { echo 'active'; } ?>">
                                 <a href="gestionar_certificados.php"><i class="fa fa-cog"></i> Configurar Certificados</a>
                             </li>
@@ -274,7 +266,7 @@ $userRole = isset($current_user['rol']) ? htmlspecialchars($current_user['rol'])
                     </li>
 
                     <li class="<?php if($cur_page == 'pago.php') { echo 'active'; } ?>">
-                        <a href="pago.php"><i class="fa fa-money"></i> Pagos</a>
+                        <a href="pago.php"><i class="fas fa-credit-card"></i> Pagos</a>
                     </li>
 
                     <li class="<?php if($cur_page == 'slider.php') { echo 'active'; } ?>">
