@@ -507,8 +507,6 @@ require_once('header.php');
     <script>
 function previsualizarCertificadoDesdeBoton(idcurso, idalumno) {
   const previewWindow = window.open('', '_blank', 'width=900,height=600,scrollbars=yes');
-
-  // Contenido inicial mientras carga
   previewWindow.document.write(`
     <!DOCTYPE html>
     <html>
@@ -524,9 +522,7 @@ function previsualizarCertificadoDesdeBoton(idcurso, idalumno) {
     </body>
     </html>
   `);
-
-  // Cargar el certificado desde PHP dinámicamente
-  fetch(`previsualizar_certificado.php?idcurso=${idcurso}&idalumno=${idalumno}`)
+  fetch(`previsualizar_certificado_final.php?idcurso=${idcurso}&idalumno=${idalumno}&modo=preview`)
     .then(response => response.text())
     .then(html => {
       previewWindow.document.open();

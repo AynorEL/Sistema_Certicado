@@ -40,6 +40,7 @@ $codigo_validacion = '';
 $nombre_archivo_qr = '';
 $nota_final = '';
 $fecha_aprobacion = '';
+$qr_base64 = null;
 
 // Obtener datos reales de la base de datos
 try {
@@ -75,22 +76,17 @@ try {
         $nombre_archivo_qr = $certificado_existente['codigo_qr'];
         $nota_final = $inscripcion['nota_final'] ?? '';
         $fecha_aprobacion = $inscripcion['fecha_aprobacion'] ? date('d/m/Y', strtotime($inscripcion['fecha_aprobacion'])) : date('d/m/Y');
-        
+        $qr_base64 = null;
     } elseif ($modo === 'final' && !$certificado_existente) {
         // MODO FINAL pero no existe certificado
         die('Error: No se encontró un certificado generado para este alumno y curso.');
-        
     } else {
         // MODO PREVIEW: Generar datos de prueba
         $codigo_validacion = 'PREVIEW-' . $idcurso . '-' . $idalumno . '-' . date('YmdHis');
         $nombre_archivo_qr = $codigo_validacion . '.png';
         $nota_final = '85'; // Nota de ejemplo
         $fecha_aprobacion = date('d/m/Y');
-        
-        // Generar QR para previsualización usando la configuración guardada
-        $url_validacion = "https://" . $_SERVER['HTTP_HOST'] . "/certificado/verificar-certificado.php?codigo=" . $codigo_validacion;
-        
-        // Obtener configuración del QR del curso
+        // Generar QR para previsualización usando un texto fijo
         $qr_config = $config['qr_config'] ?? [
             'size' => 300,
             'color' => '#000000',
@@ -98,10 +94,8 @@ try {
             'margin' => 0,
             'logoEnabled' => false
         ];
-        
-        // Generar QR con configuración personalizada (versión 6)
         $qrCode = new QrCode(
-            $url_validacion,
+            'PREVISUALIZACION', // Texto fijo para QR de previsualización
             new Encoding('UTF-8'),
             ErrorCorrectionLevel::High,
             $qr_config['size'],
@@ -118,13 +112,10 @@ try {
                 hexdec(substr($qr_config['bgColor'], 5, 2))
             )
         );
-        
         $writer = new PngWriter();
         $result = $writer->write($qrCode);
-        
-        // Guardar QR temporal para previsualización
-        $ruta_qr = __DIR__ . '/img/qr/' . $nombre_archivo_qr;
-        $result->saveToFile($ruta_qr);
+        // Generar QR en base64 (no guardar archivo)
+        $qr_base64 = $result->getDataUri();
     }
     
     // Obtener instructor del curso específico
@@ -159,26 +150,6 @@ try {
     // Si hay error, usar datos por defecto
     $firmaInstructor = '../assets/img/qr_placeholder.png';
     $firmaEspecialista = '../assets/img/qr_placeholder.png';
-}
-
-// Solo usar datos de prueba en modo preview, no en modo final
-if ($modo === 'preview' && $config && isset($config['campos'])) {
-    foreach ($config['campos'] as $campo) {
-        switch ($campo['tipo']) {
-            case 'alumno':
-                $alumno = $campo['texto'] ?? $alumno;
-                break;
-            case 'fecha':
-                $fecha = $campo['texto'] ?? $fecha;
-                break;
-            case 'instructor':
-                $instructor = $campo['texto'] ?? $instructor;
-                break;
-            case 'especialista':
-                $especialista = $campo['texto'] ?? $especialista;
-                break;
-        }
-    }
 }
 
 // Si se solicita el PDF directamente (?pdf=1 en la URL)
@@ -367,6 +338,7 @@ if (isset($_GET['pdf']) && $_GET['pdf'] == '1' && isset($_GET['idcurso']) && iss
 </head>
 <body>
     
+    <?php if ($modo !== 'preview'): ?>
     <div class="controls">
         <button class="btn" onclick="window.print()">
             <i class="fa fa-print"></i> Imprimir
@@ -374,11 +346,6 @@ if (isset($_GET['pdf']) && $_GET['pdf'] == '1' && isset($_GET['idcurso']) && iss
         <button class="btn btn-success" onclick="window.close()">
             <i class="fa fa-times"></i> Cerrar
         </button>
-        <?php if ($modo === 'preview'): ?>
-        <button class="btn btn-warning" onclick="window.location.href='editor_certificado.php?idcurso=<?php echo $idcurso; ?>'">
-            <i class="fa fa-edit"></i> Editar Diseño
-        </button>
-        <?php else: ?>
         <?php 
         $protocolo = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https" : "http";
         $host = $_SERVER['HTTP_HOST'];
@@ -393,21 +360,7 @@ if (isset($_GET['pdf']) && $_GET['pdf'] == '1' && isset($_GET['idcurso']) && iss
         <button class="btn btn-primary" onclick="window.location.href='aprobar_alumno.php'">
             <i class="fa fa-list"></i> Volver a Lista
         </button>
-        <?php endif; ?>
     </div>
-    
-    
-    <?php if ($modo === 'preview'): ?>
-    <div class="qr-info">
-        <h3>🔍 Información del QR de Previsualización</h3>
-        <p><strong>Alumno:</strong> <?php echo htmlspecialchars($alumno); ?></p>
-        <p><strong>Código de Validación:</strong></p>
-        <div class="qr-code"><?php echo htmlspecialchars($codigo_validacion); ?></div>
-        <p><strong>URL de Verificación:</strong></p>
-        <div class="qr-code">https://<?php echo $_SERVER['HTTP_HOST']; ?>/certificado/verificar-certificado.php?codigo=<?php echo urlencode($codigo_validacion); ?></div>
-        <p><em>Este QR es específico para la previsualización. Al generar el certificado real, se creará un QR único.</em></p>
-    </div>
-    <?php else: ?>
     <div class="qr-info" style="background: #d4edda; border-color: #c3e6cb;">
         <h3>🏆 Certificado Final Generado</h3>
         <p><strong>Alumno:</strong> <?php echo htmlspecialchars($alumno); ?></p>
@@ -451,7 +404,6 @@ if (isset($_GET['pdf']) && $_GET['pdf'] == '1' && isset($_GET['idcurso']) && iss
                         <img src="<?php echo $firmaEspecialista; ?>" alt="Firma Especialista" style="max-width: 120px; max-height: 60px; object-fit: contain;">
                     <?php elseif ($campo['tipo'] === 'qr'): ?>
                         <?php 
-                        // Obtener configuración del QR
                         $qr_config = $config['qr_config'] ?? [
                             'size' => 300,
                             'color' => '#000000',
@@ -462,7 +414,11 @@ if (isset($_GET['pdf']) && $_GET['pdf'] == '1' && isset($_GET['idcurso']) && iss
                         $qr_size = $qr_config['size'];
                         ?>
                         <div style="position: relative; width: <?php echo $qr_size; ?>px; height: <?php echo $qr_size; ?>px;">
-                            <img src="img/qr/<?php echo htmlspecialchars($nombre_archivo_qr); ?>" alt="QR" style="width: 100%; height: 100%; object-fit: contain;">
+                            <?php if ($modo === 'preview' && isset($qr_base64)): ?>
+                                <img src="<?php echo $qr_base64; ?>" alt="QR" style="width: 100%; height: 100%; object-fit: contain;">
+                            <?php else: ?>
+                                <img src="img/qr/<?php echo htmlspecialchars($nombre_archivo_qr); ?>" alt="QR" style="width: 100%; height: 100%; object-fit: contain;">
+                            <?php endif; ?>
                             <?php if ($qr_config['logoEnabled'] && file_exists(__DIR__ . '/img/logo.png')): ?>
                                 <img src="img/logo.png" alt="Logo" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: <?php echo $qr_size * 0.2; ?>px; pointer-events: none; z-index: 10;">
                             <?php endif; ?>
