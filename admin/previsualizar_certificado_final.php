@@ -626,3 +626,4 @@ El equipo de certificación</textarea>
     </script>
 </body>
 </html>
+<?php include('footer.php'); ?>

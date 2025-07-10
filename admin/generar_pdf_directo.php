@@ -277,4 +277,5 @@ if (isset($_GET['idcliente']) && isset($_GET['idcurso'])) {
         echo 'Error generando PDF: ' . $e->getMessage();
     }
 }
-?> 
+?>
+<?php include('footer.php'); ?> 

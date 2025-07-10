@@ -398,4 +398,6 @@ window.addEventListener('DOMContentLoaded', function() {
 </script>
 
 </body>
+
 </html> 
+<?php include('footer.php'); ?> 

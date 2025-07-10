@@ -123,7 +123,7 @@ $userRole = isset($current_user['rol']) ? htmlspecialchars($current_user['rol'])
             <div class="logo">
                 <a href="index.php" class="logo">
                     <span class="logo-mini"><b>S</b>C</span>
-                    <span class="logo-lg"><b>Sistema de Certificados</b></span>
+                    <span class="logo-lg"><b>SM</b></span>
                 </a>
             </div>
 
@@ -181,7 +181,7 @@ $userRole = isset($current_user['rol']) ? htmlspecialchars($current_user['rol'])
                                             echo 'active';
                                         } ?>">
                         <a href="index.php">
-                            <i class="fa fa-hand-o-right"></i> <span>Panel de Control</span>
+                            <i class="fas fa-tachometer-alt"></i> <span>Panel de Control</span>
                         </a>
                     </li>
 
@@ -189,7 +189,7 @@ $userRole = isset($current_user['rol']) ? htmlspecialchars($current_user['rol'])
                                             echo 'active';
                                         } ?>">
                         <a href="settings.php">
-                            <i class="fa fa-hand-o-right"></i> <span>Ajustes del Sitio Web</span>
+                            <i class="fas fa-cogs"></i> <span>Ajustes del Sitio Web</span>
                         </a>
                     </li>
 
