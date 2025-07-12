@@ -27,39 +27,52 @@ require_once 'header.php';
 
 try {
     // Consulta para contar las Categorías
-    $stmt = $pdo->prepare("SELECT COUNT(*) AS total FROM categoria");
+    $stmt = $pdo->prepare("SELECT COALESCE(COUNT(*), 0) AS total FROM categoria");
     $stmt->execute();
-    $total_categorias = $stmt->fetch()['total'];
+    $total_categorias = (int)$stmt->fetch()['total'];
 
     // Consulta para contar los Cursos
-    $stmt = $pdo->prepare("SELECT COUNT(*) AS total FROM curso");
+    $stmt = $pdo->prepare("SELECT COALESCE(COUNT(*), 0) AS total FROM curso");
     $stmt->execute();
-    $total_productos = $stmt->fetch()['total'];
+    $total_cursos = (int)$stmt->fetch()['total'];
 
     // Consulta para contar los Clientes
-    $stmt = $pdo->prepare("SELECT COUNT(*) AS total FROM cliente");
+    $stmt = $pdo->prepare("SELECT COALESCE(COUNT(*), 0) AS total FROM cliente");
     $stmt->execute();
-    $total_clientes = $stmt->fetch()['total'];
+    $total_clientes = (int)$stmt->fetch()['total'];
 
-    // Consulta para contar las Inscripciones Completadas
-    $stmt = $pdo->prepare("SELECT COUNT(*) AS total FROM inscripcion WHERE estado = 'Activo'");
+    // Consulta para contar las Inscripciones por Estado
+    $stmt = $pdo->prepare("SELECT 
+        COALESCE(SUM(CASE WHEN estado = 'Activo' THEN 1 ELSE 0 END), 0) as activas,
+        COALESCE(SUM(CASE WHEN estado = 'Pendiente' THEN 1 ELSE 0 END), 0) as pendientes,
+        COALESCE(COUNT(*), 0) as total
+        FROM inscripcion");
     $stmt->execute();
-    $total_ordenes_completadas = $stmt->fetch()['total'];
-
-    // Consulta para contar las Inscripciones Pendientes
-    $stmt = $pdo->prepare("SELECT COUNT(*) AS total FROM inscripcion WHERE estado = 'Pendiente'");
-    $stmt->execute();
-    $total_ordenes_pendientes = $stmt->fetch()['total'];
+    $inscripciones = $stmt->fetch();
+    $total_inscripciones_activas = (int)$inscripciones['activas'];
+    $total_inscripciones_pendientes = (int)$inscripciones['pendientes'];
+    $total_inscripciones = (int)$inscripciones['total'];
 
     // Consulta para contar los Certificados Generados
-    $stmt = $pdo->prepare("SELECT COUNT(*) AS total FROM certificado_generado");
+    $stmt = $pdo->prepare("SELECT COALESCE(COUNT(*), 0) AS total FROM certificado_generado");
     $stmt->execute();
-    $total_certificados = $stmt->fetch()['total'];
+    $total_certificados = (int)$stmt->fetch()['total'];
 
-    // Consulta para contar los Alumnos Pendientes de Aprobación
-    $stmt = $pdo->prepare("SELECT COUNT(*) AS total FROM inscripcion WHERE estado = 'Pendiente'");
+    // Consulta para contar Instructores
+    $stmt = $pdo->prepare("SELECT COALESCE(COUNT(*), 0) AS total FROM instructor");
     $stmt->execute();
-    $total_pendientes_aprobacion = $stmt->fetch()['total'];
+    $total_instructores = (int)$stmt->fetch()['total'];
+
+    // Consulta para contar Especialistas
+    $stmt = $pdo->prepare("SELECT COALESCE(COUNT(*), 0) AS total FROM especialista");
+    $stmt->execute();
+    $total_especialistas = (int)$stmt->fetch()['total'];
+
+    // Consulta para contar Pagos
+    $stmt = $pdo->prepare("SELECT COALESCE(COUNT(*), 0) AS total FROM pago");
+    $stmt->execute();
+    $total_pagos = (int)$stmt->fetch()['total'];
+
 } catch (PDOException $e) {
     // Manejo de errores de la base de datos
     echo '<div class="alert alert-danger">Error al obtener las estadísticas: ' . htmlspecialchars($e->getMessage()) . '</div>';
@@ -69,149 +82,128 @@ try {
 <section class="content">
     <div class="row">
         <!-- Info Box para Cursos -->
-        <div class="col-md-4 col-sm-6 col-xs-12">
+        <div class="col-md-3 col-sm-6 col-xs-12">
             <div class="info-box">
                 <span class="info-box-icon bg-aqua"><i class="fa fa-graduation-cap"></i></span>
                 <div class="info-box-content">
                     <span class="info-box-text">Cursos</span>
-                    <span class="info-box-number"><?php echo htmlspecialchars($total_productos); ?></span>
-                    <span class="progress-description">Total de Cursos</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Info Box para Inscripciones -->
-        <div class="col-md-4 col-sm-6 col-xs-12">
-            <div class="info-box">
-                <span class="info-box-icon bg-green"><i class="fa fa-users"></i></span>
-                <div class="info-box-content">
-                    <span class="info-box-text">Inscripciones</span>
-                    <span class="info-box-number"><?php echo htmlspecialchars($total_ordenes_completadas + $total_ordenes_pendientes); ?></span>
-                    <span class="progress-description">Total de Inscripciones</span>
+                    <span class="info-box-number"><?php echo htmlspecialchars($total_cursos ?? '0'); ?></span>
+                    <span class="progress-description">Total de Cursos Disponibles</span>
                 </div>
             </div>
         </div>
 
         <!-- Info Box para Clientes -->
-        <div class="col-md-4 col-sm-6 col-xs-12">
+        <div class="col-md-3 col-sm-6 col-xs-12">
             <div class="info-box">
-                <span class="info-box-icon bg-yellow"><i class="fa fa-user"></i></span>
+                <span class="info-box-icon bg-yellow"><i class="fa fa-users"></i></span>
                 <div class="info-box-content">
-                    <span class="info-box-text">Estudiante en proceso de certificación</span>
-                    <span class="info-box-number"><?php echo htmlspecialchars($total_clientes); ?></span>
-                    <span class="progress-description">Total de estudiantes en proceso de certificación</span>
+                    <span class="info-box-text">Estudiantes</span>
+                    <span class="info-box-number"><?php echo htmlspecialchars($total_clientes ?? '0'); ?></span>
+                    <span class="progress-description">Total de Estudiantes Registrados</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Box para Inscripciones -->
+        <div class="col-md-3 col-sm-6 col-xs-12">
+            <div class="info-box">
+                <span class="info-box-icon bg-green"><i class="fa fa-user-check"></i></span>
+                <div class="info-box-content">
+                    <span class="info-box-text">Inscripciones</span>
+                    <span class="info-box-number"><?php echo htmlspecialchars($total_inscripciones ?? '0'); ?></span>
+                    <span class="progress-description">Total de Inscripciones</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Box para Certificados -->
+        <div class="col-md-3 col-sm-6 col-xs-12">
+            <div class="info-box">
+                <span class="info-box-icon bg-blue"><i class="fa fa-certificate"></i></span>
+                <div class="info-box-content">
+                    <span class="info-box-text">Certificados</span>
+                    <span class="info-box-number"><?php echo htmlspecialchars($total_certificados ?? '0'); ?></span>
+                    <span class="progress-description">Certificados Generados con QR</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Box para Instructores -->
+        <div class="col-md-3 col-sm-6 col-xs-12">
+            <div class="info-box">
+                <span class="info-box-icon bg-purple"><i class="fa fa-user-tie"></i></span>
+                <div class="info-box-content">
+                    <span class="info-box-text">Instructores</span>
+                    <span class="info-box-number"><?php echo htmlspecialchars($total_instructores ?? '0'); ?></span>
+                    <span class="progress-description">Total de Instructores</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Box para Especialistas -->
+        <div class="col-md-3 col-sm-6 col-xs-12">
+            <div class="info-box">
+                <span class="info-box-icon bg-maroon"><i class="fa fa-user-tie"></i></span>
+                <div class="info-box-content">
+                    <span class="info-box-text">Especialistas</span>
+                    <span class="info-box-number"><?php echo htmlspecialchars($total_especialistas ?? '0'); ?></span>
+                    <span class="progress-description">Total de Especialistas</span>
                 </div>
             </div>
         </div>
 
         <!-- Info Box para Categorías -->
-        <div class="col-md-4 col-sm-6 col-xs-12">
+        <div class="col-md-3 col-sm-6 col-xs-12">
             <div class="info-box">
-                <span class="info-box-icon bg-purple"><i class="fa fa-tags"></i></span>
+                <span class="info-box-icon bg-teal"><i class="fa fa-tags"></i></span>
                 <div class="info-box-content">
                     <span class="info-box-text">Categorías</span>
-                    <span class="info-box-number"><?php echo htmlspecialchars($total_categorias); ?></span>
+                    <span class="info-box-number"><?php echo htmlspecialchars($total_categorias ?? '0'); ?></span>
                     <span class="progress-description">Total de Categorías</span>
                 </div>
             </div>
         </div>
 
-        <!-- Info Box para Inscripciones Pendientes -->
-        <div class="col-md-4 col-sm-6 col-xs-12">
+        <!-- Info Box para Pagos -->
+        <div class="col-md-3 col-sm-6 col-xs-12">
             <div class="info-box">
-                <span class="info-box-icon bg-red"><i class="fa fa-clock-o"></i></span>
+                <span class="info-box-icon bg-olive"><i class="fa fa-credit-card"></i></span>
                 <div class="info-box-content">
-                    <span class="info-box-text">Inscripciones Pendientes</span>
-                    <span class="info-box-number"><?php echo htmlspecialchars($total_ordenes_pendientes); ?></span>
-                    <span class="progress-description">Total de Inscripciones Pendientes</span>
+                    <span class="info-box-text">Pagos</span>
+                    <span class="info-box-number"><?php echo htmlspecialchars($total_pagos ?? '0'); ?></span>
+                    <span class="progress-description">Total de Pagos Registrados</span>
                 </div>
             </div>
         </div>
 
         <!-- Info Box para Inscripciones Activas -->
-        <div class="col-md-4 col-sm-6 col-xs-12">
+        <div class="col-md-3 col-sm-6 col-xs-12">
             <div class="info-box">
-                <span class="info-box-icon bg-green"><i class="fa fa-check"></i></span>
+                <span class="info-box-icon bg-green"><i class="fa fa-check-circle"></i></span>
                 <div class="info-box-content">
-                    <span class="info-box-text">Certificados finalizados</span>
-                    <span class="info-box-number"><?php echo htmlspecialchars($total_ordenes_completadas); ?></span>
-                    <span class="progress-description">Total de certificados finalizados</span>
+                    <span class="info-box-text">Inscripciones Activas</span>
+                    <span class="info-box-number"><?php echo htmlspecialchars($total_inscripciones_activas ?? '0'); ?></span>
+                    <span class="progress-description">Estudiantes Activos</span>
                 </div>
             </div>
         </div>
 
-        <!-- Info Box para Certificados Generados -->
-        <div class="col-md-4 col-sm-6 col-xs-12">
-            <div class="info-box">
-                <span class="info-box-icon bg-blue"><i class="fa fa-certificate"></i></span>
-                <div class="info-box-content">
-                    <span class="info-box-text">Certificados Generados</span>
-                    <span class="info-box-number"><?php echo htmlspecialchars($total_certificados); ?></span>
-                    <span class="progress-description">Total de certificados con QR</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Info Box para Pendientes de Aprobación -->
-        <div class="col-md-4 col-sm-6 col-xs-12">
-            <div class="info-box">
-                <span class="info-box-icon bg-orange"><i class="fa fa-clock-o"></i></span>
-                <div class="info-box-content">
-                    <span class="info-box-text">Pendientes de Aprobación</span>
-                    <span class="info-box-number"><?php echo htmlspecialchars($total_pendientes_aprobacion); ?></span>
-                    <span class="progress-description">Alumnos esperando aprobación</span>
-                </div>
-            </div>
+        <!-- Info Box para Inscripciones Pendientes -->
+        <div class="col-md-3 col-sm-6 col-xs-12">
+    <div class="info-box">
+        <span class="info-box-icon bg-orange">
+            <i class="fa-solid fa-clock"></i> <!-- Ícono moderno -->
+        </span>
+        <div class="info-box-content">
+            <span class="info-box-text">Pendientes de Aprobación</span>
+                                <span class="info-box-number"><?php echo htmlspecialchars($total_inscripciones_pendientes ?? '0'); ?></span>
+            <span class="progress-description">Esperando Aprobación</span>
         </div>
     </div>
+</div>
 
-    <!-- Sección de Acciones Rápidas -->
-    <div class="row">
-        <div class="col-md-12">
-            <div class="box box-primary">
-                <div class="box-header with-border">
-                    <h3 class="box-title"><i class="fa fa-bolt"></i> Acciones Rápidas</h3>
-                </div>
-                <div class="box-body">
-                    <div class="row">
-                        <div class="col-md-3 col-sm-6">
-                            <a href="aprobar_alumno.php" class="btn btn-success btn-block">
-                                <i class="fa fa-user-check"></i><br>
-                                <strong>Aprobar Alumnos</strong><br>
-                                <small>Gestionar aprobaciones</small>
-                            </a>
-                        </div>
-                        <div class="col-md-3 col-sm-6">
-                            <a href="certificados_generados.php" class="btn btn-info btn-block">
-                                <i class="fa fa-list"></i><br>
-                                <strong>Ver Certificados</strong><br>
-                                <small>Certificados generados</small>
-                            </a>
-                        </div>
-                        <div class="col-md-3 col-sm-6">
-                            <a href="previsualizar_certificado_final.php" class="btn btn-warning btn-block">
-                                <i class="fa fa-eye"></i><br>
-                                <strong>Previsualizar</strong><br>
-                                <small>Ver diseño certificado</small>
-                            </a>
-                        </div>
-                        <div class="col-md-3 col-sm-6">
-                            <?php
-                            $protocolo = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https" : "http";
-$host = $_SERVER['HTTP_HOST'];
-$ruta_cert = $protocolo . '://' . $host . '/certificado/verificar-certificado.php';
-?>
-                            <a href="<?php echo $ruta_cert; ?>" target="_blank" class="btn btn-primary btn-block">
-                                <i class="fa fa-search"></i><br>
-                                <strong>Verificar Certificado</strong><br>
-                                <small>Página pública</small>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+
 
 </section>
 <?php include('footer.php'); ?>

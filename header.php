@@ -59,7 +59,7 @@ $is_admin = strpos($_SERVER['SCRIPT_NAME'], '/admin/') !== false;
 	<link rel="icon" type="image/png" href="assets/uploads/<?php echo $favicon; ?>">
 	<!-- ✅ CSS -->
 	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
-	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+	<link href="admin/fontawesome-free-6.7.2-web/css/all.min.css" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-toast-plugin/1.3.2/jquery.toast.min.css" />
 	<!-- ✅ JS: jQuery primero -->
@@ -1146,11 +1146,11 @@ $is_admin = strpos($_SERVER['SCRIPT_NAME'], '/admin/') !== false;
 						
 						<div class="menu">
 							<ul class="nav-menu">
-								<li><a href="index.php">Inicio</a></li>
-								<li><a href="curso.php">Cursos</a></li>
+								<li><a href="index.php"><i class="fa fa-home"></i> Inicio</a></li>
+								<li><a href="curso.php"><i class="fa fa-graduation-cap"></i> Cursos</a></li>
 								<li><a href="verificar-qr.php"><i class="fa fa-qrcode"></i> Verificar Certificado</a></li>
-								<li><a href="about.php">Sobre Nosotros</a></li>
-								<li><a href="contact.php">Contáctanos</a></li>
+								<li><a href="about.php"><i class="fa fa-info-circle"></i> Sobre Nosotros</a></li>
+								<li><a href="contact.php"><i class="fa fa-envelope"></i> Contáctanos</a></li>
 							</ul>
 						</div>
 					</div>
@@ -1193,7 +1193,7 @@ $is_admin = strpos($_SERVER['SCRIPT_NAME'], '/admin/') !== false;
 		.menu > ul > li > a {
 			display: block;
 			padding: 15px 20px;
-			color: #fff;
+			color: #fff;	
 			text-decoration: none;
 			font-weight: 500;
 			transition: all 0.3s ease;
@@ -1201,6 +1201,18 @@ $is_admin = strpos($_SERVER['SCRIPT_NAME'], '/admin/') !== false;
 
 		.menu > ul > li > a:hover {
 			background: rgba(255, 255, 255, 0.1);
+		}
+
+		/* Estilos para iconos en desktop */
+		.menu > ul > li > a i {
+			margin-right: 8px;
+			width: 16px;
+			text-align: center;
+			transition: all 0.3s ease;
+		}
+
+		.menu > ul > li > a:hover i {
+			transform: scale(1.1);
 		}
 
 		/* Botón hamburguesa */
@@ -1421,6 +1433,13 @@ $is_admin = strpos($_SERVER['SCRIPT_NAME'], '/admin/') !== false;
 
 			.menu > ul > li > a:hover {
 				background: rgba(255, 255, 255, 0.1);
+			}
+
+			/* Estilos para iconos en móviles */
+			.menu > ul > li > a i {
+				margin-right: 10px;
+				width: 20px;
+				text-align: center;
 			}
 
 			.menu ul ul {
