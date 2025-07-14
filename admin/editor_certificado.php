@@ -313,9 +313,6 @@ require_once('header.php');
   background-color: #007bff;
   border-color: #007bff;
 }
-  background: #f8f9fa;
-  padding: 20px;
-}
 
 .canvas-area {
   width: 2000px;
@@ -407,38 +404,69 @@ require_once('header.php');
 .resize-handle.w { top: 50%; left: -4px; transform: translateY(-50%); cursor: w-resize; }
 
 .properties-panel {
-  min-height: 200px;
-}
-
-.property-group {
-  margin-bottom: 15px;
+  background: #fff;
+  color: #111;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  padding: 18px 12px;
 }
 
 .property-group label {
-  font-weight: 600;
-  font-size: 12px;
-  color: #495057;
-  margin-bottom: 5px;
+  color: #111;
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 7px;
   display: block;
 }
 
 .property-group input,
 .property-group select {
-  width: 100%;
-  padding: 6px 8px;
-  border: 1px solid #ced4da;
-  border-radius: 4px;
-  font-size: 12px;
+  background: #fff !important;
+  color: #111 !important;
+  border: 1.5px solid #bbb;
+  border-radius: 5px;
+  font-size: 16px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  box-shadow: none;
 }
 
 .property-group input[type="color"] {
-  height: 35px;
+  height: 42px;
   padding: 2px;
 }
 
-.property-group input[type="checkbox"] {
-  width: auto;
-  margin-right: 8px;
+#panelPropiedades .field-info strong {
+  color: #111;
+  font-size: 16px;
+}
+
+.btn-group.btn-group-sm .btn {
+  background: #fff;
+  color: #007bff;
+  border: 1.5px solid #007bff;
+  font-size: 16px;
+  font-weight: 600;
+  margin-right: 4px;
+  transition: background 0.2s, color 0.2s, border 0.2s;
+}
+
+.btn-group.btn-group-sm .btn:last-child {
+  margin-right: 0;
+}
+
+.btn-group.btn-group-sm .btn:hover,
+.btn-group.btn-group-sm .btn:focus {
+  background: #e6f0ff;
+  color: #0056b3;
+  border-color: #0056b3;
+}
+
+.btn-group.btn-group-sm .btn.active,
+.btn-group.btn-group-sm .btn:active {
+  background: #007bff;
+  color: #fff;
+  border-color: #0056b3;
 }
 
 .checkbox-group {
@@ -452,21 +480,12 @@ require_once('header.php');
   font-weight: normal;
 }
 
-.btn-group-sm .btn {
-  padding: 4px 8px;
-  font-size: 11px;
-}
-
 .field-info {
   background: #e9ecef;
   padding: 8px;
   border-radius: 4px;
   margin-bottom: 10px;
   font-size: 11px;
-}
-
-.field-info strong {
-  color: #495057;
 }
 
 /* Responsive */
@@ -482,6 +501,21 @@ require_once('header.php');
     max-width: 800px;
     max-height: 566px;
   }
+}
+
+.property-group select#fontFamily {
+  background: #fff !important;
+  color: #111 !important;
+  font-size: 17px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 600;
+  text-align: center;
+  height: 44px;
+  padding: 8px 10px;
+  border: 1.5px solid #007bff;
+  border-radius: 6px;
+  box-shadow: none;
+  margin-bottom: 12px;
 }
 </style>
 
