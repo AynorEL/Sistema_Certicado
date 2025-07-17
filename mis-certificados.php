@@ -1,5 +1,5 @@
 <?php
-require_once('header.php');
+session_start();
 
 // Redirigir si no está logueado
 if (!isset($_SESSION['cliente'])) {
@@ -7,15 +7,18 @@ if (!isset($_SESSION['cliente'])) {
     exit;
 }
 
+require_once('header.php');
+
 // Obtener ID del cliente
 $idCliente = $_SESSION['cliente']['idcliente'];
 
-// Obtener las inscripciones aprobadas (certificados)
+// Obtener los certificados generados
 $statement = $pdo->prepare("
-    SELECT c.nombre_curso, c.duracion, i.fecha_finalizacion
-    FROM inscripcion i
+    SELECT c.nombre_curso, c.duracion, i.fecha_finalizacion, cg.codigo_validacion, c.idcurso
+    FROM certificado_generado cg
+    JOIN inscripcion i ON cg.idcliente = i.idcliente AND cg.idcurso = i.idcurso
     JOIN curso c ON i.idcurso = c.idcurso
-    WHERE i.idcliente = ? AND i.estado = 'Aprobado'
+    WHERE cg.idcliente = ? AND cg.estado = 'Activo'
 ");
 $statement->execute([$idCliente]);
 $certificados = $statement->fetchAll(PDO::FETCH_ASSOC);
@@ -51,7 +54,8 @@ $certificados = $statement->fetchAll(PDO::FETCH_ASSOC);
                                             <td><?php echo htmlspecialchars($certificado['duracion']); ?></td>
                                             <td><?php echo date("d/m/Y", strtotime($certificado['fecha_finalizacion'])); ?></td>
                                             <td>
-                                                <a href="generar-certificado.php?curso=<?php echo urlencode($certificado['nombre_curso']); ?>" class="btn btn-success btn-sm" target="_blank">Descargar Certificado</a>
+                                                <a href="generar-certificado.php?codigo=<?php echo urlencode($certificado['codigo_validacion']); ?>" class="btn btn-success btn-sm" target="_blank">Ver Certificado</a>
+                                                <iframe src="admin/previsualizar_certificado_final.php?idcurso=<?php echo $certificado['idcurso']; ?>&idalumno=<?php echo $idCliente; ?>&modo=final" width="350" height="250" style="border:1px solid #ccc; border-radius:8px; margin-top:8px;"></iframe>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>

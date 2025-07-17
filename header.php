@@ -52,6 +52,7 @@ $is_admin = strpos($_SERVER['SCRIPT_NAME'], '/admin/') !== false;
 <html lang="es">
 
 <head>
+	
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Sistema de Certificados</title>

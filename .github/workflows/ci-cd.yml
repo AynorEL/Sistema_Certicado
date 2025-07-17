@@ -1,5 +1,4 @@
 # name: 🚀 FTP Upload Solo
-
 # on:
 #   push:
 #     branches: [main, develop]

@@ -15,6 +15,18 @@ if (!$clienteId) {
 if(isset($_POST['idcurso'])) {
     $idcurso = $_POST['idcurso'];
     
+    // Verificar si el cliente ya está inscrito en este curso
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM inscripcion WHERE idcliente = ? AND idcurso = ?");
+    $stmt->execute([$clienteId, $idcurso]);
+    $yaInscrito = $stmt->fetchColumn();
+    if ($yaInscrito > 0) {
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'Ya estás inscrito en este curso. No puedes comprarlo dos veces.'
+        ]);
+        exit;
+    }
+    
     // Obtener información del curso
     $statement = $pdo->prepare("SELECT * FROM curso WHERE idcurso=?");
     $statement->execute(array($idcurso));

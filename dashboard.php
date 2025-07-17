@@ -64,6 +64,32 @@ unset($curso);
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 
+<style>
+.dashboard-sidebar {
+    background-color: #e3f0ff !important;
+    background-image: none !important;
+    background: none !important;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 20px;
+}
+.dashboard-menu .nav-link {
+    color: #0d1452 !important;
+    background: transparent !important;
+    font-weight: 600;
+    border-radius: 6px;
+    margin-bottom: 4px;
+    transition: all 0.2s;
+}
+.dashboard-menu .nav-link.active, .dashboard-menu .nav-link:focus, .dashboard-menu .nav-link:hover {
+    background: #0d6efd !important;
+    color: #fff !important;
+}
+.dashboard-menu .nav-link.text-danger {
+    color: #dc3545 !important;
+}
+</style>
+
 <div class="container my-5">
     <div class="row">
         <!-- Sidebar -->
@@ -184,11 +210,6 @@ unset($curso);
                                                         <a href="curso.php?id=<?php echo $curso['idcurso']; ?>" class="btn btn-sm btn-outline-primary">
                                                             <i class="bi bi-eye"></i> Ver
                                                         </a>
-                                                        <?php if (!empty($curso['codigo_certificado'])): ?>
-                                                            <a href="generar-certificado.php?codigo=<?php echo urlencode($curso['codigo_certificado']); ?>" class="btn btn-sm btn-outline-success" target="_blank">
-                                                                <i class="bi bi-file-earmark-text"></i> Certificado
-                                                            </a>
-                                                        <?php endif; ?>
                                                     </div>
                                                 </td>
                                             </tr>

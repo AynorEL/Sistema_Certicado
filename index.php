@@ -1235,8 +1235,8 @@ $(document).ready(function() {
                 </div>
             </div>
             <div class="row">
-                <?php foreach ($cursos_recientes as $curso): ?>
-                    <div class="col-md-4" style="margin-bottom: 30px;">
+                <?php $i = 0; foreach ($cursos_recientes as $curso): ?>
+                    <div class="col-md-3" style="margin-bottom: 30px;">
                         <div class="course-card-modern">
                             <!-- Imagen del curso -->
                             <div class="course-image">
@@ -1299,6 +1299,9 @@ $(document).ready(function() {
                             </div>
                         </div>
                     </div>
+                    <?php if ((++$i) % 4 == 0): ?>
+                        <div class="clearfix visible-md-block visible-lg-block"></div>
+                    <?php endif; ?>
                 <?php endforeach; ?>
             </div>
         </div>
@@ -1315,8 +1318,8 @@ $(document).ready(function() {
                 </div>
             </div>
             <div class="row">
-                <?php foreach ($cursos_populares as $curso): ?>
-                    <div class="col-md-4" style="margin-bottom: 30px;">
+                <?php $i = 0; foreach ($cursos_populares as $curso): ?>
+                    <div class="col-md-3" style="margin-bottom: 30px;">
                         <div class="course-card-modern popular">
                             <!-- Badge de popular -->
                             <div class="popular-badge">
@@ -1385,6 +1388,9 @@ $(document).ready(function() {
                             </div>
                         </div>
                     </div>
+                    <?php if ((++$i) % 4 == 0): ?>
+                        <div class="clearfix visible-md-block visible-lg-block"></div>
+                    <?php endif; ?>
                 <?php endforeach; ?>
             </div>
         </div>

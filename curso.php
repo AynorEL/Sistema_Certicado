@@ -2,7 +2,8 @@
 require_once 'admin/inc/config.php';
 session_start();
 
-if (!isset($_REQUEST['id'])) {
+// Validar que el parámetro id sea numérico
+if (!isset($_REQUEST['id']) || !filter_var($_REQUEST['id'], FILTER_VALIDATE_INT)) {
     header('location: index.php');
     exit;
 }
@@ -11,7 +12,8 @@ $statement = $pdo->prepare("SELECT * FROM curso WHERE idcurso=?");
 $statement->execute([$_REQUEST['id']]);
 $result = $statement->fetch(PDO::FETCH_ASSOC);
 
-if (!$result) {
+// Mostrar solo cursos activos
+if (!$result || (isset($result['estado']) && strtolower($result['estado']) !== 'activo')) {
     header('location: index.php');
     exit;
 }
