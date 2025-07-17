@@ -5,21 +5,24 @@ require_once('admin/inc/config.php');
 $error_message = '';
 $success_message = '';
 
-// Verificar si se proporcionó el token
-if (!isset($_GET['token'])) {
+// Verificar si se proporcionó idcliente y token
+if (!isset($_GET['idcliente']) || !isset($_GET['token'])) {
     header('location: login.php');
     exit;
 }
 
+$idcliente = $_GET['idcliente'];
 $token = $_GET['token'];
 
-// Verificar que el token existe y obtener el usuario
-$stmt = $pdo->prepare("SELECT * FROM usuario WHERE token = ? AND estado = 'Activo'");
-$stmt->execute(array($token));
-$usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+// Buscar cliente con ese id y token válido
+$stmt = $pdo->prepare("SELECT * FROM cliente WHERE idcliente = ? AND token = ?");
+$stmt->execute([$idcliente, $token]);
+$cliente = $stmt->fetch(PDO::FETCH_ASSOC);
 
-if (!$usuario) {
-    $error_message = 'El enlace de restablecimiento de contraseña no es válido o ha expirado.';
+if (!$cliente) {
+    $error_message = 'El enlace de restablecimiento de contraseña no es válido.';
+} elseif (empty($cliente['token_expira']) || strtotime($cliente['token_expira']) < time()) {
+    $error_message = 'El enlace ha expirado. Solicita uno nuevo.';
 }
 
 // Procesar el formulario de restablecimiento
@@ -38,12 +41,9 @@ if (isset($_POST['form1']) && !$error_message) {
         // Actualizar la contraseña
         try {
             $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
-            $stmt = $pdo->prepare("UPDATE usuario SET password = ?, token = NULL WHERE idusuario = ?");
-            $stmt->execute(array($hashed_password, $usuario['idusuario']));
-            
-            $success_message = 'Contraseña actualizada exitosamente.';
-            
-            // Redirigir después de 3 segundos
+            $stmt = $pdo->prepare("UPDATE cliente SET password = ?, token = NULL, token_expira = NULL WHERE idcliente = ?");
+            $stmt->execute([$hashed_password, $idcliente]);
+            $success_message = 'Contraseña actualizada exitosamente. Redirigiendo al login...';
             header("refresh:3;url=login.php");
         } catch (PDOException $e) {
             $error_message = 'Error al actualizar la contraseña. Inténtelo de nuevo.';
@@ -411,7 +411,7 @@ if (isset($_POST['form1']) && !$error_message) {
                 <?php else: ?>
                     <div class="alert alert-info">
                         <i class="bi bi-info-circle me-2"></i>
-                        <strong>Hola <?php echo htmlspecialchars($usuario['nombre_usuario'] ?? ''); ?>!</strong><br>
+                        <strong>Hola <?php echo htmlspecialchars($cliente['nombre_cliente'] ?? ''); ?>!</strong><br>
                         Establece tu nueva contraseña a continuación.
                     </div>
 

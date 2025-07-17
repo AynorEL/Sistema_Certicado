@@ -90,7 +90,6 @@ echo '<meta name="description" content="' . htmlspecialchars($meta_descripcion) 
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-10 col-md-12">
-                <h2 class="page-title"><?php echo htmlspecialchars($titulo_pagina); ?></h2>
                 <div class="page-content">
                     <?php echo $contenido_pagina; ?>
                 </div>

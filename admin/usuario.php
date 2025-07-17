@@ -26,6 +26,15 @@ require_once('header.php');
                 </div>
             <?php endif; ?>
 
+            <?php if (isset($_SESSION['error'])): ?>
+                <div class="alert alert-danger">
+                    <?php 
+                    echo $_SESSION['error']; 
+                    unset($_SESSION['error']);
+                    ?>
+                </div>
+            <?php endif; ?>
+
             <div class="box box-info">
                 <div class="box-body table-responsive">
                     <table id="example1" class="table table-bordered table-striped">

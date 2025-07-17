@@ -42,7 +42,7 @@ $preguntas_frecuentes = $statement->fetchAll(PDO::FETCH_ASSOC);
                              aria-labelledby="heading<?php echo $faq['id']; ?>" 
                              data-bs-parent="#faqAccordion">
                             <div class="accordion-body">
-                                <?php echo nl2br(htmlspecialchars($faq['contenido_pregunta'])); ?>
+                                <?php echo $faq['contenido_pregunta']; ?>
                             </div>
                         </div>
                     </div>

@@ -96,24 +96,9 @@ if(isset($_POST['form1'])) {
 		}
 
 		if($valid == 1) {
-			$success_message = 'El slider ha sido actualizado exitosamente.';
-			
-			// Obtener los datos actualizados
-			$statement = $pdo->prepare("SELECT * FROM sliders WHERE id=?");
-			$statement->execute(array($_REQUEST['id']));
-			$result = $statement->fetchAll(PDO::FETCH_ASSOC);                           
-			foreach ($result as $row) {
-				$titulo = $row['titulo'];
-				$contenido = $row['contenido'];
-				$texto_boton = $row['texto_boton'];
-				$url_boton = $row['url_boton'];
-				$posicion = $row['posicion'];
-				$foto = $row['foto'];
-			}
-
-			// Redirigir después de 2 segundos
-			$_SESSION['success'] = "El slider ha sido actualizado exitosamente";
-			header("refresh:2;url=slider.php");
+			$_SESSION['success'] = 'El slider ha sido actualizado exitosamente.';
+			header('location: slider.php');
+			exit();
 		}
 	}
 } else {

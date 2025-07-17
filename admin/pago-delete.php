@@ -1,22 +1,23 @@
 <?php require_once('header.php'); ?>
+<?php require_once('inc/functions.php'); ?>
 
 <?php
 $error_message = '';
 $success_message = '';
 
 if (!isset($_REQUEST['id'])) {
+    $_SESSION['error'] = "ID de pago no válido";
     header('location: pago.php');
     exit;
 }
 
 $id = $_REQUEST['id'];
 
-// Verificar si el pago existe
-$statement = $pdo->prepare("SELECT * FROM pago WHERE idpago=?");
-$statement->execute(array($id));
-$total = $statement->rowCount();
+// Validar si se puede eliminar el pago
+$validacion = validarEliminacionPago($pdo, $id);
 
-if ($total == 0) {
+if (!$validacion['puede_eliminar']) {
+    $_SESSION['error'] = $validacion['mensaje'];
     header('location: pago.php');
     exit;
 }
@@ -37,6 +38,7 @@ if ($result && $result['comprobante']) {
 $statement = $pdo->prepare("DELETE FROM pago WHERE idpago=?");
 $statement->execute(array($id));
 
+$_SESSION['success'] = "Pago eliminado exitosamente";
 header('location: pago.php');
 exit;
 ?> 

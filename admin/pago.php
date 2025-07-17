@@ -98,6 +98,25 @@ if($success_message != '') {
     <div class="row">
         <div class="col-md-12">
             <div class="box box-info">
+                <div class="box-header">
+                    <h3 class="box-title">Lista de Pagos</h3>
+                </div>
+                <?php if(isset($_SESSION['success'])): ?>
+                    <div class="alert alert-success">
+                        <?php 
+                        echo $_SESSION['success']; 
+                        unset($_SESSION['success']);
+                        ?>
+                    </div>
+                <?php endif; ?>
+                <?php if(isset($_SESSION['error'])): ?>
+                    <div class="alert alert-danger">
+                        <?php 
+                        echo $_SESSION['error']; 
+                        unset($_SESSION['error']);
+                        ?>
+                    </div>
+                <?php endif; ?>
                 <div class="box-body table-responsive">
                     <table id="example1" class="table table-bordered table-striped">
                         <thead>
@@ -109,6 +128,7 @@ if($success_message != '') {
                                 <th>Fecha</th>
                                 <th>Método</th>
                                 <th>Estado</th>
+                                <th><strong>Estado de Pago Inscripción</strong></th>
                                 <th>Comprobante</th>
                                 <th>Acciones</th>
                             </tr>
@@ -118,6 +138,7 @@ if($success_message != '') {
                             $statement = $pdo->prepare("
                                 SELECT p.*, 
                                        i.idinscripcion,
+                                       i.estado_pago as estado_pago_inscripcion,
                                        c.nombre as nombre_cliente,
                                        c.apellido as apellido_cliente,
                                        cur.nombre_curso
@@ -148,6 +169,29 @@ if($success_message != '') {
                                         <?php else: ?>
                                             <span class="badge badge-danger">Cancelado</span>
                                         <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <?php
+                                        $estado_pago = strtolower($row['estado_pago_inscripcion'] ?? '');
+                                        switch ($estado_pago) {
+                                            case 'pagado':
+                                                echo '<span class="badge badge-success">Pagado</span>';
+                                                break;
+                                            case 'pendiente':
+                                                echo '<span class="badge badge-warning">Pendiente</span>';
+                                                break;
+                                            case 'reembolsado':
+                                                echo '<span class="badge badge-info">Reembolsado</span>';
+                                                break;
+                                            case 'cancelado':
+                                                echo '<span class="badge badge-danger">Cancelado</span>';
+                                                break;
+                                            case 'sin pago':
+                                            default:
+                                                echo '<span class="badge badge-secondary">Sin pago</span>';
+                                                break;
+                                        }
+                                        ?>
                                     </td>
                                     <td>
                                         <?php if($row['comprobante']): ?>

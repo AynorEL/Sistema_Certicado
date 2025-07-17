@@ -32,15 +32,31 @@ if($total == 0) {
 $statement = $pdo->prepare("UPDATE pago SET estado = ? WHERE idpago = ?");
 $statement->execute(array($estado, $id));
 
-// Si el pago se marca como completado, actualizar también el estado de la inscripción
-if ($estado == 'Completado') {
-    $statement = $pdo->prepare("
-        UPDATE inscripcion i 
-        JOIN pago p ON i.idinscripcion = p.idinscripcion 
-        SET i.estado_pago = 'Pagado' 
-        WHERE p.idpago = ?
-    ");
-    $statement->execute(array($id));
+// Obtener la inscripción asociada a este pago
+$statement = $pdo->prepare("SELECT idinscripcion FROM pago WHERE idpago = ?");
+$statement->execute(array($id));
+$idinscripcion = $statement->fetchColumn();
+
+if ($idinscripcion) {
+    // Obtener todos los estados de pago para esta inscripción
+    $statement = $pdo->prepare("SELECT estado FROM pago WHERE idinscripcion = ?");
+    $statement->execute(array($idinscripcion));
+    $estados = $statement->fetchAll(PDO::FETCH_COLUMN);
+
+    $nuevo_estado = 'Sin pago';
+    if (in_array('Completado', $estados)) {
+        $nuevo_estado = 'Pagado';
+    } elseif (in_array('Pendiente', $estados)) {
+        $nuevo_estado = 'Pendiente';
+    } elseif (count($estados) > 0 && count(array_unique($estados)) === 1 && $estados[0] === 'Cancelado') {
+        $nuevo_estado = 'Cancelado';
+    } elseif (count($estados) > 0 && count(array_unique($estados)) === 1 && $estados[0] === 'Reembolsado') {
+        $nuevo_estado = 'Reembolsado';
+    }
+
+    // Actualizar el estado_pago de la inscripción
+    $statement = $pdo->prepare("UPDATE inscripcion SET estado_pago = ? WHERE idinscripcion = ?");
+    $statement->execute(array($nuevo_estado, $idinscripcion));
 }
 
 header('location: pago.php');

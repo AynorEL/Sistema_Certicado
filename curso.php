@@ -178,36 +178,33 @@ $(document).ready(function() {
   $('.add-to-cart').click(function() {
     var idcurso = $(this).data('id');
     $.ajax({
-      url: 'cart-add.php',
+      url: 'add-to-cart.php',
       type: 'POST',
       data: { idcurso: idcurso },
       dataType: 'json',
       success: function(response) {
         if(response.status === 'success') {
-          $.toast({
-            text: response.message,
+          // Usar SweetAlert2 en lugar de $.toast
+          Swal.fire({
             icon: 'success',
-            position: 'top-right',
-            hideAfter: 4000,
-            showHideTransition: 'slide'
+            title: '¡Éxito!',
+            text: response.message,
+            timer: 3000,
+            showConfirmButton: false
           });
         } else {
-          $.toast({
-            text: response.message,
+          Swal.fire({
             icon: 'error',
-            position: 'top-right',
-            hideAfter: 4000,
-            showHideTransition: 'slide'
+            title: 'Error',
+            text: response.message
           });
         }
       },
       error: function() {
-        $.toast({
-          text: 'Error al agregar al carrito',
+        Swal.fire({
           icon: 'error',
-          position: 'top-right',
-          hideAfter: 4000,
-          showHideTransition: 'slide'
+          title: 'Error',
+          text: 'Error al agregar al carrito'
         });
       }
     });

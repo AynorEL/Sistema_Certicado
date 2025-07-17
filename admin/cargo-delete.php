@@ -1,23 +1,31 @@
 <?php
-require_once('inc/config.php');
+require_once('header.php');
 
-if(!isset($_REQUEST['id'])) {
-    header('location: logout.php');
-    exit();
-} else {
-    $statement = $pdo->prepare("SELECT * FROM cargo WHERE idcargo=?");
-    $statement->execute(array($_REQUEST['id']));
-    $total = $statement->rowCount();
-    if($total == 0) {
-        header('location: logout.php');
-        exit();
+if (isset($_GET['id'])) {
+    $id = $_GET['id'];
+    
+    // Validar si se puede eliminar
+    $validacion = validarEliminacionCargo($pdo, $id);
+    
+    if (!$validacion['puede_eliminar']) {
+        $_SESSION['error'] = $validacion['mensaje'];
+        header('location: cargo.php');
+        exit;
     }
+    
+    // Si pasa la validación, proceder con la eliminación
+    try {
+        $stmt = $pdo->prepare("DELETE FROM cargo WHERE idcargo = ?");
+        $stmt->execute([$id]);
+        
+        $_SESSION['success'] = "✅ Cargo eliminado exitosamente.";
+    } catch (PDOException $e) {
+        $_SESSION['error'] = "❌ Error al eliminar el cargo: " . $e->getMessage();
+    }
+} else {
+    $_SESSION['error'] = "❌ ID de cargo no proporcionado.";
 }
 
-$statement = $pdo->prepare("DELETE FROM cargo WHERE idcargo=?");
-$statement->execute(array($_REQUEST['id']));
-
-$_SESSION['success'] = "Cargo eliminado exitosamente";
 header('location: cargo.php');
-exit();
+exit;
 ?> 

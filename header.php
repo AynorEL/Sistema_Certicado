@@ -52,7 +52,6 @@ $is_admin = strpos($_SERVER['SCRIPT_NAME'], '/admin/') !== false;
 <html lang="es">
 
 <head>
-<head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Sistema de Certificados</title>
@@ -562,6 +561,129 @@ $is_admin = strpos($_SERVER['SCRIPT_NAME'], '/admin/') !== false;
 			.hidden-md { display: none !important; }
 			.visible-md { display: block !important; }
 		}
+		
+		/* ========================================
+		   ESTILOS DEL TOPBAR
+		   ======================================== */
+		.top {
+			background: #f8f9fa;
+			border-bottom: 1px solid #e9ecef;
+			padding: 8px 0;
+			font-size: 14px;
+		}
+		
+		.top .left ul {
+			list-style: none;
+			margin: 0;
+			padding: 0;
+			display: flex;
+			align-items: center;
+			gap: 20px;
+		}
+		
+		.top .left ul li {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			color: #6c757d;
+		}
+		
+		.top .left ul li i {
+			color: #007bff;
+			font-size: 16px;
+		}
+		
+		.top .right {
+			text-align: right;
+		}
+		
+		.top .right ul {
+			list-style: none;
+			margin: 0;
+			padding: 0;
+			display: flex;
+			align-items: center;
+			justify-content: flex-end;
+			gap: 15px;
+		}
+		
+		.top .right ul li a {
+			color: #6c757d;
+			text-decoration: none;
+			transition: color 0.3s ease;
+			font-size: 18px;
+		}
+		
+		.top .right ul li a:hover {
+			color: #007bff;
+		}
+		
+		/* Responsive del topbar */
+		@media (max-width: 768px) {
+			.top .left ul {
+				flex-direction: column;
+				gap: 5px;
+				align-items: flex-start;
+			}
+			
+			.top .right {
+				text-align: left;
+				margin-top: 10px;
+			}
+			
+			.top .right ul {
+				justify-content: flex-start;
+			}
+		}
+		
+		/* ========================================
+		   ESTILOS DEL HEADER
+		   ======================================== */
+		.header {
+			background: white;
+			padding: 20px 0;
+			border-bottom: 1px solid #e9ecef;
+		}
+		
+		.header .logo img {
+			max-height: 60px;
+			width: auto;
+		}
+		
+		.header .list-inline {
+			justify-content: center;
+		}
+		
+		.header .list-inline li a {
+			color: #333;
+			text-decoration: none;
+			transition: color 0.3s ease;
+			font-weight: 500;
+		}
+		
+		.header .list-inline li a:hover {
+			color: #007bff;
+		}
+		
+		.cart-icon {
+			color: #333;
+			text-decoration: none;
+			transition: color 0.3s ease;
+		}
+		
+		.cart-icon:hover {
+			color: #007bff;
+		}
+		
+		.cart-count {
+			background: #dc3545;
+			color: white;
+			border-radius: 50%;
+			padding: 2px 6px;
+			font-size: 12px;
+			min-width: 18px;
+			text-align: center;
+		}
 	</style>
 	
 </head>
@@ -623,12 +745,26 @@ $is_admin = strpos($_SERVER['SCRIPT_NAME'], '/admin/') !== false;
 
 				<div class="col-md-6">
 					<ul class="list-inline" style="margin: 0; padding: 0; display: flex; align-items: center; gap: 20px;">
-						<?php if(isset($_SESSION['customer']) && isset($_SESSION['customer']['cust_name'])): ?>
-							<li style="display: inline-block; margin-right: 15px; color: #333; font-weight: 500;"><i class="fa fa-user" style="color: #333;"></i> Conectado como <?php echo htmlspecialchars($_SESSION['customer']['cust_name']); ?></li>
-							<li style="display: inline-block; margin-right: 15px;"><a href="dashboard.php" style="color: #333; text-decoration: none;"><i class="fa fa-home"></i> Dashboard</a></li>
-							<li style="display: inline-block; margin-right: 15px;"><a href="logout.php" style="color: #333; text-decoration: none;"><i class="fa fa-sign-out"></i> Cerrar Sesión</a></li>
+						<?php if (!isset($_SESSION['customer'])): ?>
+							<li style="display: inline-block; margin-right: 15px;">
+								<a href="login.php" style="color: #333; text-decoration: none;"><i class="fa fa-user"></i> Iniciar Sesión</a>
+							</li>
 						<?php else: ?>
-							<li style="display: inline-block; margin-right: 15px;"><a href="login.php" style="color: #333; text-decoration: none;"><i class="fa fa-user"></i> Iniciar Sesión</a></li>
+							<li style="display: flex; align-items: center; background: #fff; border: 1px solid #e3e6f0; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); padding: 8px 22px; gap: 18px; margin-right: 0;">
+								<span style="display: flex; align-items: center;">
+									<i class="fa fa-user-circle" style="font-size: 2rem; color: #007bff; margin-right: 10px;"></i>
+									<span style="font-weight: 600; color: #222; font-size: 1.1rem;">Conectado como:</span>
+									<span style="font-weight: bold; color: #007bff; margin-left: 7px; font-size: 1.1rem;">
+										<?php echo $_SESSION['customer']['nombre'] . ' ' . $_SESSION['customer']['apellido']; ?>
+									</span>
+								</span>
+								<a href="dashboard.php" class="btn btn-outline-primary btn-sm ms-3" style="font-weight:600;">
+									<i class="fa fa-tachometer-alt"></i> Dashboard
+								</a>
+								<a href="logout.php" class="btn btn-outline-danger btn-sm ms-2">
+									<i class="fa fa-sign-out"></i> Salir
+								</a>
+							</li>
 						<?php endif; ?>
 					</ul>
 				</div>
@@ -1379,3 +1515,5 @@ $is_admin = strpos($_SERVER['SCRIPT_NAME'], '/admin/') !== false;
 	<?php if (!$is_admin && isset($whatsapp_link) && !empty($whatsapp_link)): ?>
 	<!-- Aquí va el botón flotante de WhatsApp -->
 	<?php endif; ?>
+</body>
+</html>

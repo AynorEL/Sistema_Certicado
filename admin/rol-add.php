@@ -21,7 +21,9 @@ if (isset($_POST['form1'])) {
         $statement = $pdo->prepare("INSERT INTO rol (nombre_rol, descripcion) VALUES (?,?)");
         $statement->execute(array($_POST['nombre_rol'], $_POST['descripcion']));
 
-        $success_message = 'El rol se ha añadido correctamente.';
+        $_SESSION['success'] = 'El rol se ha añadido correctamente.';
+        header('location: rol.php');
+        exit();
     }
 }
 ?>

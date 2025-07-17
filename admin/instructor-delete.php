@@ -1,8 +1,18 @@
 <?php
 ob_start();
 require_once('header.php');
+require_once('inc/functions.php');
 
 if (!isset($_GET['id'])) {
+    header('location: instructor.php');
+    exit();
+}
+
+// Validar si se puede eliminar el instructor
+$validacion = validarEliminacionInstructor($pdo, $_GET['id']);
+
+if (!$validacion['puede_eliminar']) {
+    $_SESSION['error'] = $validacion['mensaje'];
     header('location: instructor.php');
     exit();
 }

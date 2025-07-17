@@ -70,7 +70,7 @@ if(isset($_POST['form1'])) {
     $statement = $pdo->prepare("INSERT INTO genero (nombre_genero) VALUES (?)");
     $statement->execute(array($nombre_genero));
 
-    $_SESSION['success_message'] = "Género agregado exitosamente.";
+    $_SESSION['success'] = "Género agregado exitosamente.";
     header("location: genero.php");
     exit();
 }

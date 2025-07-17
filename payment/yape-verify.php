@@ -68,15 +68,34 @@ if (!move_uploaded_file($file['tmp_name'], $path_final)) {
 try {
     $pdo->beginTransaction();
 
-    $stmt = $pdo->prepare("UPDATE pago SET 
-        estado = 'pendiente_verificacion',
-        comprobante = ?,
-        fecha_pago = NOW()
-        WHERE idinscripcion = ?");
-    $stmt->execute([$new_name, $order_id]);
+    // Obtener todas las inscripciones del cliente para esta orden
+    $stmt = $pdo->prepare("SELECT i.idinscripcion FROM inscripcion i 
+                          JOIN cliente c ON i.idcliente = c.idcliente 
+                          WHERE c.idcliente = (SELECT idcliente FROM inscripcion WHERE idinscripcion = ?)");
+    $stmt->execute([$order_id]);
+    $inscripciones = $stmt->fetchAll(PDO::FETCH_COLUMN);
+    
+    // Actualizar todos los pagos de las inscripciones
+    foreach ($inscripciones as $idinscripcion) {
+        $stmt = $pdo->prepare("UPDATE pago SET 
+            estado = 'pendiente_verificacion',
+            comprobante = ?,
+            fecha_pago = NOW()
+            WHERE idinscripcion = ?");
+        $stmt->execute([$new_name, $idinscripcion]);
+    }
 
     $pdo->commit();
     unset($_SESSION['yape_details']);
+    
+    // Limpiar el carrito después del pago exitoso
+    $clienteId = $_SESSION['customer']['idcliente'] ?? null;
+    if ($clienteId && isset($_SESSION['carritos'][$clienteId])) {
+        unset($_SESSION['carritos'][$clienteId]);
+    }
+    if (isset($_SESSION['cart_certificados'])) {
+        unset($_SESSION['cart_certificados']);
+    }
 
     $_SESSION['success'] = "¡Pago registrado! Comprobante recibido correctamente.";
     header('Location: ../payment-success.php');

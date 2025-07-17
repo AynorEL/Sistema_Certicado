@@ -201,7 +201,10 @@ class SearchHighlighter {
 
 // Inicializar cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', function() {
-    window.searchHighlighter = new SearchHighlighter();
+    // Verificar si ya existe una instancia
+    if (!window.searchHighlighter) {
+        window.searchHighlighter = new SearchHighlighter();
+    }
 });
 
 // Función global para uso desde otros scripts

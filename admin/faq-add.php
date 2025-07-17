@@ -26,8 +26,9 @@ if (isset($_POST['form1'])) {
 			$_POST['orden_pregunta'] ?? 0 // por defecto 0 si no se envía
 		]);
 
-		$success_message = '¡Pregunta frecuente añadida con éxito!';
-		unset($_POST['titulo_pregunta'], $_POST['contenido_pregunta'], $_POST['orden_pregunta']);
+		$_SESSION['success'] = '¡Pregunta frecuente añadida con éxito!';
+		header('location: faq.php');
+		exit();
 	}
 }
 ?>
@@ -86,5 +87,14 @@ if (isset($_POST['form1'])) {
 		</div>
 	</div>
 </section>
+
+<script src="admin/ckeditor/ckeditor.js"></script>
+<script>
+  CKEDITOR.replace('editor1', {
+    removePlugins: 'elementspath',
+    resize_enabled: false,
+    allowedContent: true
+  });
+</script>
 
 <?php require_once('footer.php'); ?>

@@ -91,6 +91,13 @@ foreach ($result as $row) {
 							</div>
 						</div>
 						<div class="form-group">
+							<label for="" class="col-sm-2 control-label">Contraseña</label>
+							<div class="col-sm-4">
+								<input type="password" name="password" class="form-control">
+								<small class="text-muted">Dejar en blanco para mantener la contraseña actual</small>
+							</div>
+						</div>
+						<div class="form-group">
 							<label for="" class="col-sm-2 control-label"></label>
 							<div class="col-sm-6">
 								<button type="submit" class="btn btn-success pull-left" name="form1">Actualizar</button>
@@ -138,16 +145,31 @@ if (isset($_POST['form1'])) {
 	}
 
 	if ($valid == 1) {
-		$statement = $pdo->prepare("UPDATE cliente SET nombre=?, apellido=?, dni=?, telefono=?, email=?, direccion=? WHERE idcliente=?");
-		$statement->execute(array(
-			$_POST['nombre'],
-			$_POST['apellido'],
-			$_POST['dni'],
-			$_POST['telefono'],
-			$_POST['email'],
-			$_POST['direccion'],
-			$_POST['idcliente']
-		));
+		if (!empty($_POST['password'])) {
+			$hashed_password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+			$statement = $pdo->prepare("UPDATE cliente SET nombre=?, apellido=?, dni=?, telefono=?, email=?, direccion=?, password=? WHERE idcliente=?");
+			$statement->execute(array(
+				$_POST['nombre'],
+				$_POST['apellido'],
+				$_POST['dni'],
+				$_POST['telefono'],
+				$_POST['email'],
+				$_POST['direccion'],
+				$hashed_password,
+				$_POST['idcliente']
+			));
+		} else {
+			$statement = $pdo->prepare("UPDATE cliente SET nombre=?, apellido=?, dni=?, telefono=?, email=?, direccion=? WHERE idcliente=?");
+			$statement->execute(array(
+				$_POST['nombre'],
+				$_POST['apellido'],
+				$_POST['dni'],
+				$_POST['telefono'],
+				$_POST['email'],
+				$_POST['direccion'],
+				$_POST['idcliente']
+			));
+		}
 
 		$_SESSION['success'] = "Cliente actualizado exitosamente";
 		header('location: cliente.php');

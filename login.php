@@ -39,55 +39,33 @@ if(isset($_SESSION['customer'])) {
 }
 
 if (isset($_POST['form1'])) {
-    if (empty($_POST['nombre_usuario']) || empty($_POST['password'])) {
+    if (empty($_POST['email']) || empty($_POST['password'])) {
         $error_message = 'Debe completar todos los campos.';
     } else {
-        $nombre_usuario = trim($_POST['nombre_usuario']);
+        $email = trim($_POST['email']);
         $password = trim($_POST['password']);
         $remember = isset($_POST['remember']) ? true : false;
 
-        $stmt = $pdo->prepare("SELECT * FROM usuario WHERE nombre_usuario = ?");
-        $stmt->execute([$nombre_usuario]);
-        $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+        // Buscar en la tabla cliente
+        $stmt = $pdo->prepare("SELECT * FROM cliente WHERE email = ?");
+        $stmt->execute([$email]);
+        $cliente = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if (!$usuario) {
-            $error_message = 'Usuario no encontrado.';
-        } elseif ($usuario['estado'] !== 'Activo') {
-            $error_message = 'La cuenta está inactiva.';
-        } elseif (!password_verify($password, $usuario['password'])) {
+        if (!$cliente) {
+            $error_message = 'Correo no registrado.';
+        } elseif (!password_verify($password, $cliente['password'])) {
             $error_message = 'Contraseña incorrecta.';
         } else {
-            // Obtener datos del cliente relacionado (FK)
-            $stmt = $pdo->prepare("SELECT nombre, apellido FROM cliente WHERE idcliente = ?");
-            $stmt->execute([$usuario['idcliente']]);
-            $cliente = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if ($cliente) {
-                $_SESSION['customer'] = [
-                    'idcliente'      => $usuario['idcliente'],
-                    'nombre_usuario' => $usuario['nombre_usuario'],
-                    'cust_name'      => $cliente['nombre'] . ' ' . $cliente['apellido']
-                ];
-
-                // Si el usuario marcó "Recordarme"
-                if($remember) {
-                    // Crear datos para la cookie (sin información sensible)
-                    $cookie_data = [
-                        'idusuario' => $usuario['idusuario'],
-                        'idcliente' => $usuario['idcliente'],
-                        'nombre_usuario' => $usuario['nombre_usuario'],
-                        'timestamp' => time()
-                    ];
-                    
-                    // Crear cookie que expira en 30 días
-                    setcookie('customer_remember', json_encode($cookie_data), time() + (86400 * 30), '/', '', false, true);
-                }
-
-                header("Location: dashboard.php");
-                exit;
-            } else {
-                $error_message = 'No se encontró el cliente asociado.';
-            }
+            // Login exitoso
+            $_SESSION['customer'] = [
+                'idcliente' => $cliente['idcliente'],
+                'nombre'    => $cliente['nombre'],
+                'apellido'  => $cliente['apellido'],
+                'email'     => $cliente['email']
+            ];
+            // Recordarme (opcional, puedes implementar cookie si lo deseas)
+            header("Location: dashboard.php");
+            exit;
         }
     }
 }
@@ -431,8 +409,8 @@ if (isset($_POST['form1'])) {
     <div class="login-container">
         <div class="login-card">
             <div class="login-header">
-                <h1><i class="bi bi-shield-check me-2"></i>Bienvenido</h1>
-                <p>Sistema de Certificados</p>
+                <h1>Iniciar Sesión</h1>
+                <p>Accede con tu correo electrónico y contraseña de cliente</p>
             </div>
             
             <div class="login-body">
@@ -443,66 +421,42 @@ if (isset($_POST['form1'])) {
                     </div>
                 <?php endif; ?>
 
-                <form method="POST" novalidate>
-                    <input type="hidden" name="form1" value="1">
-                    
-                    <div class="form-group">
-                        <label class="form-label">
-                            <i class="bi bi-person me-2"></i>
-                            Usuario
-                        </label>
-                        <input type="text" name="nombre_usuario" class="form-control" 
-                               placeholder="Ingresa tu usuario" required>
+                <form method="post" autocomplete="on">
+                    <input type="hidden" name="form1" value="1" />
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Correo electrónico</label>
+                        <input type="email" class="form-control" id="email" name="email" required placeholder="ejemplo@correo.com" autofocus>
                     </div>
-
-                    <div class="form-group">
-                        <label class="form-label">
-                            <i class="bi bi-lock me-2"></i>
-                            Contraseña
-                        </label>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Contraseña</label>
                         <div class="input-group">
-                            <input type="password" name="password" id="password" class="form-control" 
-                                   placeholder="Ingresa tu contraseña" required>
-                            <span class="input-group-text">
-                                <i class="bi bi-eye-slash toggle-password" data-target="password"></i>
-                            </span>
+                            <input type="password" class="form-control" id="password" name="password" required placeholder="Tu contraseña">
+                            <span class="input-group-text"><i class="bi bi-eye-slash toggle-password" data-target="password"></i></span>
                         </div>
                     </div>
-
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="remember" name="remember">
-                        <label class="form-check-label" for="remember">
-                            Recordarme
-                        </label>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="remember" name="remember">
+                        <label class="form-check-label" for="remember">Recordarme</label>
                     </div>
-
-                    <button class="btn btn-login" type="submit" name="form1">
-                        <i class="bi bi-box-arrow-in-right me-2"></i>
-                        Iniciar Sesión
-                    </button>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">Iniciar Sesión</button>
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="forget-password.php">¿Olvidaste tu contraseña?</a>
+                    </div>
+                    <div class="text-center mt-2">
+                        ¿No tienes cuenta? <a href="registration.php">Regístrate aquí</a>
+                    </div>
                 </form>
-
-                <div class="login-footer">
-                    <p class="mb-2">
-                        ¿No tienes cuenta? 
-                        <a href="registration.php">Regístrate aquí</a>
-                    </p>
-                    <p class="mb-0">
-                        <a href="forget-password.php">
-                            <i class="bi bi-question-circle me-1"></i>
-                            ¿Olvidaste tu contraseña?
-                        </a>
-                    </p>
-                </div>
             </div>
         </div>
     </div>
 
     <script>
         $(document).ready(function () {
-            // Mostrar/ocultar contraseña
             $(".toggle-password").on("click", function () {
-                const input = $("#" + $(this).data("target"));
+                const target = $(this).data("target");
+                const input = $("#" + target);
                 const type = input.attr("type") === "password" ? "text" : "password";
                 input.attr("type", type);
                 $(this).toggleClass("bi-eye bi-eye-slash");

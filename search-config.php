@@ -87,8 +87,8 @@ $RESULTS_CONFIG = [
     'suggestions_limit' => 3
 ];
 
-// Agregar al inicio del archivo, después de las configuraciones:
-define('BASE_URL', '/certificado/');
+// Incluir configuración centralizada
+require_once(__DIR__ . '/config.php');
 
 /**
  * Validar consulta de búsqueda

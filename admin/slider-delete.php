@@ -1,8 +1,10 @@
 <?php 
 require_once('header.php');
 require_once('inc/config.php');
+require_once('inc/functions.php');
 
 if (!isset($_REQUEST['id'])) {
+	$_SESSION['error'] = "ID de slider no válido";
 	header('location: slider.php');
 	exit;
 }
@@ -24,9 +26,11 @@ try {
 		$statement->execute(array($_REQUEST['id']));
 
 		$_SESSION['success'] = "Slider eliminado exitosamente";
+	} else {
+		$_SESSION['error'] = "Slider no encontrado";
 	}
 } catch (Exception $e) {
-	$_SESSION['error'] = "Error al eliminar el slider";
+	$_SESSION['error'] = "Error al eliminar el slider: " . $e->getMessage();
 }
 
 header('location: slider.php');

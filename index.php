@@ -276,6 +276,11 @@ $preguntas_frecuentes = $statement->fetchAll(PDO::FETCH_ASSOC);
         padding: 12px;
     }
 }
+
+html, body {
+    max-width: 100vw;
+    overflow-x: hidden !important;
+}
 </style>
 
 <script>
@@ -1585,16 +1590,6 @@ $(document).ready(function() {
         font-weight: 500;
     }
     
-    .badge-popular {
-        background: #28a745;
-        color: white;
-        padding: 5px 10px;
-        border-radius: 15px;
-        font-size: 11px;
-        font-weight: 500;
-        margin-left: 8px;
-    }
-    
     .course-title {
         margin-bottom: 10px;
         font-size: 1.2rem;
@@ -1929,6 +1924,8 @@ $(document).ready(function() {
     font-size: 30px;
 }
 </style>
+
+<?php include 'newsletter-subscribe.php'; ?>
 
 <?php require_once('footer.php'); ?>
 

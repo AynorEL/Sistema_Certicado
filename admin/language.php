@@ -12,7 +12,9 @@ if (isset($_POST['form1'])) {
         $statement = $pdo->prepare("UPDATE tbl_language SET lang_value=? WHERE lang_id=?");
         $statement->execute(array($arr[$i], $i));
     }
-    $success_message = 'La configuración del idioma se ha actualizado correctamente.';
+    $_SESSION['success'] = 'La configuración del idioma se ha actualizado correctamente.';
+    header('location: language.php');
+    exit();
 }
 
 $i = 0;

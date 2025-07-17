@@ -17,7 +17,6 @@ try {
 	echo "Error de conexión: " . $e->getMessage();
 	exit;
 }
-
 // Configuración de la zona horaria
 date_default_timezone_set('America/Lima');
 
@@ -52,3 +51,4 @@ if (!defined('FIRMAS_PATH')) {
 if (!defined('CURSOS_PATH')) {
 	define('CURSOS_PATH', $_SERVER['DOCUMENT_ROOT'] . '/certificado/assets/uploads/cursos/');
 }
+

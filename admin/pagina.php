@@ -19,6 +19,14 @@
                     <?= $_SESSION['success']; unset($_SESSION['success']); ?>
                 </div>
             <?php endif; ?>
+            <?php if (isset($_SESSION['error'])): ?>
+                <div class="alert alert-danger">
+                    <?php 
+                    echo $_SESSION['error']; 
+                    unset($_SESSION['error']);
+                    ?>
+                </div>
+            <?php endif; ?>
 
             <div class="box box-info">
                 <div class="box-body table-responsive">
@@ -90,13 +98,21 @@
         if (!$.fn.DataTable.isDataTable('#example1')) {
             $('#example1').DataTable({
                 "language": {
-                    "url": "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
+                    "url": "/certificado/admin/js/Spanish.json"
                 },
                 "columnDefs": [
                     { "orderable": false, "targets": [5] }
                 ]
             });
         }
+
+        $('#confirm-delete').on('show.bs.modal', function(e) {
+            var href = $(e.relatedTarget).data('href');
+            console.log('Modal abierto. data-href encontrado:', href);
+            var btn = $(this).find('.btn-ok');
+            btn.attr('href', href);
+            console.log('Botón .btn-ok actualizado con href:', btn.attr('href'));
+        });
     });
 </script>
 <?php require_once('footer.php'); ?>

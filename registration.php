@@ -113,19 +113,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['form1'])) {
                         <div class="row g-3">
                             <div class="col-md-12">
                                 <label>Correo electrónico *</label>
-                                <input type="email" name="email" class="form-control" required value="<?php echo htmlspecialchars($email); ?>">
+                                <input type="email" name="email" class="form-control" required value="<?php echo htmlspecialchars($email); ?>" placeholder="ejemplo@correo.com">
                             </div>
                             <div class="col-md-6">
                                 <label>Contraseña *</label>
                                 <div class="input-group">
-                                    <input type="password" name="password" id="password" class="form-control" required>
+                                    <input type="password" name="password" id="password" class="form-control" required placeholder="Crea una contraseña">
                                     <span class="input-group-text"><i class="bi bi-eye-slash toggle-password" data-target="password" style="cursor: pointer;"></i></span>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <label>Repetir contraseña *</label>
                                 <div class="input-group">
-                                    <input type="password" name="repassword" id="repassword" class="form-control" required>
+                                    <input type="password" name="repassword" id="repassword" class="form-control" required placeholder="Repite la contraseña">
                                     <span class="input-group-text"><i class="bi bi-eye-slash toggle-password" data-target="repassword" style="cursor: pointer;"></i></span>
                                 </div>
                             </div>

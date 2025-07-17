@@ -1,6 +1,7 @@
 <?php
 ob_start();
 require_once('header.php');
+require_once('inc/functions.php');
 
 if (!isset($_REQUEST['id'])) {
 	$_SESSION['error'] = "ID de curso no válido";
@@ -15,6 +16,15 @@ if ($statement->rowCount() == 0) {
 	$_SESSION['error'] = "Curso no encontrado";
 	header('location: curso.php');
 	exit;
+}
+
+// Validar si se puede eliminar el curso
+$validacion = validarEliminacionCurso($pdo, $_REQUEST['id']);
+
+if (!$validacion['puede_eliminar']) {
+    $_SESSION['error'] = $validacion['mensaje'];
+    header('location: curso.php');
+    exit;
 }
 
 // Obtener datos del curso para eliminar el archivo de diseño

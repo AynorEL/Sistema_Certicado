@@ -1,8 +1,45 @@
-<?php require_once('header.php'); ?>
-
 <?php
+require_once 'admin/inc/config.php';
+session_start();
+// GUARDAR MENSAJE DE CONTACTO Y PRG
 $error_message = '';
 $success_message = '';
+$form_submitted = false;
+if (isset($_SESSION['contact_msg'])) {
+    if ($_SESSION['contact_msg']['type'] === 'success') {
+        $success_message = $_SESSION['contact_msg']['msg'];
+    } else {
+        $error_message = $_SESSION['contact_msg']['msg'];
+    }
+    unset($_SESSION['contact_msg']);
+}
+if (isset($_POST['form_contact'])) {
+    $form_submitted = true;
+    $nombre = trim($_POST['visitor_name'] ?? '');
+    $email = trim($_POST['visitor_email'] ?? '');
+    $telefono = trim($_POST['visitor_phone'] ?? '');
+    $mensaje = trim($_POST['visitor_message'] ?? '');
+    if ($nombre == '' || $email == '' || $telefono == '' || $mensaje == '') {
+        $_SESSION['contact_msg'] = [
+            'msg' => 'Todos los campos son obligatorios.',
+            'type' => 'danger'
+        ];
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $_SESSION['contact_msg'] = [
+            'msg' => 'El correo electrónico no es válido.',
+            'type' => 'danger'
+        ];
+    } else {
+        $stmt = $pdo->prepare('INSERT INTO mensajes_contacto (nombre, email, telefono, mensaje, fecha) VALUES (?, ?, ?, ?, NOW())');
+        $stmt->execute([$nombre, $email, $telefono, $mensaje]);
+        $_SESSION['contact_msg'] = [
+            'msg' => '¡Tu mensaje ha sido enviado correctamente!',
+            'type' => 'success'
+        ];
+    }
+    header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?') . '#contact-form');
+    exit;
+}
 
 $statement = $pdo->prepare("SELECT * FROM paginas WHERE id=1");
 $statement->execute();
@@ -26,6 +63,7 @@ foreach ($result as $row) {
     $contact_address = $row['direccion_contacto'];
 }
 ?>
+<?php require_once('header.php'); ?>
 
 <style>
 .page-banner {
@@ -107,7 +145,7 @@ foreach ($result as $row) {
 <div class="page">
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-lg-10 col-md-12">
+            <div class="col-md-8 col-md-offset-2">
                 <div class="contact-info row mb-5 text-center g-4">
                     <div class="col-md-4">
                         <div class="contact-item">
@@ -131,20 +169,19 @@ foreach ($result as $row) {
                         </div>
                     </div>
                 </div>
-
-                <div class="contact-form">
+                <div class="contact-form" id="contact-form">
                     <h2>Envíanos un mensaje</h2>
-
                     <?php
                     // Alertas con Bootstrap
                     if ($error_message != '') {
                         echo '<div class="alert alert-danger">'.nl2br(htmlspecialchars($error_message)).'</div>';
+                        echo '<script>window.addEventListener("DOMContentLoaded",function(){var el=document.getElementById("contact-form");if(el){setTimeout(function(){el.scrollIntoView({behavior:"smooth",block:"start"});},200);}});</script>';
                     }
                     if ($success_message != '') {
                         echo '<div class="alert alert-success">'.htmlspecialchars($success_message).'</div>';
+                        echo '<script>window.addEventListener("DOMContentLoaded",function(){var el=document.getElementById("contact-form");if(el){setTimeout(function(){el.scrollIntoView({behavior:"smooth",block:"start"});},200);}});</script>';
                     }
                     ?>
-
                     <form action="" method="post" novalidate>
                         <div class="row g-3">
                             <div class="col-md-6">
@@ -169,7 +206,6 @@ foreach ($result as $row) {
                         </div>
                     </form>
                 </div>
-
                 <h3 class="mt-5 text-center">Encuéntranos en el Mapa</h3>
                 <div class="map-responsive mt-3 rounded shadow-sm overflow-hidden" style="min-height: 400px;">
                     <?php echo $contact_map_iframe; ?>

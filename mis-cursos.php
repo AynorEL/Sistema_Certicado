@@ -2,20 +2,33 @@
 require_once('header.php');
 
 // Redirigir si no está logueado
-if (!isset($_SESSION['cliente'])) {
+if (!isset($_SESSION['customer'])) {
     header('location: login.php');
     exit;
 }
 
 // Obtener ID del cliente
-$idCliente = $_SESSION['cliente']['idcliente'];
+$idCliente = $_SESSION['customer']['idcliente'];
 
-// Obtener los cursos del cliente
+// Obtener los cursos comprados del cliente
 $statement = $pdo->prepare("
-    SELECT c.nombre_curso, c.descripcion, c.idcurso
+    SELECT DISTINCT 
+        c.idcurso,
+        c.nombre_curso,
+        c.descripcion,
+        c.precio,
+        c.duracion,
+        c.estado as estado_curso,
+        i.fecha_inscripcion,
+        i.nota_final,
+        COALESCE(p.estado, 'sin_pago') as estado_pago,
+        p.fecha_pago,
+        p.monto as monto_pagado
     FROM inscripcion i
     JOIN curso c ON i.idcurso = c.idcurso
-    WHERE i.idcliente = ?
+    LEFT JOIN pago p ON i.idinscripcion = p.idinscripcion
+    WHERE i.idcliente = ? 
+    ORDER BY i.fecha_inscripcion DESC
 ");
 $statement->execute([$idCliente]);
 $cursos = $statement->fetchAll(PDO::FETCH_ASSOC);
@@ -38,18 +51,56 @@ $cursos = $statement->fetchAll(PDO::FETCH_ASSOC);
                             <table class="table table-bordered table-striped">
                                 <thead>
                                     <tr>
-                                        <th>Nombre del Curso</th>
-                                        <th>Descripción</th>
-                                        <th>Acción</th>
+                                        <th>Curso</th>
+                                        <th>Duración</th>
+                                        <th>Estado del Curso</th>
+                                        <th>Estado del Pago</th>
+                                        <th>Fecha de Compra</th>
+                                        <th>Nota Final</th>
+                                        <th>Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <?php foreach ($cursos as $curso): ?>
                                         <tr>
-                                            <td><?php echo htmlspecialchars($curso['nombre_curso']); ?></td>
-                                            <td><?php echo htmlspecialchars($curso['descripcion']); ?></td>
                                             <td>
-                                                <a href="curso.php?id=<?php echo $curso['idcurso']; ?>" class="btn btn-primary btn-sm">Ver Curso</a>
+                                                <strong><?php echo htmlspecialchars($curso['nombre_curso']); ?></strong><br>
+                                                <small class="text-muted"><?php echo htmlspecialchars(substr($curso['descripcion'], 0, 100)) . '...'; ?></small>
+                                            </td>
+                                            <td><?php echo htmlspecialchars($curso['duracion']); ?> horas</td>
+                                            <td>
+                                                <span class="badge bg-<?php echo $curso['estado_curso'] == 'Activo' ? 'success' : 'secondary'; ?>">
+                                                    <?php echo htmlspecialchars($curso['estado_curso']); ?>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <?php if ($curso['estado_pago'] == 'aprobado'): ?>
+                                                    <span class="badge bg-success">Aprobado</span>
+                                                <?php elseif ($curso['estado_pago'] == 'pendiente_verificacion'): ?>
+                                                    <span class="badge bg-warning">Pendiente</span>
+                                                <?php else: ?>
+                                                    <span class="badge bg-secondary">Sin pago</span>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td><?php echo date('d/m/Y', strtotime($curso['fecha_inscripcion'])); ?></td>
+                                            <td>
+                                                <?php if ($curso['nota_final']): ?>
+                                                    <span class="badge bg-info"><?php echo $curso['nota_final']; ?></span>
+                                                <?php else: ?>
+                                                    <span class="text-muted">Pendiente</span>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <a href="curso.php?id=<?php echo $curso['idcurso']; ?>" class="btn btn-primary btn-sm">
+                                                        <i class="fas fa-eye"></i> Ver
+                                                    </a>
+                                                    <?php if ($curso['estado_pago'] == 'aprobado'): ?>
+                                                        <a href="generar-certificado.php?curso=<?php echo $curso['idcurso']; ?>" class="btn btn-success btn-sm">
+                                                            <i class="fas fa-certificate"></i> Certificado
+                                                        </a>
+                                                    <?php endif; ?>
+                                                </div>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -57,8 +108,14 @@ $cursos = $statement->fetchAll(PDO::FETCH_ASSOC);
                             </table>
                         </div>
                     <?php else: ?>
-                        <p>Aún no te has inscrito a ningún curso.</p>
-                        <a href="curso.php" class="btn btn-primary">Ver Cursos Disponibles</a>
+                        <div class="text-center py-4">
+                            <i class="fas fa-book" style="font-size: 3rem; color: #6c757d;"></i>
+                            <h5 class="mt-3">No tienes cursos comprados</h5>
+                            <p class="text-muted">Compra tu primer curso para comenzar tu aprendizaje</p>
+                                                    <a href="index.php" class="btn btn-primary">
+                            <i class="fas fa-shopping-cart"></i> Ver Cursos Disponibles
+                        </a>
+                        </div>
                     <?php endif; ?>
                 </div>
             </div>

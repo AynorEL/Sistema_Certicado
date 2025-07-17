@@ -64,291 +64,18 @@ $userRole = isset($current_user['rol']) ? htmlspecialchars($current_user['rol'])
     <link rel="shortcut icon" type="image/x-icon" href="../assets/uploads/<?php echo $favicon; ?>">
     <?php endif; ?>
     
-    <!-- Local CSS Assets -->
-    <link rel="stylesheet" href="../assets/css/style.css">
-    <link rel="stylesheet" href="../assets/css/select2.min.css">
-    <link rel="stylesheet" href="../admin/css/dataTables.bootstrap.css">
-    <link rel="stylesheet" href="../admin/css/jquery.fancybox.css">
-    <link rel="stylesheet" href="../admin/css/on-off-switch.css">
-    <link rel="stylesheet" href="../admin/css/summernote.css">
-
-    <!-- Local JavaScript Assets -->
-    <script src="../assets/js/jquery-2.2.4.min.js"></script>
-
-    <!-- External CDN Resources -->
-    <!-- Bootstrap CSS + JS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-
-    <!-- DataTables CSS + JS -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap.min.css">
-    <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap.min.js"></script>
-
-    <!-- Select2 CSS + JS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
-    <!-- FontAwesome -->
-    <link rel="stylesheet" href="fontawesome-free-6.7.2-web/css/all.min.css">
-
-    <!-- AdminLTE CSS + JS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/2.4.18/css/AdminLTE.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/2.4.18/css/skins/_all-skins.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/2.4.18/js/adminlte.min.js"></script>
-
-    <!-- Custom CSS para AdminLTE -->
-    <style>
-        /* Separadores mejorados - Más visibles y organizados */
-        .sidebar-menu .header {
-            color: #ffffff;
-            background: linear-gradient(135deg, #3c8dbc 0%, #2c3e50 100%);
-            font-size: 13px;
-            font-weight: bold;
-            padding: 12px 15px;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            border-bottom: 2px solid #2980b9;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-            margin-top: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            white-space: normal !important;
-            word-break: break-word !important;
-        }
-
-        /* Sidebar principal más claro */
-        .main-sidebar {
-            background-color: #2c3e50 !important;
-        }
-
-        /* Elementos del menú más claros */
-        .sidebar-menu > li > a {
-            color: #ecf0f1 !important;
-            background-color: #34495e !important;
-            border-left: 3px solid transparent;
-            transition: all 0.3s ease;
-        }
-
-        /* Estilos para elementos activos - Más visibles */
-        .sidebar-menu .treeview.active > a,
-        .sidebar-menu .treeview-menu > li.active > a,
-        .sidebar-menu > li.active > a {
-            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%) !important;
-            color: #fff !important;
-            border-left: 4px solid #f39c12;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-        }
-
-        /* Hover effects más claros */
-        .sidebar-menu .treeview > a:hover,
-        .sidebar-menu .treeview-menu > li > a:hover,
-        .sidebar-menu > li > a:hover {
-            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%) !important;
-            color: #fff !important;
-            border-left: 4px solid #f39c12;
-            transform: translateX(3px);
-        }
-
-        /* Submenús más claros */
-        .treeview-menu {
-            background-color: #34495e !important;
-            transition: all 0.3s ease;
-            border-left: 2px solid #3498db;
-        }
-
-        .treeview-menu > li > a {
-            color: #bdc3c7 !important;
-            background-color: #2c3e50 !important;
-            padding-left: 35px !important;
-            border-left: 2px solid transparent;
-        }
-
-        .treeview-menu > li > a:hover {
-            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%) !important;
-            color: #fff !important;
-            border-left: 2px solid #f39c12;
-        }
-
-        /* Submenús activos */
-        .treeview-menu > li.active > a {
-            background: linear-gradient(135deg, #e67e22 0%, #d35400 100%) !important;
-            color: #fff !important;
-            border-left: 2px solid #f39c12;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
-        }
-
-        /* Iconos en el menú */
-        .sidebar-menu .treeview > a > i,
-        .sidebar-menu .treeview-menu > li > a > i,
-        .sidebar-menu > li > a > i {
-            width: 20px;
-            text-align: center;
-            margin-right: 8px;
-            transition: all 0.3s ease;
-        }
-
-        /* Flecha de submenú */
-        .sidebar-menu .treeview > a > .fa-angle-left {
-            transition: transform 0.3s ease;
-        }
-
-        .sidebar-menu .treeview.menu-open > a > .fa-angle-left {
-            transform: rotate(-90deg);
-        }
-
-        /* Logo mejorado */
-        .logo-lg img {
-            max-height: 40px;
-            width: auto;
-        }
-
-        .logo-mini img {
-            max-height: 30px;
-            width: auto;
-        }
-
-        /* Header mejorado */
-        .main-header .navbar {
-            background: linear-gradient(135deg, #3c8dbc 0%, #2c3e50 100%);
-        }
-
-        /* Usuario dropdown mejorado */
-        .user-header {
-            background: linear-gradient(135deg, #3c8dbc 0%, #2c3e50 100%);
-        }
-
-        /* Toggle button mejorado para AdminLTE */
-        .sidebar-toggle {
-            color: #fff !important;
-            background: transparent !important;
-            border: none !important;
-            padding: 15px !important;
-            font-size: 18px !important;
-            transition: all 0.3s ease;
-        }
-
-        .sidebar-toggle:hover {
-            background-color: rgba(255,255,255,0.1) !important;
-            color: #f39c12 !important;
-        }
-
-        /* Indicador de página actual en el breadcrumb */
-        .current-page-indicator {
-            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-            color: white;
-            padding: 5px 10px;
-            border-radius: 3px;
-            font-size: 12px;
-            font-weight: bold;
-            text-transform: uppercase;
-            margin-left: 10px;
-        }
-    </style>
-
-    <!-- Custom JavaScript -->
-    <script>
-        $(document).ready(function () {
-            $('.dropdown-toggle').dropdown();
-
-            $('.dropdown').on('show.bs.dropdown', function () {
-                $(this).find('.dropdown-menu').first().stop(true, true).slideDown(200);
-            });
-
-            $('.dropdown').on('hide.bs.dropdown', function () {
-                $(this).find('.dropdown-menu').first().stop(true, true).slideUp(200);
-            });
-
-            // Restaurar estado del sidebar al cargar (usando AdminLTE)
-            if (localStorage.getItem('sidebar-collapsed') === 'true') {
-                $('body').addClass('sidebar-collapse');
-            }
-
-            // Activar automáticamente el menú padre cuando un submenú está activo
-            $('.treeview-menu > li.active').parents('.treeview').addClass('active menu-open');
-            
-            // Funcionalidad mejorada para submenús
-            $('.treeview > a').on('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                var $parent = $(this).parent();
-                var $submenu = $parent.find('> .treeview-menu');
-                
-                // Solo cerrar otros submenús si no estamos en el mismo grupo
-                var currentGroup = $parent.closest('.sidebar-menu > li');
-                $('.treeview-menu').not($submenu).slideUp(300);
-                $('.treeview').not($parent).removeClass('menu-open');
-                
-                // Toggle del submenú actual
-                if ($submenu.is(':visible')) {
-                    $submenu.slideUp(300);
-                    $parent.removeClass('menu-open');
-                } else {
-                    $submenu.slideDown(300);
-                    $parent.addClass('menu-open');
-                }
-            });
-
-            // Prevenir que los enlaces de submenú cierren el menú
-            $('.treeview-menu > li > a').on('click', function(e) {
-                e.stopPropagation();
-                // No cerrar el submenú al hacer clic en un enlace
-            });
-
-            // Guardar estado del sidebar cuando AdminLTE lo cambie
-            $(document).on('click', '.sidebar-toggle', function() {
-                setTimeout(function() {
-                    if ($('body').hasClass('sidebar-collapse')) {
-                        localStorage.setItem('sidebar-collapsed', 'true');
-                    } else {
-                        localStorage.setItem('sidebar-collapsed', 'false');
-                    }
-                }, 100);
-            });
-
-            // Agregar indicador visual de página actual
-            var currentPage = '<?php echo $cur_page; ?>';
-            var currentPageName = '';
-            
-            // Mapeo de nombres de página
-            var pageNames = {
-                'index.php': 'Panel de Control',
-                'settings.php': 'Ajustes del Sitio',
-                'cargo.php': 'Cargos',
-                'categoria.php': 'Categorías',
-                'genero.php': 'Géneros',
-                'rol.php': 'Roles',
-                'entidad.php': 'Entidades',
-                'modulo.php': 'Módulos del Sistema',
-                'instructor.php': 'Instructores',
-                'especialista.php': 'Especialistas',
-                'cliente.php': 'Clientes',
-                'usuario.php': 'Administradores',
-                'curso.php': 'Cursos',
-                'inscripcion.php': 'Inscripciones',
-                'aprobar_alumno.php': 'Aprobar Alumnos',
-                'gestionar_certificados.php': 'Configurar Certificados',
-                'generar_certificado.php': 'Generar Certificados',
-                'certificados_generados.php': 'Ver Certificados',
-                'pago.php': 'Ver Pagos',
-                'pagos.php': 'Reportes de Pagos',
-                'slider.php': 'Sliders',
-                'pagina.php': 'Páginas',
-                'faq.php': 'Preguntas Frecuentes',
-                'suscriptor.php': 'Suscriptores',
-                'social-media.php': 'Redes Sociales',
-                'report.php': 'Reportes Generales'
-            };
-            
-            currentPageName = pageNames[currentPage] || currentPage;
-            
-            // Agregar indicador al breadcrumb si existe
-            if ($('.breadcrumb').length > 0) {
-                $('.breadcrumb').append('<span class="current-page-indicator">' + currentPageName + '</span>');
-            }
-        });
-    </script>
+    <!-- CSS Locales para el panel admin -->
+    <link rel="stylesheet" href="/certificado/admin/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/certificado/admin/fontawesome-free-6.7.2-web/css/all.min.css">
+    <link rel="stylesheet" href="/certificado/admin/css/dataTables.bootstrap.css">
+    <link rel="stylesheet" href="/certificado/admin/css/select2.min.css">
+    <link rel="stylesheet" href="/certificado/admin/css/jquery.fancybox.css">
+    <link rel="stylesheet" href="/certificado/admin/css/on-off-switch.css">
+    <link rel="stylesheet" href="/certificado/admin/css/summernote.css">
+    <link rel="stylesheet" href="/certificado/admin/css/AdminLTE.min.css">
+    <link rel="stylesheet" href="/certificado/admin/css/_all-skins.min.css">
+    <link rel="stylesheet" href="/certificado/admin/css/custom.css">
+    <link rel="stylesheet" href="/certificado/admin/css/style.css">
 </head>
 
 
@@ -523,12 +250,6 @@ $userRole = isset($current_user['rol']) ? htmlspecialchars($current_user['rol'])
                             <li class="<?php if($cur_page == 'gestionar_certificados.php') { echo 'active'; } ?>">
                                 <a href="gestionar_certificados.php"><i class="fa fa-cog"></i> Configurar Certificados</a>
                             </li>
-                            <li class="<?php if($cur_page == 'generar_certificado.php') { echo 'active'; } ?>">
-                                <a href="generar_certificado.php"><i class="fa fa-file-pdf"></i> Generar Certificados</a>
-                            </li>
-                            <li class="<?php if($cur_page == 'certificados_generados.php') { echo 'active'; } ?>">
-                                <a href="certificados_generados.php"><i class="fa fa-list"></i> Ver Certificados</a>
-                            </li>
                         </ul>
                     </li>
 
@@ -543,9 +264,6 @@ $userRole = isset($current_user['rol']) ? htmlspecialchars($current_user['rol'])
                         <ul class="treeview-menu">
                             <li class="<?php if($cur_page == 'pago.php') { echo 'active'; } ?>">
                                 <a href="pago.php"><i class="fa fa-list"></i> Ver Pagos</a>
-                            </li>
-                            <li class="<?php if($cur_page == 'pagos.php') { echo 'active'; } ?>">
-                                <a href="pagos.php"><i class="fa fa-chart-bar"></i> Reportes</a>
                             </li>
                         </ul>
                     </li>

@@ -1,6 +1,7 @@
 <?php
 ob_start();
 require_once('header.php');
+require_once('inc/functions.php');
 
 if (!isset($_REQUEST['idrol'])) {
     $_SESSION['error'] = "ID de rol no válido";
@@ -17,13 +18,11 @@ if ($statement->rowCount() == 0) {
     exit;
 }
 
-// Verificar si el rol está en uso por algún usuario
-$statement = $pdo->prepare("SELECT COUNT(*) as total FROM usuario WHERE idrol=?");
-$statement->execute(array($_REQUEST['idrol']));
-$result = $statement->fetch(PDO::FETCH_ASSOC);
+// Validar si se puede eliminar el rol
+$validacion = validarEliminacionRol($pdo, $_REQUEST['idrol']);
 
-if ($result['total'] > 0) {
-    $_SESSION['error'] = "No se puede eliminar el rol porque está siendo utilizado por " . $result['total'] . " usuario(s). Primero debe reasignar estos usuarios a otro rol.";
+if (!$validacion['puede_eliminar']) {
+    $_SESSION['error'] = $validacion['mensaje'];
     header('location: rol.php');
     exit;
 }

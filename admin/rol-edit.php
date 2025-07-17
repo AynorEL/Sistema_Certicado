@@ -21,7 +21,9 @@ if (isset($_POST['form1'])) {
         $statement = $pdo->prepare("UPDATE rol SET nombre_rol = ?, descripcion = ? WHERE idrol = ?");
         $statement->execute(array($_POST['nombre_rol'], $_POST['descripcion'], $_REQUEST['idrol']));
 
-        $success_message = 'El rol se ha actualizado correctamente.';
+        $_SESSION['success'] = 'El rol se ha actualizado correctamente.';
+        header('location: rol.php');
+        exit();
     }
 }
 ?>

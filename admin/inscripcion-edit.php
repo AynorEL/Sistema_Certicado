@@ -39,8 +39,33 @@ if(isset($_POST['form1'])) {
                             $_POST['observaciones'],
                             $_REQUEST['id']
                         ));
-        
-        $success_message = 'La inscripción ha sido actualizada exitosamente.';
+
+        // Sincronizar pagos asociados
+        $nuevo_estado_pago = $_POST['estado_pago'];
+        $estado_pago_pago = '';
+        switch ($nuevo_estado_pago) {
+            case 'Pagado':
+                $estado_pago_pago = 'Completado';
+                break;
+            case 'Pendiente':
+                $estado_pago_pago = 'Pendiente';
+                break;
+            case 'Reembolsado':
+                $estado_pago_pago = 'Reembolsado';
+                break;
+            case 'Cancelado':
+                $estado_pago_pago = 'Cancelado';
+                break;
+            default:
+                $estado_pago_pago = 'Pendiente';
+                break;
+        }
+        $statement = $pdo->prepare("UPDATE pago SET estado = ? WHERE idinscripcion = ?");
+        $statement->execute(array($estado_pago_pago, $_REQUEST['id']));
+
+        $_SESSION['success'] = 'La inscripción ha sido actualizada exitosamente.';
+        header('location: inscripcion.php');
+        exit();
     }
 }
 
@@ -157,7 +182,11 @@ foreach ($result as $row) {
                                     <option value="Pendiente" <?php if($estado_pago=='Pendiente'){echo 'selected';} ?>>Pendiente</option>
                                     <option value="Pagado" <?php if($estado_pago=='Pagado'){echo 'selected';} ?>>Pagado</option>
                                     <option value="Reembolsado" <?php if($estado_pago=='Reembolsado'){echo 'selected';} ?>>Reembolsado</option>
+                                    <option value="Cancelado" <?php if($estado_pago=='Cancelado'){echo 'selected';} ?>>Cancelado</option>
                                 </select>
+                                <div class="alert alert-info" style="margin-top:8px;">
+                                    <strong>Nota:</strong> El estado de pago se puede editar manualmente, pero se recomienda que refleje la realidad de los pagos individuales. Al cambiarlo, todos los pagos asociados se actualizarán automáticamente.
+                                </div>
                             </div>
                         </div>
                         <div class="form-group">

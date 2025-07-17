@@ -216,7 +216,9 @@ if (isset($_POST['form1'])) {
 			$_REQUEST['id']
 		));
 
-		$success_message = 'El curso se actualizó correctamente.';
+		$_SESSION['success'] = 'El curso se actualizó correctamente.';
+		header('location: curso.php');
+		exit();
 	}
 }
 ?>

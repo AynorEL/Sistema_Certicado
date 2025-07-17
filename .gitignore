@@ -58,7 +58,7 @@ admin/js/
 admin/css/all/
 admin/css/font-awesome.css
 admin/css/font-awesome.min1.css
-
+ckeditor
 # ============================================
 # 🖼️ Archivos generados / temporales
 *.pdf

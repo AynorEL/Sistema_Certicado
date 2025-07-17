@@ -24,7 +24,9 @@ if (isset($_POST['form1'])) {
 			$_REQUEST['id']
 		]);
 
-		$success_message = '¡Pregunta frecuente actualizada con éxito!';
+		$_SESSION['success'] = '¡Pregunta frecuente actualizada con éxito!';
+		header('location: faq.php');
+		exit();
 	}
 }
 ?>
@@ -90,7 +92,7 @@ $contenido_pregunta = $result['contenido_pregunta'];
 						<div class="form-group">
 							<label class="col-sm-2 control-label">Contenido <span>*</span></label>
 							<div class="col-sm-9">
-								<textarea class="form-control" name="contenido_pregunta" id="editor1" style="height:140px;"><?php echo htmlspecialchars($contenido_pregunta); ?></textarea>
+								<textarea class="form-control" name="contenido_pregunta" id="editor1" style="height:140px;"><?php echo $contenido_pregunta; ?></textarea>
 							</div>
 						</div>
 						<div class="form-group">
@@ -106,5 +108,14 @@ $contenido_pregunta = $result['contenido_pregunta'];
 	</div>
 
 </section>
+
+<script src="admin/ckeditor/ckeditor.js"></script>
+<script>
+  CKEDITOR.replace('editor1', {
+    removePlugins: 'elementspath',
+    resize_enabled: false,
+    allowedContent: true
+  });
+</script>
 
 <?php require_once('footer.php'); ?>

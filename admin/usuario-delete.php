@@ -1,16 +1,19 @@
 <?php
 ob_start();
 require_once('header.php');
+require_once('inc/functions.php');
 
 if(!isset($_REQUEST['id'])) {
-    header('location: logout.php');
+    $_SESSION['error'] = "ID de usuario no válido";
+    header('location: usuario.php');
     exit;
 } else {
     $statement = $pdo->prepare("SELECT * FROM usuario WHERE idusuario=?");
     $statement->execute(array($_REQUEST['id']));
     $total = $statement->rowCount();
     if($total == 0) {
-        header('location: logout.php');
+        $_SESSION['error'] = "Usuario no encontrado";
+        header('location: usuario.php');
         exit;
     }
 }

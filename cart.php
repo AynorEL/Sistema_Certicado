@@ -103,7 +103,7 @@ echo trim(ob_get_clean());
                             <i class="fas fa-shopping-cart"></i>
                             <h4>Tu carrito está vacío</h4>
                             <p class="text-muted">Agrega cursos a tu carrito para comenzar tu aprendizaje</p>
-                            <a href="cursos.php" class="btn btn-primary">
+                            <a href="index.php" class="btn btn-primary">
                                 <i class="fas fa-book me-2"></i>Explorar Cursos
                             </a>
                         </div>
@@ -137,7 +137,7 @@ echo trim(ob_get_clean());
                         <i class="fas fa-credit-card me-2"></i> Proceder al Pago
                     </a>
                     <div class="text-center mt-3">
-                        <a href="cursos.php" class="text-decoration-none">
+                        <a href="index.php" class="text-decoration-none">
                             <i class="fas fa-arrow-left me-1"></i> Continuar Comprando
                         </a>
                     </div>

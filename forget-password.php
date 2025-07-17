@@ -19,89 +19,40 @@ if(isset($_POST['form1'])) {
     } elseif(!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error_message = "Por favor, ingresa una dirección de correo electrónico válida.";
     } else {
-        // Verificar si el email existe en la tabla usuario (nombre_usuario)
-        $stmt = $pdo->prepare("SELECT * FROM usuario WHERE nombre_usuario = ? AND estado = 'Activo'");
+        // Buscar en la tabla cliente
+        $stmt = $pdo->prepare("SELECT * FROM cliente WHERE email = ?");
         $stmt->execute([$email]);
-        $user = $stmt->fetch();
+        $cliente = $stmt->fetch();
         
-        if(!$user) {
+        if(!$cliente) {
             $error_message = "No se encontró una cuenta con esa dirección de correo electrónico.";
         } else {
-            // Generar token único
+            // Generar token único y expiración (1 hora)
             $token = bin2hex(random_bytes(32));
+            $expira = date('Y-m-d H:i:s', strtotime('+1 hour'));
             
-            // Guardar token en la base de datos
-            $stmt = $pdo->prepare("UPDATE usuario SET token = ? WHERE idusuario = ?");
-            $result = $stmt->execute([$token, $user['idusuario']]);
+            // Guardar token y expiración en la base de datos
+            $stmt = $pdo->prepare("UPDATE cliente SET token = ?, token_expira = ? WHERE idcliente = ?");
+            $result = $stmt->execute([$token, $expira, $cliente['idcliente']]);
             
-            // Verificar si se guardó correctamente
             if ($result) {
-                // Verificar que realmente se guardó
-                $stmt = $pdo->prepare("SELECT token FROM usuario WHERE idusuario = ?");
-                $stmt->execute([$user['idusuario']]);
-                $verification = $stmt->fetch();
+                $reset_link = "http://" . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . "/reset-password.php?idcliente=" . $cliente['idcliente'] . "&token=" . $token;
                 
-                if ($verification && $verification['token'] === $token) {
-                    // Token guardado correctamente - intentar enviar email
-                    $reset_link = "http://" . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . "/reset-password.php?token=" . $token;
-                    
-                    // Crear mensaje HTML
-                    $subject = "Restablecimiento de Contraseña - Sistema de Certificados";
-                    $message = "
-                    <html>
-                    <head>
-                        <style>
-                            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-                            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                            .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
-                            .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
-                            .btn { display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; margin: 20px 0; }
-                            .warning { background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 8px; margin: 20px 0; }
-                        </style>
-                    </head>
-                    <body>
-                        <div class='container'>
-                            <div class='header'>
-                                <h1>🔐 Restablecimiento de Contraseña</h1>
-                                <p>Sistema de Certificados</p>
-                            </div>
-                            <div class='content'>
-                                <h2>Hola,</h2>
-                                <p>Has solicitado restablecer tu contraseña. Haz clic en el botón de abajo para continuar:</p>
-                                
-                                <div style='text-align: center;'>
-                                    <a href='{$reset_link}' class='btn'>Restablecer Contraseña</a>
-                                </div>
-                                
-                                <p>O copia y pega este enlace en tu navegador:</p>
-                                <p style='word-break: break-all; background: #f0f0f0; padding: 10px; border-radius: 5px;'>{$reset_link}</p>
-                                
-                                <div class='warning'>
-                                    <strong>⚠️ Importante:</strong>
-                                    <ul>
-                                        <li>Este enlace expira en 1 hora</li>
-                                        <li>Si no solicitaste este cambio, ignora este email</li>
-                                        <li>Nunca compartas este enlace con nadie</li>
-                                    </ul>
-                                </div>
-                                
-                                <p>Saludos,<br>Equipo de Sistema de Certificados</p>
-                            </div>
-                        </div>
-                    </body>
-                    </html>";
-                    
-                    // Intentar enviar email
-                    $email_sent = sendEmailWithPHPMailer($email, $subject, $message);
-                    
-                    if ($email_sent) {
-                        $success_message = "✅ Se ha enviado un enlace de restablecimiento a tu correo electrónico. Revisa tu bandeja de entrada y carpeta de spam.";
-                    } else {
-                        // Si falla el email, mostrar el enlace directamente
-                        $success_message = "Tu enlace de restablecimiento de contraseña está listo. Copia y pega este enlace en tu navegador: <br><br><strong>" . $reset_link . "</strong>";
-                    }
+                $subject = "Restablecimiento de Contraseña - Sistema de Certificados";
+                $message = "<html><body>"
+                    . "<h2>Restablecimiento de Contraseña</h2>"
+                    . "<p>Haz clic en el siguiente enlace para restablecer tu contraseña:</p>"
+                    . "<a href='" . $reset_link . "'>Restablecer Contraseña</a>"
+                    . "<p>O copia y pega este enlace en tu navegador:<br>" . $reset_link . "</p>"
+                    . "<p>Este enlace expirará en 1 hora.</p>"
+                    . "</body></html>";
+                
+                $email_sent = sendEmailWithPHPMailer($email, $subject, $message);
+                
+                if ($email_sent) {
+                    $success_message = "✅ Se ha enviado un enlace de restablecimiento a tu correo electrónico. Revisa tu bandeja de entrada y carpeta de spam.";
                 } else {
-                    $error_message = "Error al guardar el token. Por favor, inténtalo de nuevo.";
+                    $success_message = "Tu enlace de restablecimiento de contraseña está listo. Copia y pega este enlace en tu navegador: <br><br><strong>" . $reset_link . "</strong>";
                 }
             } else {
                 $error_message = "Error al actualizar la base de datos. Por favor, inténtalo de nuevo.";

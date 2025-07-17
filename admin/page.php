@@ -54,7 +54,9 @@ if (isset($_POST['form1'])) {
             $statement->execute(array($_POST['nombre_pagina'], $_POST['contenido_pagina'], $_POST['meta_titulo'], $_POST['meta_palabras_clave'], $_POST['meta_descripcion']));
         }
 
-        $success_message = 'La página se ha actualizado correctamente.';
+        $_SESSION['success'] = 'La página se ha actualizado correctamente.';
+        header('location: page.php');
+        exit();
     }
 }
 

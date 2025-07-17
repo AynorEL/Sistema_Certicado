@@ -66,6 +66,12 @@ require_once('header.php');
 							</div>
 						</div>
 						<div class="form-group">
+							<label for="" class="col-sm-2 control-label">Contraseña <span>*</span></label>
+							<div class="col-sm-4">
+								<input type="password" name="password" class="form-control" required>
+							</div>
+						</div>
+						<div class="form-group">
 							<label for="" class="col-sm-2 control-label"></label>
 							<div class="col-sm-6">
 								<button type="submit" class="btn btn-success pull-left" name="form1">Guardar</button>
@@ -112,15 +118,22 @@ if (isset($_POST['form1'])) {
 		$_SESSION['error'] = "La dirección es requerida";
 	}
 
+	if (empty($_POST['password'])) {
+		$valid = 0;
+		$_SESSION['error'] = "La contraseña es requerida";
+	}
+
 	if ($valid == 1) {
-		$statement = $pdo->prepare("INSERT INTO cliente (nombre, apellido, dni, telefono, email, direccion) VALUES (?, ?, ?, ?, ?, ?)");
+		$hashed_password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+		$statement = $pdo->prepare("INSERT INTO cliente (nombre, apellido, dni, telefono, email, direccion, password) VALUES (?, ?, ?, ?, ?, ?, ?)");
 		$statement->execute(array(
 			$_POST['nombre'],
 			$_POST['apellido'],
 			$_POST['dni'],
 			$_POST['telefono'],
 			$_POST['email'],
-			$_POST['direccion']
+			$_POST['direccion'],
+			$hashed_password
 		));
 
 		$_SESSION['success'] = "Cliente agregado exitosamente";

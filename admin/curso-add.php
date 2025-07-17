@@ -179,7 +179,9 @@ if (isset($_POST['form1'])) {
 			$_POST['objetivos']
 		));
 
-		$success_message = 'El curso se ha añadido correctamente.';
+		$_SESSION['success'] = 'El curso se ha añadido correctamente.';
+		header('location: curso.php');
+		exit();
 	}
 }
 ?>

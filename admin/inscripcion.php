@@ -10,6 +10,25 @@
     <div class="row">
         <div class="col-md-12">
             <div class="box box-info">
+                <div class="box-header">
+                    <h3 class="box-title">Lista de Inscripciones</h3>
+                </div>
+                <?php if(isset($_SESSION['success'])): ?>
+                    <div class="alert alert-success">
+                        <?php 
+                        echo $_SESSION['success']; 
+                        unset($_SESSION['success']);
+                        ?>
+                    </div>
+                <?php endif; ?>
+                <?php if(isset($_SESSION['error'])): ?>
+                    <div class="alert alert-danger">
+                        <?php 
+                        echo $_SESSION['error']; 
+                        unset($_SESSION['error']);
+                        ?>
+                    </div>
+                <?php endif; ?>
                 <div class="box-body table-responsive">
                     <table id="example1" class="table table-bordered table-striped">
                         <thead>

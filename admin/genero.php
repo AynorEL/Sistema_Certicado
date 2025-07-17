@@ -30,6 +30,14 @@ include('header.php');
                         ?>
                     </div>
                 <?php endif; ?>
+                <?php if(isset($_SESSION['error'])): ?>
+                    <div class="alert alert-danger">
+                        <?php 
+                        echo $_SESSION['error']; 
+                        unset($_SESSION['error']);
+                        ?>
+                    </div>
+                <?php endif; ?>
                 <div class="box-body">
                     <table id="example1" class="table table-bordered table-striped">
                         <thead>
