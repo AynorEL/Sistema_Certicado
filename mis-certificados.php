@@ -1,7 +1,5 @@
 <?php
-require_once 'admin/inc/config.php';
 session_start();
-require_once 'header.php';
 
 if (!isset($_SESSION['customer']['idcliente'])) {
     echo '<div class="alert alert-danger">Debes iniciar sesión para ver tus certificados.</div>';
@@ -9,13 +7,21 @@ if (!isset($_SESSION['customer']['idcliente'])) {
     exit;
 }
 
-$idcliente = $_SESSION['customer']['idcliente'];
-$stmt = $pdo->prepare("SELECT cg.*, cu.nombre_curso 
+require_once('header.php');
+
+// Obtener ID del cliente
+$idCliente = $_SESSION['cliente']['idcliente'];
+
+// Obtener los certificados generados
+$statement = $pdo->prepare("
+    SELECT c.nombre_curso, c.duracion, i.fecha_finalizacion, cg.codigo_validacion, c.idcurso
     FROM certificado_generado cg
-    JOIN curso cu ON cg.idcurso = cu.idcurso
-    WHERE cg.idcliente = ? AND cg.estado = 'Activo'");
-$stmt->execute([$idcliente]);
-$certificados = $stmt->fetchAll();
+    JOIN inscripcion i ON cg.idcliente = i.idcliente AND cg.idcurso = i.idcurso
+    JOIN curso c ON i.idcurso = c.idcurso
+    WHERE cg.idcliente = ? AND cg.estado = 'Activo'
+");
+$statement->execute([$idCliente]);
+$certificados = $statement->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <style>
@@ -151,38 +157,46 @@ $certificados = $stmt->fetchAll();
 }
 </style>
 
-<div class="container" style="max-width:1200px;margin:40px auto 30px auto;">
-    <h2 class="mb-4 text-center" style="font-weight:700;color:#222;"><i class="bi bi-award-fill"></i> Mis Certificados</h2>
-    <?php if (count($certificados) > 0): ?>
-        <div class="certificados-grid">
-        <?php foreach ($certificados as $cert): ?>
-            <div class="certificado-card">
-                <div class="top-section">
-                    <div class="border"></div>
-                    <div class="logo">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><path fill="#049fbb" d="M12 2c.28 0 .53.15.66.4l2.1 3.8 4.24.62c.27.04.5.23.58.49.08.26 0 .54-.2.73l-3.07 2.99.73 4.23c.05.27-.06.54-.28.7a.7.7 0 0 1-.74.05L12 14.77l-3.8 2a.7.7 0 0 1-.74-.05.7.7 0 0 1-.28-.7l.73-4.23-3.07-2.99a.7.7 0 0 1-.2-.73c.08-.26.31-.45.58-.49l4.24-.62 2.1-3.8A.7.7 0 0 1 12 2Z"/></svg>
-                    </div>
-                </div>
-                <div class="main-title"><?php echo htmlspecialchars($cert['nombre_curso']); ?></div>
-                <div class="fecha-emision">
-                    <?php if (!empty($cert['fecha_generacion'])): ?>
-                        Emitido: <?php echo date('d/m/Y', strtotime($cert['fecha_generacion'])); ?>
+<div class="page">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="user-content">
+                    <h3>Certificados Obtenidos</h3>
+                    <?php if (count($certificados) > 0): ?>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre del Curso</th>
+                                        <th>Duración (horas)</th>
+                                        <th>Fecha de Finalización</th>
+                                        <th>Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($certificados as $certificado): ?>
+                                        <tr>
+                                            <td><?php echo htmlspecialchars($certificado['nombre_curso']); ?></td>
+                                            <td><?php echo htmlspecialchars($certificado['duracion']); ?></td>
+                                            <td><?php echo date("d/m/Y", strtotime($certificado['fecha_finalizacion'])); ?></td>
+                                            <td>
+                                                <a href="generar-certificado.php?codigo=<?php echo urlencode($certificado['codigo_validacion']); ?>" class="btn btn-success btn-sm" target="_blank">Ver Certificado</a>
+                                                <iframe src="admin/previsualizar_certificado_final.php?idcurso=<?php echo $certificado['idcurso']; ?>&idalumno=<?php echo $idCliente; ?>&modo=final" width="350" height="250" style="border:1px solid #ccc; border-radius:8px; margin-top:8px;"></iframe>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    <?php else: ?>
+                        <p>Aún no has obtenido ningún certificado.</p>
+                        <p>Sigue estudiando para conseguir tus certificados. ¡Mucho éxito!</p>
                     <?php endif; ?>
                 </div>
-                <div class="cert-btns">
-                    <a href="verificar-certificado.php?codigo=<?php echo urlencode($cert['codigo_validacion']); ?>" target="_blank" class="btn btn-info"><i class="bi bi-eye"></i> Ver</a>
-                    <a href="admin/generar_pdf_directo.php?idcliente=<?php echo $idcliente; ?>&idcurso=<?php echo $cert['idcurso']; ?>" target="_blank" class="btn btn-success"><i class="bi bi-file-earmark-pdf"></i> PDF</a>
-                </div>
-                <div class="codigo">Código: <?php echo htmlspecialchars($cert['codigo_validacion']); ?></div>
             </div>
-        <?php endforeach; ?>
         </div>
-    <?php else: ?>
-        <div class="d-flex flex-column align-items-center justify-content-center" style="min-height:300px;">
-            <div style="font-size:3.5rem;color:#e0e0e0;"><i class="bi bi-emoji-neutral"></i></div>
-            <div class="alert alert-info text-center mt-3" style="max-width:400px;">No tienes certificados disponibles aún.<br>Cuando apruebes un curso y se genere tu certificado, aparecerá aquí.</div>
-        </div>
-    <?php endif; ?>
+    </div>
 </div>
 
 <?php require_once 'footer.php'; ?>
