@@ -203,7 +203,7 @@ try {
         <a href="index.php" style="color: #007bff; text-decoration: none; font-size: 18px;">
             ← Volver al inicio
         </a>
-        <a href="generar-certificado.php?codigo=<?php echo urlencode($datos_certificado['codigo_validacion']); ?>" 
+        <a href="generar-pdf-certificado.php?codigo=<?php echo urlencode($datos_certificado['codigo_validacion']); ?>" 
            style="margin-left: 30px; color: #28a745; text-decoration: none; font-size: 18px;">
             <i class="fa fa-download"></i> Descargar PDF
         </a>
