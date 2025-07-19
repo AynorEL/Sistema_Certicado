@@ -7,7 +7,6 @@ config_email_fix.php
 phpmailer-config.php
 search-config.php
 sftp.json
-
 # ============================================
 # 💾 Archivos de base de datos y backups
 *.sql
