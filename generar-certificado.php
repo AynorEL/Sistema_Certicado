@@ -329,13 +329,15 @@ class PDF extends FPDF
                 }
                 return;
             case 'firma_instructor':
-                if (isset($datos['firma_instructor']) && file_exists($datos['firma_instructor'])) {
-                    $this->Image($datos['firma_instructor'], $x, $y, $ancho, $alto);
+                $img_firma = isset($campo['img_src']) && $campo['img_src'] ? $campo['img_src'] : ($datos['firma_instructor'] ?? null);
+                if ($img_firma && file_exists($img_firma)) {
+                    $this->Image($img_firma, $x, $y, $ancho, $alto);
                 }
                 return;
             case 'firma_especialista':
-                if (isset($datos['firma_especialista']) && file_exists($datos['firma_especialista'])) {
-                    $this->Image($datos['firma_especialista'], $x, $y, $ancho, $alto);
+                $img_firma = isset($campo['img_src']) && $campo['img_src'] ? $campo['img_src'] : ($datos['firma_especialista'] ?? null);
+                if ($img_firma && file_exists($img_firma)) {
+                    $this->Image($img_firma, $x, $y, $ancho, $alto);
                 }
                 return;
             default:

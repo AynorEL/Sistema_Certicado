@@ -25,12 +25,12 @@ try {
         throw new Exception('ID de curso no proporcionado');
     }
     
-    if (!isset($input['configuracion'])) {
+    if (!isset($input['config'])) {
         throw new Exception('Configuración no proporcionada');
     }
     
     $idcurso = (int)$input['idcurso'];
-    $configuracion = $input['configuracion'];
+    $configuracion = $input['config'];
     
     // Validar que el curso existe
     $stmt = $pdo->prepare("SELECT idcurso FROM curso WHERE idcurso = ?");

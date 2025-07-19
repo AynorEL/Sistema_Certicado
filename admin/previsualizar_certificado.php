@@ -86,6 +86,22 @@ try {
     // Generar URL del QR
     $qr_url = "generar_qr.php?certificado=1&idcurso=$idcurso&idalumno=$idalumno&fecha=$fecha";
 
+    // Obtener firma recortada y original dinámica para instructor
+    $dir_firmas = __DIR__ . '/../assets/uploads/firmas/';
+    $firma_recortada = null;
+    $firma_instructor = null;
+    $firma_especialista = null;
+    if (is_dir($dir_firmas)) {
+        foreach (scandir($dir_firmas) as $f) {
+            if (!$firma_recortada && $f === "firma_recortada_{$idcurso}.png") $firma_recortada = $f;
+            if (!$firma_instructor && strpos($f, 'instructor_firma_') === 0) $firma_instructor = $f;
+            if (!$firma_especialista && strpos($f, 'especialista_firma_') === 0) $firma_especialista = $f;
+        }
+    }
+    // Para mostrar en el certificado:
+    $firma_instructor_url = $firma_recortada ? 'assets/uploads/firmas/' . $firma_recortada : ($firma_instructor ? 'assets/uploads/firmas/' . $firma_instructor : 'assets/img/qr_placeholder.png');
+    $firma_especialista_url = $firma_especialista ? 'assets/uploads/firmas/' . $firma_especialista : 'assets/img/qr_placeholder.png';
+
 } catch (Exception $e) {
     echo "<div style='color: red; padding: 20px;'>Error: " . $e->getMessage() . "</div>";
     exit;
@@ -222,14 +238,14 @@ try {
                                 break;
                             case 'firma_instructor':
                                 if ($instructor && $instructor['firma_digital']) {
-                                    echo '<div class="firma-preview"><img src="../assets/uploads/firmas/' . htmlspecialchars($instructor['firma_digital']) . '" alt="Firma Instructor"></div>';
+                                    echo '<div class="firma-preview"><img src="' . $firma_instructor_url . '" alt="Firma Instructor"></div>';
                                 } else {
                                     echo '<div class="firma-preview" style="text-align: center; min-width: 120px; min-height: 40px; display: flex; align-items: center; justify-content: center; font-size: 12px;">Firma Instructor</div>';
                                 }
                                 break;
                             case 'firma_especialista':
                                 if ($especialista && $especialista['firma_especialista']) {
-                                    echo '<div class="firma-preview"><img src="../assets/uploads/firmas/' . htmlspecialchars($especialista['firma_especialista']) . '" alt="Firma Especialista"></div>';
+                                    echo '<div class="firma-preview"><img src="' . $firma_especialista_url . '" alt="Firma Especialista"></div>';
                                 } else {
                                     echo '<div class="firma-preview" style="text-align: center; min-width: 120px; min-height: 40px; display: flex; align-items: center; justify-content: center; font-size: 12px;">Firma Especialista</div>';
                                 }
@@ -273,14 +289,14 @@ try {
                                 break;
                             case 'firma_instructor':
                                 if ($instructor && $instructor['firma_digital']) {
-                                    echo '<div class="firma-preview"><img src="../assets/uploads/firmas/' . htmlspecialchars($instructor['firma_digital']) . '" alt="Firma Instructor"></div>';
+                                    echo '<div class="firma-preview"><img src="' . $firma_instructor_url . '" alt="Firma Instructor"></div>';
                                 } else {
                                     echo '<div class="firma-preview" style="text-align: center; min-width: 120px; min-height: 40px; display: flex; align-items: center; justify-content: center; font-size: 12px;">Firma Instructor</div>';
                                 }
                                 break;
                             case 'firma_especialista':
                                 if ($especialista && $especialista['firma_especialista']) {
-                                    echo '<div class="firma-preview"><img src="../assets/uploads/firmas/' . htmlspecialchars($especialista['firma_especialista']) . '" alt="Firma Especialista"></div>';
+                                    echo '<div class="firma-preview"><img src="' . $firma_especialista_url . '" alt="Firma Especialista"></div>';
                                 } else {
                                     echo '<div class="firma-preview" style="text-align: center; min-width: 120px; min-height: 40px; display: flex; align-items: center; justify-content: center; font-size: 12px;">Firma Especialista</div>';
                                 }

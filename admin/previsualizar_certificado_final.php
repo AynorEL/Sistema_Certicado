@@ -1,14 +1,6 @@
 <?php
 require_once 'inc/config.php';
 require_once 'inc/functions.php';
-require_once __DIR__ . '/../vendor/autoload.php';
-
-use Endroid\QrCode\QrCode;
-use Endroid\QrCode\Writer\PngWriter;
-use Endroid\QrCode\Encoding\Encoding;
-use Endroid\QrCode\ErrorCorrectionLevel;
-use Endroid\QrCode\RoundBlockSizeMode;
-use Endroid\QrCode\Color\Color;
 
 $idcurso = isset($_GET['idcurso']) ? (int)$_GET['idcurso'] : 0;
 $idalumno = isset($_GET['idalumno']) ? (int)$_GET['idalumno'] : 1; // Por defecto alumno 1
@@ -31,37 +23,75 @@ $diseño = $curso['diseño'];
 $configGuardada = $curso['config_certificado'];
 $config = json_decode($configGuardada, true);
 
-// Obtener datos del alumno específico
-$alumno = 'NOMBRE DEL ALUMNO';
-$fecha = date('d/m/Y');
-$instructor = 'NOMBRE DEL INSTRUCTOR';
-$especialista = 'NOMBRE DEL ESPECIALISTA';
-$codigo_validacion = '';
-$nombre_archivo_qr = '';
-$nota_final = '';
-$fecha_aprobacion = '';
-$qr_base64 = null;
+// Inicializar variables para evitar warnings
+$firma_recortada = null;
+$firma_instructor = null;
+$firma_especialista = null;
+$nombre_archivo_qr = null;
 
-// Obtener datos reales de la base de datos
+// Buscar archivos de firmas en la carpeta
+$dir_firmas = $_SERVER['DOCUMENT_ROOT'] . '/certificado/assets/uploads/firmas/';
+if (is_dir($dir_firmas)) {
+    foreach (scandir($dir_firmas) as $f) {
+        if (!$firma_recortada && $f === "firma_recortada_{$idcurso}.png") $firma_recortada = $f;
+        if (!$firma_instructor && strpos($f, 'instructor_firma_') === 0) $firma_instructor = $f;
+        if (!$firma_especialista && strpos($f, 'especialista_firma_') === 0) $firma_especialista = $f;
+    }
+}
+
+// Cargar datos usando el mismo sistema que el editor
 try {
-    // Obtener alumno específico
-    $stmt = $pdo->prepare("SELECT idcliente, nombre, apellido FROM cliente WHERE idcliente = ?");
+    // Cargar datos del alumno
+    $stmt = $pdo->prepare("SELECT idcliente, nombre, apellido, email FROM cliente WHERE idcliente = ?");
     $stmt->execute([$idalumno]);
     $alumnoData = $stmt->fetch();
-    if ($alumnoData) {
+    
+    if (!$alumnoData) {
+        // Si no existe el alumno, usar datos de prueba
+        $alumno = 'Juan Carlos García López';
+        $email = 'juan.garcia@email.com';
+    } else {
         $alumno = $alumnoData['nombre'] . ' ' . $alumnoData['apellido'];
+        $email = $alumnoData['email'];
     }
     
-    // Verificar si ya existe un certificado para este alumno y curso
+    // Cargar instructor del curso
     $stmt = $pdo->prepare("
-        SELECT codigo_validacion, codigo_qr 
-        FROM certificado_generado 
-        WHERE idcliente = ? AND idcurso = ?
+        SELECT i.idinstructor, i.nombre, i.apellido, i.email, i.firma_digital 
+        FROM instructor i 
+        INNER JOIN curso c ON i.idinstructor = c.idinstructor 
+        WHERE c.idcurso = ?
     ");
-    $stmt->execute([$idalumno, $idcurso]);
-    $certificado_existente = $stmt->fetch();
+    $stmt->execute([$idcurso]);
+    $instructorData = $stmt->fetch();
     
-    // Obtener datos de la inscripción (nota, fecha de aprobación)
+    if ($instructorData) {
+        $instructor = $instructorData['nombre'] . ' ' . $instructorData['apellido'];
+        $firmaInstructor = $instructorData['firma_digital'] ? '../assets/uploads/firmas/' . $instructorData['firma_digital'] : '../assets/img/qr_placeholder.png';
+    } else {
+        $instructor = 'Dr. Roberto Sánchez Mendoza';
+        $firmaInstructor = '../assets/img/qr_placeholder.png';
+    }
+    
+    // Cargar especialista del curso
+    $stmt = $pdo->prepare("
+        SELECT e.idespecialista, e.nombre, e.apellido, e.email, e.firma_especialista 
+        FROM especialista e 
+        INNER JOIN curso c ON e.idespecialista = c.idespecialista 
+        WHERE c.idcurso = ?
+    ");
+    $stmt->execute([$idcurso]);
+    $especialistaData = $stmt->fetch();
+    
+    if ($especialistaData) {
+        $especialista = $especialistaData['nombre'] . ' ' . $especialistaData['apellido'];
+        $firmaEspecialista = $especialistaData['firma_especialista'] ? '../assets/uploads/firmas/' . $especialistaData['firma_especialista'] : '../assets/img/qr_placeholder.png';
+    } else {
+        $especialista = 'Mg. Patricia González Castro';
+        $firmaEspecialista = '../assets/img/qr_placeholder.png';
+    }
+    
+    // Obtener datos de inscripción
     $stmt = $pdo->prepare("
         SELECT nota_final, fecha_aprobacion, estado 
         FROM inscripcion 
@@ -70,103 +100,99 @@ try {
     $stmt->execute([$idalumno, $idcurso]);
     $inscripcion = $stmt->fetch();
     
-    if ($modo === 'final' && $certificado_existente) {
-        // MODO FINAL: Usar certificado real existente
-        $codigo_validacion = $certificado_existente['codigo_validacion'];
-        $nombre_archivo_qr = $certificado_existente['codigo_qr'];
-        $nota_final = $inscripcion['nota_final'] ?? '';
+    // Verificar si se encontró la inscripción antes de acceder a sus propiedades
+    if ($inscripcion) {
+        $nota_final = $inscripcion['nota_final'] ?? '85';
         $fecha_aprobacion = $inscripcion['fecha_aprobacion'] ? date('d/m/Y', strtotime($inscripcion['fecha_aprobacion'])) : date('d/m/Y');
-        $qr_base64 = null;
-    } elseif ($modo === 'final' && !$certificado_existente) {
-        // MODO FINAL pero no existe certificado
-        die('Error: No se encontró un certificado generado para este alumno y curso.');
     } else {
-        // MODO PREVIEW: Generar datos de prueba
-        $codigo_validacion = 'PREVIEW-' . $idcurso . '-' . $idalumno . '-' . date('YmdHis');
-        $nombre_archivo_qr = $codigo_validacion . '.png';
-        $nota_final = '85'; // Nota de ejemplo
+        $nota_final = '85';
         $fecha_aprobacion = date('d/m/Y');
-        // Generar QR para previsualización usando un texto fijo
-        $qr_config = $config['qr_config'] ?? [
-            'size' => 300,
-            'color' => '#000000',
-            'bgColor' => '#FFFFFF',
-            'margin' => 0,
-            'logoEnabled' => false
-        ];
-        $qrCode = new QrCode(
-            'PREVISUALIZACION', // Texto fijo para QR de previsualización
-            new Encoding('UTF-8'),
-            ErrorCorrectionLevel::High,
-            $qr_config['size'],
-            $qr_config['margin'],
-            RoundBlockSizeMode::Margin,
-            new Color(
-                hexdec(substr($qr_config['color'], 1, 2)),
-                hexdec(substr($qr_config['color'], 3, 2)),
-                hexdec(substr($qr_config['color'], 5, 2))
-            ),
-            new Color(
-                hexdec(substr($qr_config['bgColor'], 1, 2)),
-                hexdec(substr($qr_config['bgColor'], 3, 2)),
-                hexdec(substr($qr_config['bgColor'], 5, 2))
-            )
-        );
-        $writer = new PngWriter();
-        $result = $writer->write($qrCode);
-        // Generar QR en base64 (no guardar archivo)
-        $qr_base64 = $result->getDataUri();
-    }
-    
-    // Obtener instructor del curso específico
-    $stmt = $pdo->prepare("SELECT i.idinstructor, i.nombre, i.apellido, i.firma_digital 
-                          FROM instructor i 
-                          JOIN curso c ON i.idinstructor = c.idinstructor 
-                          WHERE c.idcurso = ?");
-    $stmt->execute([$idcurso]);
-    $instructorData = $stmt->fetch();
-    if ($instructorData) {
-        $instructor = $instructorData['nombre'] . ' ' . $instructorData['apellido'];
-        $firmaInstructor = $instructorData['firma_digital'] ? '../assets/uploads/firmas/' . $instructorData['firma_digital'] : '../assets/img/qr_placeholder.png';
-    } else {
-        $firmaInstructor = '../assets/img/qr_placeholder.png';
-    }
-    
-    // Obtener especialista del curso específico
-    $stmt = $pdo->prepare("SELECT e.idespecialista, e.nombre, e.apellido, e.firma_especialista 
-                          FROM especialista e 
-                          JOIN curso c ON e.idespecialista = c.idespecialista 
-                          WHERE c.idcurso = ?");
-    $stmt->execute([$idcurso]);
-    $especialistaData = $stmt->fetch();
-    if ($especialistaData) {
-        $especialista = $especialistaData['nombre'] . ' ' . $especialistaData['apellido'];
-        $firmaEspecialista = $especialistaData['firma_especialista'] ? '../assets/uploads/firmas/' . $especialistaData['firma_especialista'] : '../assets/img/qr_placeholder.png';
-    } else {
-        $firmaEspecialista = '../assets/img/qr_placeholder.png';
     }
     
 } catch (Exception $e) {
     // Si hay error, usar datos por defecto
+    $alumno = 'Juan Carlos García López';
+    $instructor = 'Dr. Roberto Sánchez Mendoza';
+    $especialista = 'Mg. Patricia González Castro';
     $firmaInstructor = '../assets/img/qr_placeholder.png';
     $firmaEspecialista = '../assets/img/qr_placeholder.png';
+    $nota_final = '85';
+    $fecha_aprobacion = date('d/m/Y');
 }
 
-// Si se solicita el PDF directamente (?pdf=1 en la URL)
-if (isset($_GET['pdf']) && $_GET['pdf'] == '1' && isset($_GET['idcurso']) && isset($_GET['idalumno'])) {
-    require_once __DIR__ . '/generar_pdf_directo.php';
-    $idcliente = (int)$_GET['idalumno'];
-    $idcurso = (int)$_GET['idcurso'];
-    try {
-        $pdf = generarPDFDirecto($idcliente, $idcurso);
-        header('Content-Type: application/pdf');
-        header('Content-Disposition: inline; filename="certificado_' . $idcliente . '_' . $idcurso . '.pdf"');
-        echo $pdf;
-        exit;
-    } catch (Exception $e) {
-        echo 'Error generando PDF: ' . $e->getMessage();
-        exit;
+// Generar código de validación para preview o final
+$codigo_validacion = '';
+$enlace_verificacion = '';
+if ($modo === 'final') {
+    $stmt = $pdo->prepare("SELECT codigo_validacion FROM certificado_generado WHERE idcliente = ? AND idcurso = ? AND estado = 'Activo' LIMIT 1");
+    $stmt->execute([$idalumno, $idcurso]);
+    $row = $stmt->fetch();
+    if ($row && !empty($row['codigo_validacion'])) {
+        $codigo_validacion = $row['codigo_validacion'];
+        $protocolo = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https" : "http";
+        $host = $_SERVER['HTTP_HOST'];
+        $enlace_verificacion = $protocolo . '://' . $host . '/certificado/verificar-certificado.php?codigo=' . urlencode($codigo_validacion);
+    } else {
+        $codigo_validacion = 'NO-CERTIFICADO';
+        $enlace_verificacion = '';
     }
+} else {
+    $codigo_validacion = 'PREVIEW-' . $idcurso . '-' . $idalumno . '-' . date('YmdHis');
+    $enlace_verificacion = '';
+}
+
+// Para mostrar en el certificado:
+$base_url = '/certificado/';
+$base_url_admin = '/certificado/admin/';
+
+function url_si_existe($web_path) {
+    $abs_path = $_SERVER['DOCUMENT_ROOT'] . $web_path;
+    return file_exists($abs_path) ? $web_path : false;
+}
+
+// Lógica para la firma del instructor
+$firmaInstructorUrl =
+    ($firma_recortada && url_si_existe($base_url . 'assets/uploads/firmas/' . $firma_recortada)) ? $base_url . 'assets/uploads/firmas/' . $firma_recortada :
+    (($firma_instructor && url_si_existe($base_url . 'assets/uploads/firmas/' . $firma_instructor)) ? $base_url . 'assets/uploads/firmas/' . $firma_instructor : $base_url . 'assets/img/qr_placeholder.png');
+
+// Lógica para la firma del especialista
+$firmaEspecialistaUrl =
+    ($firma_especialista && url_si_existe($base_url . 'assets/uploads/firmas/' . $firma_especialista)) ? $base_url . 'assets/uploads/firmas/' . $firma_especialista : $base_url . 'assets/img/qr_placeholder.png';
+
+// Lógica para el QR
+$qr_url = false;
+$qr_real_faltante = false;
+if ($modo === 'final') {
+    $stmt = $pdo->prepare("SELECT codigo_qr FROM certificado_generado WHERE idcliente = ? AND idcurso = ? AND estado = 'Activo' LIMIT 1");
+    $stmt->execute([$idalumno, $idcurso]);
+    $row = $stmt->fetch();
+    if ($row && !empty($row['codigo_qr'])) {
+        $nombre_archivo_qr = $row['codigo_qr'];
+        if (url_si_existe($base_url . 'assets/img/qr/' . $nombre_archivo_qr)) {
+            $qr_url = $base_url . 'assets/img/qr/' . $nombre_archivo_qr;
+        } elseif (url_si_existe($base_url . 'admin/img/qr/' . $nombre_archivo_qr)) {
+            $qr_url = $base_url . 'admin/img/qr/' . $nombre_archivo_qr;
+        }
+    }
+    if (!$qr_url) {
+        $qr_real_faltante = true;
+    }
+}
+if (!$qr_url && $modo !== 'final') {
+    // Generar QR temporal para previsualización
+    $qr_config = $config['qr_config'] ?? [
+        'size' => 300,
+        'color' => '#000000',
+        'bgColor' => '#FFFFFF',
+        'margin' => 0,
+        'logoEnabled' => false
+    ];
+    $qr_size = $qr_config['size'];
+    $qr_color = urlencode($qr_config['color']);
+    $qr_bg = urlencode($qr_config['bgColor']);
+    $qr_margin = $qr_config['margin'];
+    $qr_data = 'PREVIEW-' . $idcurso . '-' . $idalumno . '-' . date('YmdHis');
+    $qr_url = "generar_qr_svg.php?size=$qr_size&color=$qr_color&bgColor=$qr_bg&margin=$qr_margin&data=$qr_data";
 }
 ?>
 <!DOCTYPE html>
@@ -301,44 +327,42 @@ if (isset($_GET['pdf']) && $_GET['pdf'] == '1' && isset($_GET['idcurso']) && iss
         }
         
         @media print {
-    html, body {
-        width: 2000px;
-        height: 1414px;
-        margin: 0 !important;
-        padding: 0 !important;
-        background: white !important;
-        overflow: hidden !important;
-    }
-    .controls, .info, .qr-info {
-        display: none !important;
-    }
-    @page {
-        size: 2000px 1414px;
-        margin: 0;
-    }
-    .certificate-container {
-        width: 2000px !important;
-        height: 1414px !important;
-        box-shadow: none !important;
-        border-radius: 0 !important;
-        page-break-inside: avoid !important;
-        page-break-before: avoid !important;
-        page-break-after: avoid !important;
-        overflow: hidden !important;
-        position: relative !important;
-    }
-    * {
-        box-sizing: border-box !important;
-        max-height: 1414px !important;
-        max-width: 2000px !important;
-    }
-}
-
+            html, body {
+                width: 2000px;
+                height: 1414px;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: white !important;
+                overflow: hidden !important;
+            }
+            .controls, .info, .qr-info {
+                display: none !important;
+            }
+            @page {
+                size: 2000px 1414px;
+                margin: 0;
+            }
+            .certificate-container {
+                width: 2000px !important;
+                height: 1414px !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                page-break-inside: avoid !important;
+                page-break-before: avoid !important;
+                page-break-after: avoid !important;
+                overflow: hidden !important;
+                position: relative !important;
+            }
+            * {
+                box-sizing: border-box !important;
+                max-height: 1414px !important;
+                max-width: 2000px !important;
+            }
+        }
     </style>
 </head>
 <body>
-    
-    <?php if ($modo !== 'preview'): ?>
+<?php if ($modo === 'final'): ?>
     <div class="controls">
         <button class="btn" onclick="window.print()">
             <i class="fa fa-print"></i> Imprimir
@@ -346,33 +370,51 @@ if (isset($_GET['pdf']) && $_GET['pdf'] == '1' && isset($_GET['idcurso']) && iss
         <button class="btn btn-success" onclick="window.close()">
             <i class="fa fa-times"></i> Cerrar
         </button>
-        <?php 
-        $protocolo = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https" : "http";
-        $host = $_SERVER['HTTP_HOST'];
-        $ruta_cert = $protocolo . '://' . $host . '/certificado/verificar-certificado.php?codigo=' . urlencode($codigo_validacion);
-        ?>
-        <button class="btn btn-info" onclick="window.open('<?php echo $ruta_cert; ?>', '_blank')">
-            <i class="fa fa-search"></i> Verificar Certificado
+        <button class="btn btn-warning" onclick="window.location.href='editor_certificado.php?id=<?php echo $idcurso; ?>'">
+            <i class="fa fa-edit"></i> Volver al Editor
         </button>
         <button class="btn btn-primary" onclick="abrirModalEnvio()">
             <i class="fa fa-envelope"></i> Enviar Certificado
         </button>
-        <button class="btn btn-primary" onclick="window.location.href='aprobar_alumno.php'">
-            <i class="fa fa-list"></i> Volver a Lista
-        </button>
-    </div>
-    <div class="qr-info" style="background: #d4edda; border-color: #c3e6cb;">
-        <h3>🏆 Certificado Final Generado</h3>
-        <p><strong>Alumno:</strong> <?php echo htmlspecialchars($alumno); ?></p>
-        <p><strong>Nota Final:</strong> <span class="badge bg-success"><?php echo htmlspecialchars($nota_final); ?></span></p>
-        <p><strong>Fecha de Aprobación:</strong> <?php echo htmlspecialchars($fecha_aprobacion); ?></p>
-        <p><strong>Código de Validación:</strong></p>
-        <div class="qr-code"><?php echo htmlspecialchars($codigo_validacion); ?></div>
-        <p><strong>URL de Verificación:</strong></p>
-        <div class="qr-code">https://<?php echo $_SERVER['HTTP_HOST']; ?>/certificado/verificar-certificado.php?codigo=<?php echo urlencode($codigo_validacion); ?></div>
-        <p><em>✅ Este es el certificado final con código único y QR válido.</em></p>
     </div>
     <?php endif; ?>
+    
+    <?php if ($modo === 'final'): ?>
+    <div class="info" style="text-align:center; margin: 30px auto; max-width: 700px;">
+        <h2 style="margin-bottom: 10px;">✅ Certificado Final Generado</h2>
+        <p><strong>Alumno:</strong> <?php echo htmlspecialchars($alumno); ?></p>
+        <p><strong>Curso:</strong> <?php echo htmlspecialchars($curso['nombre_curso']); ?></p>
+        <p><strong>Instructor:</strong> <?php echo htmlspecialchars($instructor); ?></p>
+        <p><strong>Especialista:</strong> <?php echo htmlspecialchars($especialista); ?></p>
+        <p><strong>Fecha de Aprobación:</strong> <?php echo htmlspecialchars($fecha_aprobacion); ?></p>
+        <p><strong>Nota Final:</strong> <?php echo htmlspecialchars($nota_final); ?></p>
+        <p style="font-size:18px;"><strong>Código de Validación:</strong> <span style="color:#007bff;letter-spacing:1px;"> <?php echo htmlspecialchars($codigo_validacion); ?> </span></p>
+        <?php if ($enlace_verificacion): ?>
+            <p><strong>Enlace de Verificación:</strong><br>
+                <a href="<?php echo htmlspecialchars($enlace_verificacion); ?>" target="_blank" style="word-break:break-all; color:#28a745; font-size:16px;">
+                    <?php echo htmlspecialchars($enlace_verificacion); ?>
+                </a>
+            </p>
+            <a href="<?php echo htmlspecialchars($enlace_verificacion); ?>" target="_blank" class="btn btn-success" style="font-size:18px; padding:12px 32px; margin: 18px auto 0 auto; display:inline-block;">
+                <i class="fa fa-qrcode"></i> Verificar Certificado
+            </a>
+        <?php endif; ?>
+    </div>
+<?php else: ?>
+    <div class="info" style="text-align:center; margin: 30px auto; max-width: 700px;">
+        <h2 style="margin-bottom: 10px;">👁️ Previsualización de Certificado</h2>
+        <p><strong>Alumno:</strong> <?php echo htmlspecialchars($alumno); ?></p>
+        <p><strong>Curso:</strong> <?php echo htmlspecialchars($curso['nombre_curso']); ?></p>
+        <p><strong>Instructor:</strong> <?php echo htmlspecialchars($instructor); ?></p>
+        <p><strong>Especialista:</strong> <?php echo htmlspecialchars($especialista); ?></p>
+        <p><strong>Fecha de Aprobación:</strong> <?php echo htmlspecialchars($fecha_aprobacion); ?></p>
+        <p><strong>Nota Final:</strong> <?php echo htmlspecialchars($nota_final); ?></p>
+        <p style="font-size:18px;"><strong>Código de Validación:</strong> <span style="color:#007bff;letter-spacing:1px;"> <?php echo htmlspecialchars($codigo_validacion); ?> </span></p>
+        <p style="color:#888;">Este QR y código son solo para previsualización, no son válidos para verificación real.</p>
+    </div>
+<?php endif; ?>
+    
+   
     
     <div class="certificate-container">
         <?php if (!empty($diseño)): ?>
@@ -399,9 +441,9 @@ if (isset($_GET['pdf']) && $_GET['pdf'] == '1' && isset($_GET['idcurso']) && iss
                     font-style: <?php echo $campo['fontStyle'] ?? 'normal'; ?>;
                 ">
                     <?php if ($campo['tipo'] === 'firma_instructor'): ?>
-                        <img src="<?php echo $firmaInstructor; ?>" alt="Firma Instructor" style="max-width: 120px; max-height: 60px; object-fit: contain;">
+                        <img src="<?php echo htmlspecialchars($firmaInstructorUrl); ?>" alt="Firma Instructor" style="width:100%;height:100%;object-fit:contain;max-width:100%;max-height:100%;display:block;pointer-events:none;">
                     <?php elseif ($campo['tipo'] === 'firma_especialista'): ?>
-                        <img src="<?php echo $firmaEspecialista; ?>" alt="Firma Especialista" style="max-width: 120px; max-height: 60px; object-fit: contain;">
+                        <img src="<?php echo htmlspecialchars($firmaEspecialistaUrl); ?>" alt="Firma Especialista" style="width:100%;height:100%;object-fit:contain;max-width:100%;max-height:100%;display:block;pointer-events:none;">
                     <?php elseif ($campo['tipo'] === 'qr'): ?>
                         <?php 
                         $qr_config = $config['qr_config'] ?? [
@@ -414,47 +456,21 @@ if (isset($_GET['pdf']) && $_GET['pdf'] == '1' && isset($_GET['idcurso']) && iss
                         $qr_size = $qr_config['size'];
                         ?>
                         <div style="position: relative; width: <?php echo $qr_size; ?>px; height: <?php echo $qr_size; ?>px;">
-                            <?php if ($modo === 'preview' && isset($qr_base64)): ?>
-                                <img src="<?php echo $qr_base64; ?>" alt="QR" style="width: 100%; height: 100%; object-fit: contain;">
-                            <?php else: ?>
-                                <img src="img/qr/<?php echo htmlspecialchars($nombre_archivo_qr); ?>" alt="QR" style="width: 100%; height: 100%; object-fit: contain;">
-                            <?php endif; ?>
+                            <img src="<?php echo htmlspecialchars($qr_url); ?>" alt="QR" style="width: 100%; height: 100%; object-fit: contain;">
                             <?php if ($qr_config['logoEnabled'] && file_exists(__DIR__ . '/img/logo.png')): ?>
-                                <img src="img/logo.png" alt="Logo" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: <?php echo $qr_size * 0.2; ?>px; pointer-events: none; z-index: 10;">
+                                <img src="/certificado/admin/img/logo.png" alt="Logo" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: <?php echo $qr_size * 0.2; ?>px; pointer-events: none; z-index: 10;">
                             <?php endif; ?>
                         </div>
                     <?php else: ?>
                         <?php 
                         $texto = $campo['texto'] ?? '';
                         
-                        // En modo final, usar datos reales del alumno
-                        if ($modo === 'final') {
-                            if ($campo['tipo'] === 'alumno') {
-                                $texto = $alumno;
-                            } elseif ($campo['tipo'] === 'fecha') {
-                                $texto = $fecha_aprobacion;
-                            } elseif ($campo['tipo'] === 'instructor') {
-                                $texto = $instructor;
-                            } elseif ($campo['tipo'] === 'especialista') {
-                                $texto = $especialista;
-                            } elseif ($campo['tipo'] === 'nota') {
-                                $texto = $nota_final;
-                            } else {
-                                // Para otros tipos, reemplazar placeholders
-                                $texto = str_replace('NOMBRE DEL ALUMNO', $alumno, $texto);
-                                $texto = str_replace('FECHA DE EMISIÓN', $fecha_aprobacion, $texto);
-                                $texto = str_replace('NOMBRE DEL INSTRUCTOR', $instructor, $texto);
-                                $texto = str_replace('NOMBRE DEL ESPECIALISTA', $especialista, $texto);
-                                $texto = str_replace('NOTA_FINAL', $nota_final, $texto);
-                            }
-                        } else {
-                            // En modo preview, reemplazar placeholders
-                            $texto = str_replace('NOMBRE DEL ALUMNO', $alumno, $texto);
-                            $texto = str_replace('FECHA DE EMISIÓN', $fecha_aprobacion, $texto);
-                            $texto = str_replace('NOMBRE DEL INSTRUCTOR', $instructor, $texto);
-                            $texto = str_replace('NOMBRE DEL ESPECIALISTA', $especialista, $texto);
-                            $texto = str_replace('NOTA_FINAL', $nota_final, $texto);
-                        }
+                        // Reemplazar placeholders con datos reales
+                        $texto = str_replace('NOMBRE DEL ALUMNO', $alumno, $texto);
+                        $texto = str_replace('FECHA DE EMISIÓN', $fecha_aprobacion, $texto);
+                        $texto = str_replace('NOMBRE DEL INSTRUCTOR', $instructor, $texto);
+                        $texto = str_replace('NOMBRE DEL ESPECIALISTA', $especialista, $texto);
+                        $texto = str_replace('NOTA_FINAL', $nota_final, $texto);
                         
                         echo htmlspecialchars($texto); 
                         ?>
@@ -464,77 +480,14 @@ if (isset($_GET['pdf']) && $_GET['pdf'] == '1' && isset($_GET['idcurso']) && iss
         <?php endif; ?>
     </div>
     
-    
-    <!-- Modal para envío de certificado -->
-    <div id="modalEnvio" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
-        <div class="modal-content" style="background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px; border-radius: 5px;">
-            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h3 style="margin: 0;">📧 Enviar Certificado</h3>
-                <span class="close" onclick="cerrarModalEnvio()" style="color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
-            </div>
-            
-            <form id="formEnvio" method="post" action="enviar_certificado.php">
-                <div style="margin-bottom: 10px; color: #007bff; font-weight: bold;">
-                    ID Alumno: <?php echo $idalumno; ?> | ID Curso: <?php echo $idcurso; ?>
-                </div>
-                <input type="hidden" name="idcliente" value="<?php echo $idalumno; ?>">
-                <input type="hidden" name="idcurso" value="<?php echo $idcurso; ?>">
-                
-                <div style="margin-bottom: 15px;">
-                    <label for="email" style="display: block; margin-bottom: 5px; font-weight: bold;">Email del alumno:</label>
-                    <input type="email" id="email" name="email" value="<?php 
-                        // Obtener email del alumno desde la base de datos
-                        $stmt = $pdo->prepare("SELECT email FROM cliente WHERE idcliente = ?");
-                        $stmt->execute([$idalumno]);
-                        $alumnoData = $stmt->fetch();
-                        echo htmlspecialchars($alumnoData['email'] ?? '');
-                    ?>" readonly style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; background-color: #f8f9fa;">
-                </div>
-                
-                <div style="margin-bottom: 15px;">
-                    <label for="asunto" style="display: block; margin-bottom: 5px; font-weight: bold;">Asunto del email:</label>
-                    <input type="text" id="asunto" name="asunto" value="Tu certificado de <?php echo htmlspecialchars($curso['nombre_curso']); ?>" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
-                </div>
-                
-                <div style="margin-bottom: 20px;">
-                    <label for="mensaje" style="display: block; margin-bottom: 5px; font-weight: bold;">Mensaje personalizado:</label>
-                    <textarea id="mensaje" name="mensaje" rows="4" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">Hola <?php echo htmlspecialchars($alumno); ?>,
-
-Te adjuntamos tu certificado de <?php echo htmlspecialchars($curso['nombre_curso']); ?>.
-
-Saludos cordiales,
-El equipo de certificación</textarea>
-                </div>
-                
-                <div style="text-align: right;">
-                    <button type="button" onclick="cerrarModalEnvio()" style="background-color: #6c757d; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px;">Cancelar</button>
-                    <button type="submit" style="background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">
-                        <i class="fa fa-paper-plane"></i> Enviar Certificado
-                    </button>
-                </div>
-            </form>
-        </div>
+    <?php if ($qr_real_faltante): ?>
+    <div style="color:red;text-align:center;font-size:18px;margin:20px 0;">
+        <strong>El QR real aún no ha sido generado para este certificado.<br>Por favor, genera el certificado primero.</strong>
     </div>
-
+<?php endif; ?>
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // Función para abrir modal de envío
-        function abrirModalEnvio() {
-            document.getElementById('modalEnvio').style.display = 'block';
-        }
-        
-        // Función para cerrar modal de envío
-        function cerrarModalEnvio() {
-            document.getElementById('modalEnvio').style.display = 'none';
-        }
-        
-        // Cerrar modal al hacer clic fuera de él
-        window.onclick = function(event) {
-            var modal = document.getElementById('modalEnvio');
-            if (event.target == modal) {
-                modal.style.display = 'none';
-            }
-        }
-        
         // Función para cerrar ventana
         function cerrar() {
             window.close();
@@ -544,42 +497,115 @@ El equipo de certificación</textarea>
         function editar() {
             window.location.href = 'editor_certificado.php?id=<?php echo $idcurso; ?>';
         }
-
-        // Adaptar envío AJAX del formulario de certificado
-        const formEnvio = document.getElementById('formEnvio');
-        if (formEnvio) {
-            formEnvio.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const btnEnviar = formEnvio.querySelector('button[type="submit"]');
-                const btnOriginal = btnEnviar.innerHTML;
-                // Mostrar spinner y deshabilitar botón
-                btnEnviar.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Enviando...';
-                btnEnviar.disabled = true;
-                const formData = new FormData(formEnvio);
-                fetch('enviar_certificado.php', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        localStorage.setItem('toastSuccess', data.mensaje);
-                        window.location.href = 'aprobar_alumno.php';
-                    } else {
-                        alert(data.mensaje || 'Error al enviar el certificado');
-                    }
-                })
-                .catch(err => {
-                    alert('Error de conexión al enviar el certificado');
-                })
-                .finally(() => {
-                    // Restaurar botón
-                    btnEnviar.innerHTML = btnOriginal;
-                    btnEnviar.disabled = false;
-                });
+        
+        function abrirModalEnvio() {
+            const mensajeDefecto = `Hola <?php echo addslashes($alumno); ?>,\n\nTe adjuntamos tu certificado de <?php echo addslashes($curso['nombre_curso']); ?>.\n\nSaludos cordiales,\nEl equipo de certificación`;
+            Swal.fire({
+                title: 'Enviar certificado',
+                html: `<div style='text-align:left;'>
+                    <b>Correo destino:</b><br>
+                    <input id='swal-input-email' class='swal2-input' type='email' value='<?php echo htmlspecialchars($email); ?>' readonly style='margin-bottom:10px;'>
+                    <b>Dedicatoria (opcional):</b><br>
+                    <textarea id='swal-input-dedicatoria' class='swal2-textarea' placeholder='Puedes agregar un mensaje personalizado'></textarea>
+                    <b>Mensaje:</b><br>
+                    <textarea id='swal-input-mensaje' class='swal2-textarea' rows='4' style='min-height:80px;'>${mensajeDefecto}</textarea>
+                </div>`,
+                showCancelButton: true,
+                confirmButtonText: 'Enviar',
+                cancelButtonText: 'Cancelar',
+                focusConfirm: false,
+                preConfirm: () => {
+                    const dedicatoria = document.getElementById('swal-input-dedicatoria').value;
+                    const mensaje = document.getElementById('swal-input-mensaje').value;
+                    return { dedicatoria, mensaje };
+                },
+                didOpen: () => {
+                    setTimeout(() => {
+                        document.getElementById('swal-input-dedicatoria').focus();
+                    }, 300);
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Paso 1: Generando PDF...
+                    Swal.fire({
+                        title: 'Generando PDF...',
+                        html: `<div class='swal2-progress-bar' style='height:8px;background:#eee;border-radius:4px;overflow:hidden;margin-top:20px;'>
+                            <div id='swal-bar-pdf' style='width:0%;height:100%;background:#0d6efd;transition:width 0.7s;'></div>
+                        </div>
+                        <div style='margin-top:10px;font-size:14px;color:#888;'>Por favor espera...</div>`,
+                        allowOutsideClick: false,
+                        showConfirmButton: false,
+                        didOpen: () => {
+                            setTimeout(() => {
+                                document.getElementById('swal-bar-pdf').style.width = '60%';
+                            }, 400);
+                        }
+                    });
+                    // Simular progreso de PDF antes de enviar
+                    setTimeout(() => {
+                        // Paso 2: Enviando correo...
+                        Swal.update({
+                            title: 'Enviando correo...',
+                            html: `<div class='swal2-progress-bar' style='height:8px;background:#eee;border-radius:4px;overflow:hidden;margin-top:20px;'>
+                                <div id='swal-bar-mail' style='width:60%;height:100%;background:#0d6efd;transition:width 0.7s;'></div>
+                            </div>
+                            <div style='margin-top:10px;font-size:14px;color:#888;'>Enviando certificado al correo...</div>`
+                        });
+                        setTimeout(() => {
+                            document.getElementById('swal-bar-mail').style.width = '100%';
+                        }, 400);
+                        // Enviar petición AJAX
+                        fetch('enviar_certificado.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                            body: `idcliente=<?php echo $idalumno; ?>&idcurso=<?php echo $idcurso; ?>&dedicatoria=${encodeURIComponent(result.value.dedicatoria)}&mensaje=${encodeURIComponent(result.value.mensaje)}`
+                        })
+                        .then(async response => {
+                            try {
+                                const text = await response.text();
+                                let data = null;
+                                try {
+                                    data = JSON.parse(text);
+                                } catch (e) {
+                                    throw new Error('Respuesta inesperada del servidor: ' + text);
+                                }
+                                if (data && (data.status === 'ok' || data.status === 'success')) {
+                                    Swal.fire({
+                                        toast: true,
+                                        position: 'top-end',
+                                        icon: 'success',
+                                        title: '¡Certificado enviado correctamente!',
+                                        showConfirmButton: false,
+                                        timer: 2500
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error',
+                                        html: `<div style='text-align:left;'>${data && data.mensaje ? data.mensaje : 'No se pudo enviar el certificado.'}</div>`
+                                    });
+                                }
+                            } catch (error) {
+                                console.error('Error de conexión o backend:', error);
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error de conexión',
+                                    html: `<div style='text-align:left;'>No se pudo enviar el certificado.<br><small>${error.message}</small><br><br>Revisa la configuración SMTP, la consola y el archivo .env.</div>`
+                                });
+                            }
+                        })
+                        .catch((error) => {
+                            console.error('Error de conexión o backend:', error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error de conexión',
+                                html: `<div style='text-align:left;'>No se pudo enviar el certificado.<br><small>${error.message}</small><br><br>Revisa la configuración SMTP, la consola y el archivo .env.</div>`
+                            });
+                        });
+                    }, 1200); // Simula tiempo de generación de PDF
+                }
             });
         }
     </script>
 </body>
 </html>
-<?php include('footer.php'); ?>

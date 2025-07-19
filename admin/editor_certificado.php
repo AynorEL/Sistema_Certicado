@@ -36,6 +36,9 @@ require_once('header.php');
 <link rel="stylesheet" href="css/editor-visual.css">
 <link rel="stylesheet" href="css/print-certificado.css">
 <script src="js/editor-visual.js" defer></script>
+<!-- Cropper.js CDN para recorte de firma -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.css">
+<script src="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.js"></script>
 
 <section class="content-header">
   <div class="container-fluid">
@@ -879,50 +882,6 @@ function actualizarConfiguracion() {
     };
     
     configuracion.campos.push(campoConfig);
-  });
-}
-
-// Función para guardar configuración
-function guardarConfiguracion() {
-  actualizarConfiguracion();
-  
-  const idcurso = document.getElementById('editor').dataset.idcurso;
-  
-  fetch('guardar_config_certificado.php', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      idcurso: idcurso,
-      config: configuracion
-    })
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.success) {
-      Swal.fire({
-        icon: 'success',
-        title: '¡Guardado!',
-        text: 'La configuración se ha guardado exitosamente',
-        timer: 2000,
-        showConfirmButton: false
-      });
-    } else {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: data.message || 'Error al guardar la configuración'
-      });
-    }
-  })
-  .catch(error => {
-    console.error('Error:', error);
-    Swal.fire({
-      icon: 'error',
-      title: 'Error',
-      text: 'Error de conexión al guardar'
-    });
   });
 }
 

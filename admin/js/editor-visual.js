@@ -539,25 +539,62 @@ class CertificateEditor {
         const noSelectionMessage = document.getElementById('noSelectionMessage');
         
         if (!field) {
-            // Ocultar panel y mostrar mensaje cuando no hay campo seleccionado
             if (panel) panel.style.display = 'none';
             if (noSelectionMessage) noSelectionMessage.style.display = 'block';
             return;
         }
-        
-        // Ocultar mensaje y mostrar panel
         if (noSelectionMessage) noSelectionMessage.style.display = 'none';
         if (panel) panel.style.display = 'block';
-        
         const type = field.dataset.tipo;
         const typeName = this.getTypeName(type);
-        
+        // PANEL ESPECIAL PARA FIRMAS
+        if (type === 'firma_instructor' || type === 'firma_especialista') {
+            const img = field.querySelector('img');
+            const imgSrc = img ? img.src : '';
+            panel.innerHTML = `
+                <div class="inspector-header">
+                    <h6><i class="fa fa-cog"></i> Inspector de Propiedades</h6>
+                    <small class="text-muted">${typeName}</small>
+                </div>
+                <div class="field-info">
+                    <div class="info-row">
+                        <span class="info-label">Posición:</span>
+                        <span class="info-value">${parseInt(field.style.left) || 0}, ${parseInt(field.style.top) || 0}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Tamaño:</span>
+                        <span class="info-value">${field.offsetWidth} × ${field.offsetHeight}</span>
+                    </div>
+                </div>
+                <div class="property-section">
+                    <h6 class="section-title">Firma</h6>
+                    <div class="property-group">
+                        <label>Imagen de la firma:</label>
+                        <div class="mb-2"><img src="${imgSrc}" alt="Firma" style="max-width:100%; max-height:80px; border:1px solid #ccc;"></div>
+                        <button class="btn btn-dark btn-sm w-100 mb-2" style="color:#111;background:#fff;border:1.5px solid #111;" onclick="editor.changeSignatureImage()"><i class="fa fa-upload"></i> Cambiar imagen</button>
+                        <button class="btn btn-dark btn-sm w-100 mb-2" style="color:#111;background:#fff;border:1.5px solid #111;" onclick="editor.cropSignature()"><i class="fa fa-crop"></i> Recortar firma</button>
+                    </div>
+                    <div class="property-group">
+                        <label>Ancho (px):</label>
+                        <input type="number" id="firmaAnchoInput" class="form-control" value="${field.offsetWidth}" min="30" max="1000" onchange="editor.adjustSignatureWidth(this.value)">
+                        <label>Alto (px):</label>
+                        <input type="number" id="firmaAltoInput" class="form-control" value="${field.offsetHeight}" min="20" max="500" onchange="editor.adjustSignatureHeight(this.value)">
+                    </div>
+                    <div class="property-group">
+                        <button class="btn btn-danger btn-sm w-100" onclick="editor.deleteField()"><i class="fa fa-trash"></i> Eliminar Firma</button>
+                    </div>
+                </div>
+            `;
+            // Guardar referencia para acciones
+            this.selectedSignatureField = field;
+            return;
+        }
+        // PANEL DE TEXTO (por defecto)
         panel.innerHTML = `
             <div class="inspector-header">
                 <h6><i class="fa fa-cog"></i> Inspector de Propiedades</h6>
                 <small class="text-muted">${typeName}</small>
             </div>
-            
             <div class="field-info">
                 <div class="info-row">
                     <span class="info-label">Posición:</span>
@@ -568,10 +605,8 @@ class CertificateEditor {
                     <span class="info-value">${field.offsetWidth} × ${field.offsetHeight}</span>
                 </div>
             </div>
-            
             <div class="property-section">
                 <h6 class="section-title">Texto</h6>
-                
                 <div class="property-group">
                     <label>Fuente:</label>
                     <select id="fontFamily" class="form-control form-control-sm" onchange="editor.applyProperty('fontFamily', this.value)">
@@ -587,17 +622,14 @@ class CertificateEditor {
                         <option value="Comic Sans MS">Comic Sans MS</option>
                     </select>
                 </div>
-                
                 <div class="property-group">
                     <label>Tamaño:</label>
                     <input type="number" id="fontSize" class="form-control form-control-sm" value="${parseInt(field.style.fontSize) || 14}" min="8" max="72" onchange="editor.applyProperty('fontSize', this.value + 'px')">
                 </div>
-                
                 <div class="property-group">
                     <label>Color:</label>
                     <input type="color" id="textColor" class="form-control form-control-sm" value="${field.style.color || '#000000'}" onchange="editor.applyProperty('color', this.value)">
                 </div>
-                
                 <div class="property-group">
                     <label>Alineación:</label>
                     <div class="alignment-buttons">
@@ -612,7 +644,6 @@ class CertificateEditor {
                         </button>
                     </div>
                 </div>
-                
                 <div class="property-group">
                     <div class="checkbox-group">
                         <input type="checkbox" id="fontBold" onchange="editor.applyProperty('fontWeight', this.checked ? 'bold' : 'normal')">
@@ -624,7 +655,6 @@ class CertificateEditor {
                     </div>
                 </div>
             </div>
-            
             <div class="property-section">
                 <h6 class="section-title">Acciones</h6>
                 <div class="action-buttons">
@@ -637,13 +667,10 @@ class CertificateEditor {
                 </div>
             </div>
         `;
-        
-        // Establecer valores actuales
         setTimeout(() => {
             const fontFamily = document.getElementById('fontFamily');
             const fontBold = document.getElementById('fontBold');
             const fontItalic = document.getElementById('fontItalic');
-            
             if (fontFamily) fontFamily.value = field.style.fontFamily || 'Arial';
             if (fontBold) fontBold.checked = field.style.fontWeight === 'bold';
             if (fontItalic) fontItalic.checked = field.style.fontStyle === 'italic';
@@ -746,7 +773,7 @@ class CertificateEditor {
                 },
                 body: JSON.stringify({
                     idcurso: idcurso,
-                    configuracion: this.configuration
+                    config: this.configuration // <--- corregido aquí
                 })
             });
             
@@ -1029,34 +1056,136 @@ class CertificateEditor {
         this.showNotification('¡Diseño de QR aplicado! El diseño se ha guardado para este curso.', 'success');
     }
     
+    // Método robusto para recortar la firma usando Cropper.js (o dejar esqueleto)
+    cropSignature() {
+        // Verifica si hay un campo de firma seleccionado
+        if (!this.selectedField || !(this.selectedField.dataset.tipo === 'firma_instructor' || this.selectedField.dataset.tipo === 'firma_especialista')) {
+            this.showNotification('Selecciona una firma para recortar', 'error');
+            return;
+        }
+        // Obtener la imagen de la firma
+        const img = this.selectedField.querySelector('img');
+        if (!img) {
+            this.showNotification('No se encontró la imagen de la firma', 'error');
+            return;
+        }
+        // Crear modal para recorte
+        let modal = document.getElementById('modalCropper');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'modalCropper';
+            modal.style.position = 'fixed';
+            modal.style.top = '0';
+            modal.style.left = '0';
+            modal.style.width = '100vw';
+            modal.style.height = '100vh';
+            modal.style.background = 'rgba(0,0,0,0.7)';
+            modal.style.display = 'flex';
+            modal.style.alignItems = 'center';
+            modal.style.justifyContent = 'center';
+            modal.style.zIndex = '9999';
+            modal.innerHTML = `
+                <div style="background:#fff;padding:20px;border-radius:10px;max-width:90vw;max-height:90vh;">
+                    <h5>Recortar Firma</h5>
+                    <img id="imgToCrop" src="${img.src}" style="max-width:600px;max-height:400px;display:block;margin:auto;">
+                    <div class="mt-3 text-center">
+                        <button id="btnCropOk" class="btn btn-success btn-sm">Recortar y Guardar</button>
+                        <button id="btnCropCancel" class="btn btn-secondary btn-sm">Cancelar</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+        // Inicializar Cropper.js si está disponible
+        let cropper = null;
+        const imgToCrop = document.getElementById('imgToCrop');
+        if (window.Cropper) {
+            cropper = new Cropper(imgToCrop, {
+                aspectRatio: NaN,
+                viewMode: 1,
+                autoCropArea: 1,
+                movable: true,
+                zoomable: true,
+                scalable: true,
+                rotatable: false
+            });
+        } else {
+            this.showNotification('Cropper.js no está disponible. Integra la librería para recorte avanzado.', 'error');
+        }
+        // Botón cancelar
+        document.getElementById('btnCropCancel').onclick = () => {
+            if (cropper) cropper.destroy();
+            modal.remove();
+        };
+        // Botón OK
+        document.getElementById('btnCropOk').onclick = () => {
+            if (!cropper) {
+                this.showNotification('No se puede recortar sin Cropper.js', 'error');
+                return;
+            }
+            const canvas = cropper.getCroppedCanvas({
+                width: 400,
+                height: 120,
+                fillColor: '#fff'
+            });
+            // Convertir a blob y subir vía AJAX
+            canvas.toBlob(blob => {
+                const formData = new FormData();
+                formData.append('firma', blob, 'firma_recortada.png');
+                // Agregar idcurso al FormData
+                const idcurso = document.getElementById('editor').dataset.idcurso;
+                formData.append('idcurso', idcurso);
+                fetch('guardar_firma_recortada.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.url) {
+                        img.src = data.url + '?t=' + Date.now();
+                        this.showNotification('Firma recortada y guardada', 'success');
+                    } else {
+                        this.showNotification(data.message || 'Error al guardar la firma recortada', 'error');
+                    }
+                    if (cropper) cropper.destroy();
+                    modal.remove();
+                })
+                .catch(() => {
+                    this.showNotification('Error de red al guardar la firma', 'error');
+                    if (cropper) cropper.destroy();
+                    modal.remove();
+                });
+            }, 'image/png');
+        };
+    }
+
+    // Mejorar la vista previa del logo del QR en el editor
     actualizarTodosLosQR() {
         const config = this.configuration.qr_config;
         const qrUrl = `generar_qr_svg.php?size=${config.size}&color=${encodeURIComponent(config.color)}&bgColor=${encodeURIComponent(config.bgColor)}&margin=${config.margin}&data=CERTIFICADO-TEST-${Date.now()}`;
-        
-        // Actualizar todos los campos QR en el editor
         $('.editable-field[data-tipo="qr"]').each(function() {
             const field = $(this);
-            
             // Cargar el SVG del QR
             fetch(qrUrl)
                 .then(response => response.text())
                 .then(svg => {
                     field.html(svg);
-                    
-                    // Aplicar el tamaño configurado
                     field.css({
                         'width': config.size + 'px',
-                        'height': config.size + 'px'
+                        'height': config.size + 'px',
+                        'position': 'relative'
                     });
-                    
-                    // Si el logo está habilitado, agregarlo
+                    // Si el logo está habilitado, agregarlo como overlay
                     if (config.logoEnabled) {
-                        const logo = $('<img>', {
-                            src: 'img/logo.png',
-                            class: 'qr-logo',
-                            style: `position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: ${config.size * 0.2}px; pointer-events: none; z-index: 10;`
-                        });
-                        field.append(logo);
+                        // Esperar a que el SVG esté en el DOM
+                        setTimeout(() => {
+                            const logo = $('<img>', {
+                                src: '/certificado/admin/img/logo.png',
+                                class: 'qr-logo',
+                                style: `position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: ${config.size * 0.2}px; pointer-events: none; z-index: 10; display: block;`
+                            });
+                            field.append(logo);
+                        }, 50);
                     }
                 })
                 .catch(error => {
@@ -1074,10 +1203,13 @@ class CertificateEditor {
             document.getElementById('qrBgColor').value = this.configuration.qr_config.bgColor || '#FFFFFF';
             document.getElementById('qrMargin').value = this.configuration.qr_config.margin || 0;
             document.getElementById('qrMarginValue').textContent = this.configuration.qr_config.margin || 0;
-            document.getElementById('qrLogoEnabled').checked = this.configuration.qr_config.logoEnabled || false;
-            
+            // Forzar el valor booleano del checkbox
+            const logoEnabled = this.configuration.qr_config.logoEnabled;
+            document.getElementById('qrLogoEnabled').checked = (logoEnabled === true || logoEnabled === 1 || logoEnabled === '1');
             // Inicializar la vista previa del QR
             this.inicializarQRPreview();
+            // Forzar visibilidad del logo según el valor guardado
+            this.toggleQRLogo();
         }
     }
     

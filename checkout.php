@@ -42,6 +42,13 @@ foreach ($cart_items as $item) {
 $igv = $subtotal * 0.18;
 $total = $subtotal + $igv;
 
+// Obtener ID de cliente desde la sesión
+$idcliente = $_SESSION['customer']['idcliente'] ?? null;
+if (!$idcliente) {
+    header('location: login.php');
+    exit();
+}
+
 // Procesar el formulario
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
@@ -67,13 +74,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Iniciar transacción
         $pdo->beginTransaction();
 
-        // Insertar o actualizar cliente
-        $stmt = $pdo->prepare("SELECT idcliente FROM cliente WHERE email = ?");
-        $stmt->execute([$_POST['email']]);
+        // Insertar o actualizar cliente (usar $idcliente de sesión)
+        $stmt = $pdo->prepare("SELECT idcliente FROM cliente WHERE idcliente = ?");
+        $stmt->execute([$idcliente]);
         $cliente = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($cliente) {
-            $idcliente = $cliente['idcliente'];
             $stmt = $pdo->prepare("UPDATE cliente SET nombre = ?, apellido = ?, dni = ?, telefono = ?, direccion = ? WHERE idcliente = ?");
             $stmt->execute([
                 $_POST['nombre'],
@@ -102,12 +108,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!isset($item['idcurso'])) continue;
 
             // Verificar cupos
-            $stmt = $pdo->prepare("SELECT cupos_disponibles FROM curso WHERE idcurso = ?");
+            $stmt = $pdo->prepare("SELECT cupos_disponibles, precio FROM curso WHERE idcurso = ?");
             $stmt->execute([$item['idcurso']]);
             $curso = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if (!$curso || $curso['cupos_disponibles'] <= 0) {
                 throw new Exception("El curso '{$item['nombre']}' no tiene cupos disponibles.");
+            }
+
+            // Validar que el usuario no esté ya inscrito en el curso
+            $stmt = $pdo->prepare("SELECT COUNT(*) FROM inscripcion WHERE idcliente = ? AND idcurso = ?");
+            $stmt->execute([$idcliente, $item['idcurso']]);
+            $yaInscrito = $stmt->fetchColumn();
+            if ($yaInscrito > 0) {
+                throw new Exception("Ya estás inscrito en el curso '{$item['nombre']}'. No puedes inscribirte dos veces.");
+            }
+
+            // Validar que el monto del pago coincida con el precio real del curso
+            if (floatval($item['precio']) != floatval($curso['precio'])) {
+                throw new Exception("El monto del curso '{$item['nombre']}' no coincide con el precio real. Por favor, actualiza tu carrito.");
             }
 
             // Insertar inscripción
@@ -120,6 +139,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
             $idinscripcion = $pdo->lastInsertId();
             $inscripciones_ids[] = $idinscripcion;
+
+            // Validar que no exista pago previo para esta inscripción
+            $stmt = $pdo->prepare("SELECT COUNT(*) FROM pago WHERE idinscripcion = ?");
+            $stmt->execute([$idinscripcion]);
+            $yaPago = $stmt->fetchColumn();
+            if ($yaPago > 0) {
+                throw new Exception("Ya existe un pago registrado para la inscripción del curso '{$item['nombre']}'.");
+            }
 
             // Insertar pago
             $stmt = $pdo->prepare("INSERT INTO pago (idinscripcion, monto, fecha_pago, metodo_pago, estado) VALUES (?, ?, NOW(), ?, 'Pendiente')");
@@ -331,6 +358,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="card shadow-sm">
                     <div class="card-body">
                         <h4 class="card-title mb-4"><i class="fas fa-user me-2"></i>Información Personal</h4>
+                        <div class="alert alert-warning" style="font-weight:bold;">
+                            ⚠️ Atención: El <b>nombre y apellido</b> que ingreses serán utilizados para tu certificado.<br>
+                            <b>Verifica que estén correctamente escritos.</b> No se aceptarán cambios una vez emitido el certificado.
+                        </div>
                         <form method="POST" action="" class="checkout-form" id="checkoutForm">
                             <div class="row">
                                 <div class="col-md-6 mb-3">
@@ -504,6 +535,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 return false;
             }
         });
+    });
+    </script>
+    <script>
+    // Bloquear botón de submit al enviar el formulario
+    const checkoutForm = document.querySelector('form.checkout-form');
+    if (checkoutForm) {
+        checkoutForm.addEventListener('submit', function(e) {
+            const submitBtn = checkoutForm.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerText = 'Procesando...';
+            }
+        });
+    }
+    </script>
+    <script>
+    document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+        const nombre = document.querySelector('input[name="nombre"]').value;
+        const apellido = document.querySelector('input[name="apellido"]').value;
+        const confirmado = confirm(`¿Estás seguro de que tu nombre y apellido están bien escritos? Así aparecerán en tu certificado:\n\n${nombre} ${apellido}`);
+        if (!confirmado) {
+            e.preventDefault();
+        }
     });
     </script>
 </body>

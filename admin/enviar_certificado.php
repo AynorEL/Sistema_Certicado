@@ -1,4 +1,8 @@
 <?php
+error_reporting(0);
+ini_set('display_errors', 0);
+ob_clean();
+
 require_once 'inc/config.php';
 require_once __DIR__ . '/../vendor/autoload.php'; 
 require_once __DIR__ . '/inc/utilidades.php';
@@ -69,19 +73,25 @@ function generarHTMLCertificado($datos, $config, $certificado) {
 
             if ($campo['tipo'] === 'firma_instructor' && isset($datos['firma_instructor'])) {
                 $ruta_firma = $base_path . $datos['firma_instructor'];
+                if (isset($ruta_firma) && !file_exists($ruta_firma)) {
+                    error_log('Firma no encontrada: ' . $ruta_firma);
+                }
                 $firma_base64 = convertirImagenABase64($ruta_firma);
                 
                 if ($firma_base64) {
-                    $html .= '<img src="' . $firma_base64 . '" alt="Firma Instructor">';
+                    $html .= '<img src="' . $firma_base64 . '" alt="Firma Instructor" style="width:100%;height:100%;object-fit:contain;display:block;">';
                 } else {
                     $html .= '<div style="border: 1px solid #ccc; padding: 10px; text-align: center; color: #666;">Firma Instructor</div>';
                 }
             } elseif ($campo['tipo'] === 'firma_especialista' && isset($datos['firma_especialista'])) {
                 $ruta_firma = $base_path . $datos['firma_especialista'];
+                if (isset($ruta_firma) && !file_exists($ruta_firma)) {
+                    error_log('Firma no encontrada: ' . $ruta_firma);
+                }
                 $firma_base64 = convertirImagenABase64($ruta_firma);
                 
                 if ($firma_base64) {
-                    $html .= '<img src="' . $firma_base64 . '" alt="Firma Especialista">';
+                    $html .= '<img src="' . $firma_base64 . '" alt="Firma Especialista" style="width:100%;height:100%;object-fit:contain;display:block;">';
                 } else {
                     $html .= '<div style="border: 1px solid #ccc; padding: 10px; text-align: center; color: #666;">Firma Especialista</div>';
                 }
@@ -222,7 +232,7 @@ try {
     $mail = new PHPMailer(true);
     
     // Habilitar debug para identificar problemas
-    $mail->SMTPDebug = 2; // Cambiar a 0 en producción
+    $mail->SMTPDebug = 0; // Producción, no imprimir nada
     $mail->Debugoutput = 'error_log';
     
     $mail->isSMTP();
@@ -283,3 +293,6 @@ try {
     ]);
     exit;
 }
+
+echo json_encode(['status' => 'ok', 'mensaje' => 'Correo enviado correctamente']);
+exit;

@@ -18,7 +18,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($idcliente > 0 && $idcurso > 0) {
         try {
             if ($accion === 'aprobar') {
-                // Marcar como aprobado
+                // Validar que el pago esté completado antes de aprobar
+                $stmt = $pdo->prepare("SELECT estado_pago FROM inscripcion WHERE idcliente = ? AND idcurso = ?");
+                $stmt->execute([$idcliente, $idcurso]);
+                $row = $stmt->fetch();
+                if (!$row || $row['estado_pago'] !== 'Pagado') {
+                    throw new Exception("No puedes aprobar al alumno hasta que el pago esté completado.");
+                }
+                // Marcar como aprobado y guardar nota
                 $stmt = $pdo->prepare("
                     UPDATE inscripcion 
                     SET estado = 'Aprobado', 
@@ -26,14 +33,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         nota_final = ?
                     WHERE idcliente = ? AND idcurso = ?
                 ");
-                $nota = isset($_POST['nota']) ? (float)$_POST['nota'] : 10.0;
-                // Validar que la nota esté entre 1 y 20
-                if ($nota < 1 || $nota > 20) {
-                    throw new Exception("La nota debe estar entre 1 y 20");
+                $nota = isset($_POST['nota']) ? $_POST['nota'] : '';
+                if (!preg_match('/^\d+(\.\d{1})?$/', $nota)) {
+                    throw new Exception("La nota debe ser un número entero o con un solo decimal (ej: 15 o 15.5)");
+                }
+                $nota = (float)$nota;
+                if ($nota < 0 || $nota > 20) {
+                    throw new Exception("La nota debe estar entre 0 y 20");
                 }
                 $stmt->execute([$nota, $idcliente, $idcurso]);
                 
-                // Generar certificado automáticamente
+                // Generar certificado automáticamente SOLO si no existe
                 try {
                     // Verificar si ya existe un certificado
                     $stmt = $pdo->prepare("
@@ -49,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $codigo_validacion = uniqid('CERT-' . $idcurso . '-' . $idcliente . '-', true);
                         $nombre_archivo_qr = $codigo_validacion . '.png';
                         
-                        // Generar el código QR
+                        // Generar el código QR con el enlace real y único
                         $url_validacion = "https://" . $_SERVER['HTTP_HOST'] . "/certificado/verificar-certificado.php?codigo=" . $codigo_validacion;
                         
                         $qrCode = new QrCode(
@@ -126,7 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // Obtener lista de inscripciones
 $stmt = $pdo->prepare("
-    SELECT i.idinscripcion, i.idcliente, i.idcurso, i.estado, i.fecha_inscripcion, i.nota_final,
+    SELECT i.idinscripcion, i.idcliente, i.idcurso, i.estado, i.fecha_inscripcion, i.nota_final, i.estado_pago,
            c.nombre, c.apellido, c.email,
            cu.nombre_curso, cu.duracion
     FROM inscripcion i
@@ -215,7 +225,7 @@ if (isset($_SESSION['toast_mensaje'])) {
                                         <th><i class="fas fa-book"></i> Curso</th>
                                         <th><i class="fas fa-clock"></i> Duración</th>
                                         <th><i class="fas fa-calendar"></i> Fecha Inscripción</th>
-                                        <th><i class="fas fa-info-circle"></i> Estado</th>
+                                        <th><i class="fas fa-info-circle"></i> Estado Pago</th>
                                         <th><i class="fas fa-star"></i> Nota</th>
                                         <th><i class="fas fa-cogs"></i> Acciones</th>
                                     </tr>
@@ -269,11 +279,18 @@ if (isset($_SESSION['toast_mensaje'])) {
                                             </td>
                                             <td>
                                                 <div class="btn-group" role="group">
-                                                    <?php if ($inscripcion['estado'] !== 'Aprobado'): ?>
-                                                        <button type="button" class="btn btn-success btn-sm" 
-                                                                onclick="aprobarAlumno(<?php echo $inscripcion['idcliente']; ?>, <?php echo $inscripcion['idcurso']; ?>)">
-                                                            <i class="fas fa-check"></i> Aprobar
-                                                        </button>
+                                                    <?php if (($inscripcion['estado'] === 'Pendiente') || ($inscripcion['estado'] === 'Aprobado' && empty($inscripcion['nota_final']))): ?>
+                                                        <?php if ($inscripcion['estado_pago'] === 'Pagado'): ?>
+                                                            <button type="button" class="btn btn-success btn-sm" onclick="aprobarAlumno(<?php echo $inscripcion['idcliente']; ?>, <?php echo $inscripcion['idcurso']; ?>)">
+                                                                <i class="fas fa-check"></i> Aprobar
+                                                            </button>
+                                                        <?php else: ?>
+                                                            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Primero verifica que el pago esté completado">
+                                                                <button type="button" class="btn btn-success btn-sm" onclick="pagoPendienteAlerta()" disabled style="opacity:0.7;cursor:not-allowed;">
+                                                                    <i class="fas fa-check"></i> Aprobar
+                                                                </button>
+                                                            </span>
+                                                        <?php endif; ?>
                                                     <?php endif; ?>
                                                     
                                                     <?php if ($inscripcion['estado'] !== 'Rechazado'): ?>
@@ -290,7 +307,7 @@ if (isset($_SESSION['toast_mensaje'])) {
                                                         </button>
                                                     <?php endif; ?>
                                                     
-                                                    <?php if ($inscripcion['estado'] === 'Aprobado'): ?>
+                                                    <?php if ($inscripcion['estado'] === 'Aprobado' && !empty($inscripcion['nota_final'])): ?>
                                                         <button type="button" class="btn btn-primary btn-sm" 
                                                                 onclick="verCertificado(<?php echo $inscripcion['idcliente']; ?>, <?php echo $inscripcion['idcurso']; ?>)">
                                                             <i class="fas fa-certificate"></i> Ver
@@ -329,21 +346,56 @@ if (isset($_SESSION['toast_mensaje'])) {
    <script>
     // Funciones para aprobar, rechazar y poner pendiente a un alumno
     function aprobarAlumno(idcliente, idcurso) {
-        if (confirm('¿Estás seguro de que quieres aprobar a este alumno?')) {
-            const nota = prompt('Ingresa la nota final (1-20):', '10');
-            if (nota !== null) {
-                const notaNum = parseFloat(nota);
-                if (isNaN(notaNum) || notaNum < 1 || notaNum > 20) {
-                    alert('La nota debe ser un número entre 1 y 20');
-                    return;
+        Swal.fire({
+            title: 'Nota final',
+            text: 'Por favor, ingresa la nota final del alumno (solo números enteros o con un decimal, entre 0 y 20):',
+            input: 'number',
+            inputAttributes: {
+                min: 0,
+                max: 20,
+                step: '0.1',
+                autocapitalize: 'off'
+            },
+            inputValue: 10,
+            showCancelButton: true,
+            confirmButtonText: 'Guardar',
+            cancelButtonText: 'Cancelar',
+            showLoaderOnConfirm: false,
+            preConfirm: (nota) => {
+                if (nota === '' || nota === null) {
+                    Swal.showValidationMessage('Debes ingresar una nota');
+                    return false;
                 }
+                // Validar formato: entero o un decimal, positivo, máximo 20
+                if (!/^\d+(\.\d{1})?$/.test(nota)) {
+                    Swal.showValidationMessage('La nota debe ser un número entero o con un solo decimal (ej: 15 o 15.5)');
+                    return false;
+                }
+                const notaNum = parseFloat(nota);
+                if (isNaN(notaNum) || notaNum < 0 || notaNum > 20) {
+                    Swal.showValidationMessage('La nota debe ser un número entre 0 y 20');
+                    return false;
+                }
+                return nota;
+            }
+        }).then((result) => {
+            if (result.isConfirmed && result.value !== undefined) {
                 document.getElementById('idcliente').value = idcliente;
                 document.getElementById('idcurso').value = idcurso;
                 document.getElementById('accion').value = 'aprobar';
-                document.getElementById('nota').value = nota;
+                document.getElementById('nota').value = result.value;
                 document.getElementById('accionForm').submit();
+                // Toast de éxito opcional
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: 'Nota guardada correctamente',
+                    showConfirmButton: false,
+                    timer: 2000
+                });
             }
-        }
+        });
     }
 
     function rechazarAlumno(idcliente, idcurso) {
@@ -394,6 +446,26 @@ window.addEventListener('DOMContentLoaded', function() {
     }
     localStorage.removeItem('toastSuccess');
   }
+});
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+function pagoPendienteAlerta() {
+    Swal.fire({
+        icon: 'warning',
+        title: 'Pago pendiente',
+        text: 'No puedes aprobar al alumno hasta que el pago esté completado.',
+        confirmButtonText: 'Entendido'
+    });
+}
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+        new bootstrap.Tooltip(tooltipTriggerEl);
+    });
 });
 </script>
 

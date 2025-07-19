@@ -232,9 +232,9 @@ try {
                     font-style: <?php echo $campo['fontStyle'] ?? 'normal'; ?>;
                 ">
                     <?php if ($campo['tipo'] === 'firma_instructor' && isset($datos_certificado['firma_instructor'])): ?>
-                        <img src="<?php echo htmlspecialchars($datos_certificado['firma_instructor']); ?>" alt="Firma Instructor" style="max-width: 120px; max-height: 60px; object-fit: contain;">
+                        <img src="<?php echo htmlspecialchars($datos_certificado['firma_instructor']); ?>" alt="Firma Instructor" style="width:100%;height:100%;object-fit:contain;display:block;">
                     <?php elseif ($campo['tipo'] === 'firma_especialista' && isset($datos_certificado['firma_especialista'])): ?>
-                        <img src="<?php echo htmlspecialchars($datos_certificado['firma_especialista']); ?>" alt="Firma Especialista" style="max-width: 120px; max-height: 60px; object-fit: contain;">
+                        <img src="<?php echo htmlspecialchars($datos_certificado['firma_especialista']); ?>" alt="Firma Especialista" style="width:100%;height:100%;object-fit:contain;display:block;">
                     <?php elseif ($campo['tipo'] === 'qr'): ?>
                         <div style="position: relative; width: 100%; height: 100%;">
                             <img src="admin/img/qr/<?php echo htmlspecialchars($datos_certificado['nombre_archivo_qr']); ?>" alt="QR" style="width: 100%; height: 100%; object-fit: contain;">

@@ -53,6 +53,22 @@ function generarQRConLogo($idcurso, $idalumno, $fecha) {
 
 $qr_url = generarQRConLogo($idcurso, $idalumno, $fecha);
 
+// Obtener firma recortada y original dinámica para instructor
+$dir_firmas = __DIR__ . '/../assets/uploads/firmas/';
+$firma_recortada = null;
+$firma_instructor = null;
+$firma_especialista = null;
+if (is_dir($dir_firmas)) {
+    foreach (scandir($dir_firmas) as $f) {
+        if (!$firma_recortada && $f === "firma_recortada_{$idcurso}.png") $firma_recortada = $f;
+        if (!$firma_instructor && strpos($f, 'instructor_firma_') === 0) $firma_instructor = $f;
+        if (!$firma_especialista && strpos($f, 'especialista_firma_') === 0) $firma_especialista = $f;
+    }
+}
+// Para mostrar en el certificado:
+$firma_instructor_url = $firma_recortada ? 'assets/uploads/firmas/' . $firma_recortada : ($firma_instructor ? 'assets/uploads/firmas/' . $firma_instructor : 'assets/img/qr_placeholder.png');
+$firma_especialista_url = $firma_especialista ? 'assets/uploads/firmas/' . $firma_especialista : 'assets/img/qr_placeholder.png';
+
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -97,10 +113,10 @@ $qr_url = generarQRConLogo($idcurso, $idalumno, $fecha);
                     $texto = htmlspecialchars($fecha);
                     break;
                 case 'firma_instructor':
-                    $texto = '<img src="assets/uploads/firmas/firma_instructor.png" width="120" onerror="this.style.display=\'none\'">';
+                    $texto = '<img src="' . $firma_instructor_url . '" width="120" onerror="this.style.display=\'none\'">';
                     break;
                 case 'firma_especialista':
-                    $texto = '<img src="assets/uploads/firmas/firma_especialista.png" width="120" onerror="this.style.display=\'none\'">';
+                    $texto = '<img src="' . $firma_especialista_url . '" width="120" onerror="this.style.display=\'none\'">';
                     break;
                 case 'instructor':
                     $texto = htmlspecialchars($instructor);

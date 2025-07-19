@@ -17,6 +17,16 @@ if(!isset($_REQUEST['id'])) {
     }
 }
 
+// Verificar si hay pagos relacionados
+$statement = $pdo->prepare("SELECT COUNT(*) FROM pago WHERE idinscripcion = ?");
+$statement->execute([$_REQUEST['id']]);
+$pagos = $statement->fetchColumn();
+if ($pagos > 0) {
+    $_SESSION['error'] = 'No se puede eliminar la inscripción porque tiene pagos relacionados.';
+    header('location: inscripcion.php');
+    exit;
+}
+
 // Validar si se puede eliminar la inscripción
 $validacion = validarEliminacionInscripcion($pdo, $_REQUEST['id']);
 

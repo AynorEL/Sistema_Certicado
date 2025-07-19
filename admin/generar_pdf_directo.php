@@ -190,13 +190,13 @@ function generarPDFDirecto($idcliente, $idcurso) {
 
             if ($campo['tipo'] === 'firma_instructor') {
                 if ($firma_instructor_base64) {
-                    $html .= '<img src="' . $firma_instructor_base64 . '" alt="Firma Instructor" style="max-width: 120px; max-height: 60px; object-fit: contain;">';
+                    $html .= '<img src="' . $firma_instructor_base64 . '" alt="Firma Instructor" style="width:100%;height:100%;object-fit:contain;display:block;">';
                 } else {
                     $html .= '<div style="border: 1px solid #ccc; padding: 10px; text-align: center; color: #666;">Firma Instructor</div>';
                 }
             } elseif ($campo['tipo'] === 'firma_especialista') {
                 if ($firma_especialista_base64) {
-                    $html .= '<img src="' . $firma_especialista_base64 . '" alt="Firma Especialista" style="max-width: 120px; max-height: 60px; object-fit: contain;">';
+                    $html .= '<img src="' . $firma_especialista_base64 . '" alt="Firma Especialista" style="width:100%;height:100%;object-fit:contain;display:block;">';
                 } else {
                     $html .= '<div style="border: 1px solid #ccc; padding: 10px; text-align: center; color: #666;">Firma Especialista</div>';
                 }
@@ -278,4 +278,3 @@ if (isset($_GET['idcliente']) && isset($_GET['idcurso'])) {
     }
 }
 ?>
-<?php include('footer.php'); ?> 

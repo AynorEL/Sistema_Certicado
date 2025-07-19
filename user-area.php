@@ -73,7 +73,11 @@ $cursos_inscritos = $statement->fetchAll(PDO::FETCH_ASSOC);
                                 <h5 class="card-title mb-0">Información Personal</h5>
                             </div>
                             <div class="card-body">
-                                <form action="update-profile.php" method="POST">
+                                <div class="alert alert-warning" style="font-weight:bold;">
+                                    ⚠️ Atención: El <b>nombre y apellido</b> que edites aquí serán utilizados para tu certificado.<br>
+                                    <b>Verifica que estén correctamente escritos.</b> No se aceptarán cambios una vez emitido el certificado.
+                                </div>
+                                <form action="update-profile.php" method="POST" id="form-perfil">
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Nombre</label>
@@ -185,15 +189,14 @@ $cursos_inscritos = $statement->fetchAll(PDO::FETCH_ASSOC);
 }
 
 .user-sidebar {
-    background: #fff;
+    background: #0d6efd;
     border-radius: 10px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     padding: 20px;
 }
 
-.user-profile {
-    padding: 20px 0;
-    border-bottom: 1px solid #eee;
+.user-profile, .user-name, .user-email {
+    color: #fff !important;
 }
 
 .user-avatar {
@@ -214,18 +217,20 @@ $cursos_inscritos = $statement->fetchAll(PDO::FETCH_ASSOC);
     border: none;
     padding: 12px 20px;
     font-weight: 500;
-    color: #333;
+    color: #fff;
+    background: transparent;
     transition: all 0.3s ease;
 }
 
 .list-group-item:hover {
-    background-color: #f8f9fa;
-    color: #007bff;
+    background-color: #0b5ed7;
+    color: #fff;
 }
 
 .list-group-item.active {
-    background-color: #007bff;
-    border-color: #007bff;
+    background-color: #fff;
+    color: #0d6efd;
+    border-color: #fff;
 }
 
 .card {
@@ -278,5 +283,16 @@ $cursos_inscritos = $statement->fetchAll(PDO::FETCH_ASSOC);
     }
 }
 </style>
+
+<script>
+document.getElementById('form-perfil').addEventListener('submit', function(e) {
+    const nombre = document.querySelector('input[name="nombre"]').value;
+    const apellido = document.querySelector('input[name="apellido"]').value;
+    const confirmado = confirm(`¿Estás seguro de que tu nombre y apellido están bien escritos? Así aparecerán en tu certificado:\n\n${nombre} ${apellido}`);
+    if (!confirmado) {
+        e.preventDefault();
+    }
+});
+</script>
 
 <?php require_once('footer.php'); ?> 

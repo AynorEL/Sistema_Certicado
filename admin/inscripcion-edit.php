@@ -178,14 +178,15 @@ foreach ($result as $row) {
                         <div class="form-group">
                             <label for="" class="col-sm-2 control-label">Estado Pago</label>
                             <div class="col-sm-4">
-                                <select name="estado_pago" class="form-control">
+                                <select name="estado_pago" class="form-control" disabled>
                                     <option value="Pendiente" <?php if($estado_pago=='Pendiente'){echo 'selected';} ?>>Pendiente</option>
                                     <option value="Pagado" <?php if($estado_pago=='Pagado'){echo 'selected';} ?>>Pagado</option>
                                     <option value="Reembolsado" <?php if($estado_pago=='Reembolsado'){echo 'selected';} ?>>Reembolsado</option>
                                     <option value="Cancelado" <?php if($estado_pago=='Cancelado'){echo 'selected';} ?>>Cancelado</option>
                                 </select>
+                                <input type="hidden" name="estado_pago" value="<?php echo htmlspecialchars($estado_pago); ?>">
                                 <div class="alert alert-info" style="margin-top:8px;">
-                                    <strong>Nota:</strong> El estado de pago se puede editar manualmente, pero se recomienda que refleje la realidad de los pagos individuales. Al cambiarlo, todos los pagos asociados se actualizarán automáticamente.
+                                    <strong>Nota:</strong> El estado de pago se actualiza automáticamente según los pagos individuales. No se puede editar manualmente.
                                 </div>
                             </div>
                         </div>

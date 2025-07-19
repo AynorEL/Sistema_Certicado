@@ -44,6 +44,10 @@ class GeneradorCertificadosAutomatico {
             if ($inscripcion['estado'] !== 'Aprobado') {
                 throw new Exception("El alumno no ha aprobado el curso");
             }
+            // Verificar que la nota_final esté asignada y sea válida
+            if (!isset($inscripcion['nota_final']) || $inscripcion['nota_final'] === null || $inscripcion['nota_final'] === '' || !is_numeric($inscripcion['nota_final'])) {
+                throw new Exception("El alumno aprobado aún no tiene nota final asignada. No se puede generar el certificado.");
+            }
             
             // Verificar que no se haya generado ya un certificado
             if ($this->certificadoYaGenerado($idinscripcion)) {

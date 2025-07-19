@@ -5,58 +5,90 @@ require_once('admin/inc/config.php');
 $error_message = '';
 $success_message = '';
 
+// Generar token CSRF si no existe
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 $nombre = $apellido = $dni = $telefono = $email = $direccion = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['form1'])) {
-    $nombre     = trim($_POST['nombre'] ?? '');
-    $apellido   = trim($_POST['apellido'] ?? '');
-    $dni        = trim($_POST['dni'] ?? '');
-    $telefono   = trim($_POST['telefono'] ?? '');
-    $email      = trim($_POST['email'] ?? '');
-    $direccion  = trim($_POST['direccion'] ?? '');
-    $password   = $_POST['password'] ?? '';
-    $repassword = $_POST['repassword'] ?? '';
-
-    if (empty($nombre) || empty($apellido) || empty($telefono) || empty($email) || empty($direccion) || empty($password) || empty($repassword)) {
-        $error_message = "Todos los campos obligatorios deben completarse.";
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $error_message = "Correo electrónico no válido.";
-    } elseif ($password !== $repassword) {
-        $error_message = "Las contraseñas no coinciden.";
+    // Verificar token CSRF
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        $error_message = "Token CSRF inválido. Recargue la página e intente de nuevo.";
     } else {
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM cliente WHERE email = ?");
-        $stmt->execute([$email]);
-        $email_cliente = $stmt->fetchColumn();
+        $nombre     = trim($_POST['nombre'] ?? '');
+        $apellido   = trim($_POST['apellido'] ?? '');
+        $dni        = trim($_POST['dni'] ?? '');
+        $telefono   = trim($_POST['telefono'] ?? '');
+        $email      = trim($_POST['email'] ?? '');
+        $direccion  = trim($_POST['direccion'] ?? '');
+        $password   = $_POST['password'] ?? '';
+        $repassword = $_POST['repassword'] ?? '';
 
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM usuario WHERE nombre_usuario = ?");
-        $stmt->execute([$email]);
-        $email_usuario = $stmt->fetchColumn();
+        // Sanitización básica
+        $nombre = htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8');
+        $apellido = htmlspecialchars($apellido, ENT_QUOTES, 'UTF-8');
+        $dni = htmlspecialchars($dni, ENT_QUOTES, 'UTF-8');
+        $telefono = htmlspecialchars($telefono, ENT_QUOTES, 'UTF-8');
+        $email = htmlspecialchars($email, ENT_QUOTES, 'UTF-8');
+        $direccion = htmlspecialchars($direccion, ENT_QUOTES, 'UTF-8');
 
-        if ($email_cliente > 0 || $email_usuario > 0) {
-            $error_message = "Este correo ya está registrado.";
+        // Validaciones
+        if (empty($nombre) || empty($apellido) || empty($telefono) || empty($email) || empty($direccion) || empty($password) || empty($repassword)) {
+            $error_message = "Todos los campos obligatorios deben completarse.";
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $error_message = "Correo electrónico no válido.";
+        } elseif (!empty($dni) && (!preg_match('/^\d{8}$/', $dni))) {
+            $error_message = "DNI debe tener 8 dígitos numéricos.";
+        } elseif (!preg_match('/^9\d{8}$/', $telefono)) {
+            $error_message = "Teléfono debe ser un número peruano válido (9 dígitos, inicia con 9).";
+        } elseif ($password !== $repassword) {
+            $error_message = "Las contraseñas no coinciden.";
+        } elseif (strlen($password) < 8 || !preg_match('/[A-Z]/', $password) || !preg_match('/[a-z]/', $password) || !preg_match('/\d/', $password) || !preg_match('/[^a-zA-Z\d]/', $password)) {
+            $error_message = "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un símbolo.";
         } else {
-            try {
-                $pdo->beginTransaction();
+            // Verificar unicidad de email y DNI
+            $stmt = $pdo->prepare("SELECT COUNT(*) FROM cliente WHERE email = ?");
+            $stmt->execute([$email]);
+            $email_cliente = $stmt->fetchColumn();
 
-                $fecha = date('Y-m-d H:i:s');
-                $stmt = $pdo->prepare("INSERT INTO cliente (nombre, apellido, dni, telefono, email, direccion, fecha_registro, estado) 
-                                       VALUES (?, ?, ?, ?, ?, ?, ?, 'Activo')");
-                $stmt->execute([$nombre, $apellido, $dni, $telefono, $email, $direccion, $fecha]);
-                $idcliente = $pdo->lastInsertId();
+            $stmt = $pdo->prepare("SELECT COUNT(*) FROM usuario WHERE nombre_usuario = ?");
+            $stmt->execute([$email]);
+            $email_usuario = $stmt->fetchColumn();
 
-                $hash = password_hash($password, PASSWORD_DEFAULT);
-                $token = bin2hex(random_bytes(32));
+            $stmt = $pdo->prepare("SELECT COUNT(*) FROM cliente WHERE dni = ?");
+            $stmt->execute([$dni]);
+            $dni_cliente = $stmt->fetchColumn();
 
-                $stmt = $pdo->prepare("INSERT INTO usuario (nombre_usuario, password, idrol, estado, idcliente, token) 
-                                       VALUES (?, ?, 3, 'Activo', ?, ?)");
-                $stmt->execute([$email, $hash, $idcliente, $token]);
+            if ($email_cliente > 0 || $email_usuario > 0) {
+                $error_message = "Este correo ya está registrado.";
+            } elseif (!empty($dni) && $dni_cliente > 0) {
+                $error_message = "Este DNI ya está registrado.";
+            } else {
+                try {
+                    $pdo->beginTransaction();
 
-                $pdo->commit();
-                $success_message = "Registro exitoso. Ahora puede iniciar sesión.";
-                $nombre = $apellido = $dni = $telefono = $email = $direccion = '';
-            } catch (Exception $e) {
-                $pdo->rollBack();
-                $error_message = "Error al registrar. Intenta de nuevo.";
+                    $fecha = date('Y-m-d H:i:s');
+                    $stmt = $pdo->prepare("INSERT INTO cliente (nombre, apellido, dni, telefono, email, direccion, fecha_registro, estado) 
+                                           VALUES (?, ?, ?, ?, ?, ?, ?, 'Activo')");
+                    $stmt->execute([$nombre, $apellido, $dni, $telefono, $email, $direccion, $fecha]);
+                    $idcliente = $pdo->lastInsertId();
+
+                    $hash = password_hash($password, PASSWORD_DEFAULT);
+                    $token = bin2hex(random_bytes(32));
+
+                    $stmt = $pdo->prepare("INSERT INTO usuario (nombre_usuario, password, idrol, estado, idcliente, token) 
+                                           VALUES (?, ?, 3, 'Activo', ?, ?)");
+                    $stmt->execute([$email, $hash, $idcliente, $token]);
+
+                    $pdo->commit();
+                    $success_message = "Registro exitoso. Ahora puede iniciar sesión.";
+                    $nombre = $apellido = $dni = $telefono = $email = $direccion = '';
+                } catch (Exception $e) {
+                    $pdo->rollBack();
+                    $error_message = "Error al registrar. Intenta de nuevo.";
+                }
             }
         }
     }
@@ -83,6 +115,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['form1'])) {
 
                     <form method="post" id="registroForm" novalidate>
                         <input type="hidden" name="form1" value="1" />
+                        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>" />
 
                         <h5 class="text-primary mb-3">1. Datos personales</h5>
                         <div class="row g-3">
