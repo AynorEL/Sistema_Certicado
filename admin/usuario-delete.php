@@ -8,7 +8,7 @@ if(!isset($_REQUEST['id'])) {
     header('location: usuario.php');
     exit;
 } else {
-    $statement = $pdo->prepare("SELECT * FROM usuario WHERE idusuario=?");
+    $statement = $pdo->prepare("SELECT * FROM usuarios_admin WHERE id_usuario=?");
     $statement->execute(array($_REQUEST['id']));
     $total = $statement->rowCount();
     if($total == 0) {
@@ -17,8 +17,12 @@ if(!isset($_REQUEST['id'])) {
         exit;
     }
 }
-
-$statement = $pdo->prepare("DELETE FROM usuario WHERE idusuario=?");
+$row = $statement->fetch(PDO::FETCH_ASSOC);
+$foto = $row['foto'];
+if($foto && $foto != 'user-placeholder.png' && file_exists('img/'.$foto)) {
+    unlink('img/'.$foto);
+}
+$statement = $pdo->prepare("DELETE FROM usuarios_admin WHERE id_usuario=?");
 $statement->execute(array($_REQUEST['id']));
 
 $_SESSION['success'] = "Usuario eliminado exitosamente";

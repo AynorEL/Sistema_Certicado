@@ -41,8 +41,10 @@ require_once('header.php');
                         <thead>
                             <tr>
                                 <th>SL</th>
-                                <th>Nombre de Usuario</th>
-                                <th>Rol</th>
+                                <th>Foto</th>
+                                <th>Nombre</th>
+                                <th>Correo</th>
+                                <th>Teléfono</th>
                                 <th>Estado</th>
                                 <th>Acción</th>
                             </tr>
@@ -51,10 +53,9 @@ require_once('header.php');
                             <?php
                             $i = 0;
                             $statement = $pdo->prepare("
-                                SELECT u.*, r.nombre_rol 
-                                FROM usuario u
-                                LEFT JOIN rol r ON u.idrol = r.idrol
-                                ORDER BY u.idusuario DESC
+                                SELECT u.*
+                                FROM usuarios_admin u
+                                ORDER BY u.id_usuario DESC
                             ");
                             $statement->execute();
                             $result = $statement->fetchAll(PDO::FETCH_ASSOC);
@@ -63,12 +64,14 @@ require_once('header.php');
                             ?>
                                 <tr>
                                     <td><?php echo $i; ?></td>
-                                    <td><?php echo $row['nombre_usuario']; ?></td>
-                                    <td><?php echo $row['nombre_rol']; ?></td>
+                                    <td><img src="img/<?php echo $row['foto'] ? $row['foto'] : 'user-placeholder.png'; ?>" alt="Foto" style="max-width:40px;max-height:40px;"></td>
+                                    <td><?php echo $row['nombre_completo']; ?></td>
+                                    <td><?php echo $row['correo']; ?></td>
+                                    <td><?php echo $row['telefono']; ?></td>
                                     <td><?php echo $row['estado']; ?></td>
                                     <td>
-                                        <a href="usuario-edit.php?id=<?php echo $row['idusuario']; ?>" class="btn btn-primary btn-xs">Editar</a>
-                                        <a href="#" class="btn btn-danger btn-xs" data-href="usuario-delete.php?id=<?php echo $row['idusuario']; ?>" data-toggle="modal" data-target="#confirm-delete">Eliminar</a>
+                                        <a href="usuario-edit.php?id=<?php echo $row['id_usuario']; ?>" class="btn btn-primary btn-xs">Editar</a>
+                                        <a href="#" class="btn btn-danger btn-xs" data-href="usuario-delete.php?id=<?php echo $row['id_usuario']; ?>" data-toggle="modal" data-target="#confirm-delete">Eliminar</a>
                                     </td>
                                 </tr>
                             <?php

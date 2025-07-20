@@ -6,7 +6,7 @@ if(!isset($_REQUEST['id'])) {
     header('location: logout.php');
     exit;
 } else {
-    $statement = $pdo->prepare("SELECT * FROM usuario WHERE idusuario=?");
+    $statement = $pdo->prepare("SELECT * FROM usuarios_admin WHERE id_usuario=?");
     $statement->execute(array($_REQUEST['id']));
     $total = $statement->rowCount();
     if($total == 0) {
@@ -15,12 +15,14 @@ if(!isset($_REQUEST['id'])) {
     }
 }
 
-$statement = $pdo->prepare("SELECT * FROM usuario WHERE idusuario=?");
+$statement = $pdo->prepare("SELECT * FROM usuarios_admin WHERE id_usuario=?");
 $statement->execute(array($_REQUEST['id']));
 $result = $statement->fetchAll(PDO::FETCH_ASSOC);
 foreach ($result as $row) {
-    $nombre_usuario = $row['nombre_usuario'];
-    $idrol = $row['idrol'];
+    $nombre_completo = $row['nombre_completo'];
+    $correo = $row['correo'];
+    $telefono = $row['telefono'];
+    $foto = $row['foto'];
     $estado = $row['estado'];
 }
 ?>
@@ -48,13 +50,25 @@ foreach ($result as $row) {
                 </div>
             <?php endif; ?>
 
-            <form class="form-horizontal" action="" method="post">
+            <form class="form-horizontal" action="" method="post" enctype="multipart/form-data">
                 <div class="box box-info">
                     <div class="box-body">
                         <div class="form-group">
-                            <label for="" class="col-sm-2 control-label">Nombre de Usuario <span>*</span></label>
+                            <label for="" class="col-sm-2 control-label">Nombre Completo <span>*</span></label>
                             <div class="col-sm-4">
-                                <input type="text" class="form-control" name="nombre_usuario" value="<?php echo $nombre_usuario; ?>" required>
+                                <input type="text" class="form-control" name="nombre_completo" value="<?php echo $nombre_completo; ?>" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="" class="col-sm-2 control-label">Correo <span>*</span></label>
+                            <div class="col-sm-4">
+                                <input type="email" class="form-control" name="correo" value="<?php echo $correo; ?>" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="" class="col-sm-2 control-label">Teléfono <span>*</span></label>
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control" name="telefono" value="<?php echo $telefono; ?>" required>
                             </div>
                         </div>
                         <div class="form-group">
@@ -71,23 +85,12 @@ foreach ($result as $row) {
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="" class="col-sm-2 control-label">Rol <span>*</span></label>
+                            <label for="" class="col-sm-2 control-label">Foto</label>
                             <div class="col-sm-4">
-                                <select class="form-control select2" name="idrol" required>
-                                    <option value="">Seleccione un rol</option>
-                                    <?php
-                                    $statement = $pdo->prepare("SELECT * FROM rol ORDER BY nombre_rol ASC");
-                                    $statement->execute();
-                                    $result = $statement->fetchAll(PDO::FETCH_ASSOC);
-                                    foreach ($result as $row) {
-                                        if($row['idrol'] == $idrol) {
-                                            echo '<option value="'.$row['idrol'].'" selected>'.$row['nombre_rol'].'</option>';
-                                        } else {
-                                            echo '<option value="'.$row['idrol'].'">'.$row['nombre_rol'].'</option>';
-                                        }
-                                    }
-                                    ?>
-                                </select>
+                                <?php if(!empty($foto) && file_exists('img/'.$foto)) { ?>
+                                    <img src="img/<?php echo $foto; ?>" alt="Foto actual" style="max-width:100px;max-height:100px;display:block;margin-bottom:10px;">
+                                <?php } ?>
+                                <input type="file" class="form-control" name="foto" accept="image/*">
                             </div>
                         </div>
                         <div class="form-group">
@@ -115,44 +118,85 @@ foreach ($result as $row) {
 <?php
 if(isset($_POST['form1'])) {
     $valid = 1;
-
-    if(empty($_POST['nombre_usuario'])) {
+    if(empty($_POST['nombre_completo'])) {
         $valid = 0;
-        $_SESSION['error'] = "El nombre de usuario es requerido";
-    }
-
-    if(empty($_POST['idrol'])) {
+        $_SESSION['error'] = "El nombre completo es requerido";
+    } elseif(!preg_match('/^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{3,100}$/u', $_POST['nombre_completo'])) {
         $valid = 0;
-        $_SESSION['error'] = "Debe seleccionar un rol";
+        $_SESSION['error'] = "El nombre solo puede contener letras y espacios (3-100 caracteres).";
     }
-
-    if(!empty($_POST['password']) || !empty($_POST['confirm_password'])) {
+    if(empty($_POST['correo'])) {
+        $valid = 0;
+        $_SESSION['error'] = "El correo es requerido";
+    } elseif(!filter_var($_POST['correo'], FILTER_VALIDATE_EMAIL)) {
+        $valid = 0;
+        $_SESSION['error'] = "El correo no tiene un formato válido.";
+    }
+    if(empty($_POST['telefono'])) {
+        $valid = 0;
+        $_SESSION['error'] = "El teléfono es requerido";
+    } elseif(!preg_match('/^[0-9]{9}$/', $_POST['telefono'])) {
+        $valid = 0;
+        $_SESSION['error'] = "El teléfono debe tener exactamente 9 dígitos numéricos.";
+    }
+    // Validar correo único excepto el propio
+    $statement = $pdo->prepare("SELECT * FROM usuarios_admin WHERE correo = ? AND id_usuario != ?");
+    $statement->execute([$_POST['correo'], $_REQUEST['id']]);
+    if($statement->rowCount() > 0) {
+        $valid = 0;
+        $_SESSION['error'] = "El correo ya está registrado";
+    }
+    if(!empty($_POST['password'])) {
+        if(strlen($_POST['password']) < 6) {
+            $valid = 0;
+            $_SESSION['error'] = "La contraseña debe tener al menos 6 caracteres.";
+        }
         if($_POST['password'] != $_POST['confirm_password']) {
             $valid = 0;
             $_SESSION['error'] = "Las contraseñas no coinciden";
         }
     }
-
+    // Procesar imagen
+    $foto_nombre = $foto;
+    if(isset($_FILES['foto']) && $_FILES['foto']['error'] == 0) {
+        $ext = pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION);
+        $permitidas = ['jpg','jpeg','png','gif','webp'];
+        if(in_array(strtolower($ext), $permitidas)) {
+            if($_FILES['foto']['size'] > 2*1024*1024) {
+                $valid = 0;
+                $_SESSION['error'] = "La imagen no debe superar los 2MB.";
+            } else {
+                $foto_nombre = 'admin_'.time().'.'.$ext;
+                move_uploaded_file($_FILES['foto']['tmp_name'], 'img/'.$foto_nombre);
+            }
+        } else {
+            $valid = 0;
+            $_SESSION['error'] = "Solo se permiten imágenes (jpg, jpeg, png, gif, webp)";
+        }
+    }
     if($valid == 1) {
         if(!empty($_POST['password'])) {
-            $statement = $pdo->prepare("UPDATE usuario SET nombre_usuario=?, password=?, idrol=?, estado=? WHERE idusuario=?");
-            $statement->execute(array(
-                $_POST['nombre_usuario'],
+            $statement = $pdo->prepare("UPDATE usuarios_admin SET nombre_completo=?, correo=?, telefono=?, contrasena=?, foto=?, estado=? WHERE id_usuario=?");
+            $statement->execute([
+                $_POST['nombre_completo'],
+                $_POST['correo'],
+                $_POST['telefono'],
                 password_hash($_POST['password'], PASSWORD_DEFAULT),
-                $_POST['idrol'],
+                $foto_nombre,
                 $_POST['estado'],
                 $_REQUEST['id']
-            ));
+            ]);
         } else {
-            $statement = $pdo->prepare("UPDATE usuario SET nombre_usuario=?, idrol=?, estado=? WHERE idusuario=?");
-            $statement->execute(array(
-                $_POST['nombre_usuario'],
-                $_POST['idrol'],
+            $statement = $pdo->prepare("UPDATE usuarios_admin SET nombre_completo=?, correo=?, telefono=?, foto=?, estado=? WHERE id_usuario=?");
+            $statement->execute([
+                $_POST['nombre_completo'],
+                $_POST['correo'],
+                $_POST['telefono'],
+                $foto_nombre,
                 $_POST['estado'],
                 $_REQUEST['id']
-            ));
+            ]);
         }
-        
         $_SESSION['success'] = "Usuario actualizado exitosamente";
         header('location: usuario.php');
         exit();
@@ -161,3 +205,63 @@ if(isset($_POST['form1'])) {
 ?>
 
 <?php require_once('footer.php'); ?> 
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Validación en tiempo real para cada campo
+    const nombre = document.querySelector('input[name="nombre_completo"]');
+    const correo = document.querySelector('input[name="correo"]');
+    const telefono = document.querySelector('input[name="telefono"]');
+    const password = document.querySelector('input[name="password"]');
+    const confirmPassword = document.querySelector('input[name="confirm_password"]');
+
+    function showError(input, message) {
+        let error = input.parentElement.querySelector('.text-danger');
+        if (!error) {
+            error = document.createElement('div');
+            error.className = 'text-danger';
+            input.parentElement.appendChild(error);
+        }
+        error.textContent = message;
+    }
+    function clearError(input) {
+        let error = input.parentElement.querySelector('.text-danger');
+        if (error) error.textContent = '';
+    }
+    nombre.addEventListener('input', function() {
+        if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{3,100}$/.test(nombre.value)) {
+            showError(nombre, 'El nombre solo puede contener letras y espacios (3-100 caracteres).');
+        } else {
+            clearError(nombre);
+        }
+    });
+    correo.addEventListener('input', function() {
+        if (!/^\S+@\S+\.\S+$/.test(correo.value)) {
+            showError(correo, 'El correo no tiene un formato válido.');
+        } else {
+            clearError(correo);
+        }
+    });
+    telefono.addEventListener('input', function() {
+        if (!/^[0-9]{9}$/.test(telefono.value)) {
+            showError(telefono, 'El teléfono debe tener exactamente 9 dígitos numéricos.');
+        } else {
+            clearError(telefono);
+        }
+    });
+    password.addEventListener('input', function() {
+        if (password.value.length > 0 && password.value.length < 6) {
+            showError(password, 'La contraseña debe tener al menos 6 caracteres.');
+        } else {
+            clearError(password);
+        }
+    });
+    confirmPassword.addEventListener('input', function() {
+        if (confirmPassword.value !== password.value) {
+            showError(confirmPassword, 'Las contraseñas no coinciden.');
+        } else {
+            clearError(confirmPassword);
+        }
+    });
+});
+</script> 
