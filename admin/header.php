@@ -65,6 +65,7 @@ $userRole = isset($current_user['rol']) ? htmlspecialchars($current_user['rol'])
     <?php endif; ?>
     
     <!-- CSS Locales para el panel admin -->
+      <link rel="stylesheet" href="/certificado/admin/css/style.css">
     <link rel="stylesheet" href="/certificado/admin/css/bootstrap.min.css">
     <link rel="stylesheet" href="/certificado/admin/fontawesome-free-6.7.2-web/css/all.min.css">
     <link rel="stylesheet" href="/certificado/admin/css/dataTables.bootstrap.css">
@@ -74,8 +75,7 @@ $userRole = isset($current_user['rol']) ? htmlspecialchars($current_user['rol'])
     <link rel="stylesheet" href="/certificado/admin/css/summernote.css">
     <link rel="stylesheet" href="/certificado/admin/css/AdminLTE.min.css">
     <link rel="stylesheet" href="/certificado/admin/css/_all-skins.min.css">
-    <link rel="stylesheet" href="/certificado/admin/css/custom.css">
-    <link rel="stylesheet" href="/certificado/admin/css/style.css">
+
 </head>
 
 
@@ -84,68 +84,69 @@ $userRole = isset($current_user['rol']) ? htmlspecialchars($current_user['rol'])
     <div class="wrapper">
 
         <header class="main-header">
-
-            <div class="logo">
-                <a href="index.php" class="logo">
+            <!-- Logo AdminLTE -->
+            <a href="index.php" class="logo" style="background: #3c8dbc;">
+                <!-- mini logo para sidebar mini 50x50 pixels -->
+                <span class="logo-mini">
                     <?php if (!empty($logo)): ?>
-                        <span class="logo-mini">
-                            <img src="../assets/uploads/<?php echo $logo; ?>" alt="Logo" style="height: 30px; width: auto;">
-                        </span>
-                        <span class="logo-lg">
-                            <img src="../assets/uploads/<?php echo $logo; ?>" alt="Logo" style="height: 40px; width: auto;">
-                        </span>
+                        <img src="../assets/uploads/<?php echo htmlspecialchars($logo); ?>" alt="Logo" style="max-height: 32px; max-width: 32px; display: block; margin: 0 auto;">
                     <?php else: ?>
-                        <span class="logo-mini"><b>S</b>C</span>
-                        <span class="logo-lg"><b>Sistema</b> Certificados</span>
+                        <b>S</b>C
                     <?php endif; ?>
-                </a>
-            </div>
-
-            <nav class="navbar navbar-static-top">
-
+                </span>
+                <!-- logo normal para estado normal y móvil -->
+                <span class="logo-lg">
+                    <?php if (!empty($logo)): ?>
+                        <img src="../assets/uploads/<?php echo htmlspecialchars($logo); ?>" alt="Logo" style="max-height: 40px; max-width: 120px; display: block; margin: 0 auto;">
+                    <?php else: ?>
+                        <span style="color: #fff; font-size: 22px;"><b>S</b>C</span>
+                    <?php endif; ?>
+                </span>
+            </a>
+            <nav class="navbar navbar-static-top" style="background: #3c8dbc;">
+                <!-- Botón toggle original de AdminLTE -->
                 <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
                     <span class="sr-only">Alternar navegación</span>
                 </a>
-
-                <span style="float:left;line-height:50px;color:#fff;padding-left:15px;font-size:18px;">Panel de Administración</span>
-
+                <span style="line-height:50px;color:#fff;padding-left:20px;font-size:18px;">Panel de Administración</span>
                 <!-- Barra superior ... Información del usuario ... Área de inicio/cierre de sesión -->
-                <div class="navbar-custom-menu">
+                <div class="navbar-custom-menu" style="margin-right: 10px;">
                     <ul class="nav navbar-nav">
                         <!-- Usuario -->
-                        <li class="dropdown user user-menu">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
-                                <img src="img/<?php echo $userPhoto; ?>" class="user-image" alt="Imagen de usuario">
-                                <span class="hidden-xs"><?php echo $userName; ?></span>
-                            </a>
-                            <ul class="dropdown-menu">
-                                <!-- Imagen de usuario -->
-                                <li class="user-header">
-                                    <img src="img/<?php echo $userPhoto; ?>" class="img-circle" alt="Imagen de usuario">
-                                    <p>
-                                        <?php echo $userName; ?>
-                                        <small><?php echo $userRole; ?></small>
-                                    </p>
-                                </li>
-                                <!-- Menú Footer-->
-                                <li class="user-footer">
-                                    <div class="pull-left">
-                                        <a href="profile-edit.php" class="btn btn-default btn-flat">Editar Perfil</a>
-                                    </div>
-                                    <div class="pull-right">
-                                        <a href="logout.php" class="btn btn-default btn-flat">Cerrar Sesión</a>
-                                    </div>
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>
+                            <li class="dropdown user user-menu">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+                                    <img src="img/<?php echo $userPhoto; ?>" class="user-image" alt="Imagen de usuario">
+                                    <span class="hidden-xs"><?php echo $userName; ?></span>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <!-- Imagen de usuario -->
+                                    <li class="user-header">
+                                        <img src="img/<?php echo $userPhoto; ?>" class="img-circle" alt="Imagen de usuario">
+                                        <p>
+                                            <?php echo $userName; ?>
+                                            <small><?php echo $userRole; ?></small>
+                                        </p>
+                                    </li>
+                                    <!-- Menú Footer-->
+                                    <li class="user-footer">
+                                        <div class="pull-left">
+                                            <a href="profile-edit.php" class="btn btn-default btn-flat">Editar Perfil</a>
+                                        </div>
+                                        <div class="pull-right">
+                                            <a href="logout.php" class="btn btn-default btn-flat">Cerrar Sesión</a>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
-
             </nav>
         </header>
 
         <?php $cur_page = substr($_SERVER["SCRIPT_NAME"], strrpos($_SERVER["SCRIPT_NAME"], "/") + 1); ?>
         <!-- Side Bar to Manage Shop Activities -->
+
         <aside class="main-sidebar">
             <section class="sidebar">
 

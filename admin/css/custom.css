@@ -1,3 +1,117 @@
+/* Eliminar fondo blanco y borde del logo-lg, usar fondo azul en el header */
+/* El logo se maneja desde el HTML, sin forzar display ni fondo aquí */
+.main-header .logo-mini {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+}
+.sidebar-collapse .main-header .logo-lg {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+}
+.sidebar-collapse .main-header .logo-mini {
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+/* Asegura que el logo mini sea visible y centrado cuando el sidebar está colapsado */
+.main-header .logo {
+    min-width: 120px;
+    width: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 !important;
+    background: #3c8dbc !important;
+}
+/* Mostrar solo el logo grande por defecto */
+.main-header .logo-mini {
+    display: none;
+}
+.main-header .logo-lg {
+    display: inline-block;
+}
+/* Cuando el sidebar está colapsado, mostrar solo el logo mini */
+.sidebar-collapse .main-header .logo-lg {
+    display: none !important;
+}
+.sidebar-collapse .main-header .logo-mini {
+    display: inline-block !important;
+}
+
+/* Asegura que el botón toggle sea visible y no se oculte */
+.main-header .sidebar-toggle {
+    color: #fff !important;
+    font-size: 22px;
+    display: inline-block !important;
+    margin-left: 10px;
+    margin-top: 0;
+    z-index: 1001;
+}
+
+@media (max-width: 767px) {
+    .main-header .logo {
+        width: 100%;
+        min-width: 0;
+    }
+    .main-header .sidebar-toggle {
+        margin-left: 0;
+    }
+}
+/* Fondo azul AdminLTE para header y navbar */
+.main-header, .main-header .navbar, .main-header .logo {
+    background: #3c8dbc !important;
+    color: #fff !important;
+    border-bottom: none !important;
+}
+
+/* Fondo azul para sidebar y textos claros */
+.main-sidebar, .main-sidebar .sidebar {
+    background: #367fa9 !important;
+    color: #fff !important;
+}
+
+.main-sidebar .sidebar-menu > li > a,
+.main-sidebar .sidebar-menu .treeview-menu > li > a {
+    color: #fff !important;
+}
+
+.main-sidebar .sidebar-menu > li.active > a,
+.main-sidebar .sidebar-menu > li > a:hover,
+.main-sidebar .sidebar-menu .treeview-menu > li.active > a,
+.main-sidebar .sidebar-menu .treeview-menu > li > a:hover {
+    background: #204d74 !important;
+    color: #fff !important;
+}
+
+/* Iconos y cabeceras de sidebar */
+.main-sidebar .sidebar-menu .header {
+    color: #cce4f7 !important;
+    background: #367fa9 !important;
+    font-weight: bold;
+}
+
+/* Ajuste para el logo en header */
+.main-header .logo img {
+    background: transparent !important;
+    padding: 3px;
+    border-radius: 4px;
+}
+
+/* Ajuste para evitar superposición en móvil */
+@media (max-width: 767px) {
+    .main-header .navbar {
+        min-height: 50px;
+        background: #3c8dbc !important;
+    }
+    .main-sidebar, .main-sidebar .sidebar {
+        background: #367fa9 !important;
+    }
+    .content-wrapper {
+        background: #f4f6f9;
+    }
+}
 /* Ajustes del menú lateral */
 .main-sidebar {
     position: fixed;
@@ -5,8 +119,9 @@
     left: 0;
     min-height: 100%;
     width: 250px;
-    z-index: 810;
+    z-index: 9999;
     transition: transform .3s ease-in-out,width .3s ease-in-out;
+    background-color: #222d32;
 }
 
 .sidebar-menu {
@@ -82,9 +197,132 @@
     padding-top: 50px;
 }
 
+/* Media queries para responsive */
+@media (max-width: 767px) {
+    .content-wrapper {
+        margin-left: 0 !important;
+        transform: translate(0, 0) !important;
+    }
+    
+    .navbar-static-top {
+        margin-left: 0 !important;
+    }
+    
+    .main-sidebar {
+        transform: translate(-250px, 0);
+        z-index: 9999;
+    }
+    
+    .sidebar-open .main-sidebar {
+        transform: translate(0, 0) !important;
+        z-index: 9999;
+    }
+    
+    .sidebar-open .content-wrapper {
+        transform: translate(250px, 0) !important;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+    .content-wrapper {
+        margin-left: 0 !important;
+    }
+    
+    .navbar-static-top {
+        margin-left: 0 !important;
+    }
+    
+    .main-sidebar {
+        transform: translate(-250px, 0);
+        z-index: 9999;
+    }
+    
+    .sidebar-open .main-sidebar {
+        transform: translate(0, 0) !important;
+        z-index: 9999;
+    }
+    
+    .sidebar-open .content-wrapper {
+        transform: translate(250px, 0) !important;
+    }
+}
+
+/* Breakpoint específico para 760px */
+@media (min-width: 760px) and (max-width: 767px) {
+    .content-wrapper {
+        margin-left: 0 !important;
+        transform: translate(0, 0) !important;
+        background-color: #f4f6f9 !important;
+    }
+    
+    .navbar-static-top {
+        margin-left: 0 !important;
+    }
+    
+    .main-sidebar {
+        transform: translate(-250px, 0);
+        z-index: 9999;
+    }
+    
+    .sidebar-open .main-sidebar {
+        transform: translate(0, 0) !important;
+        z-index: 9999;
+    }
+    
+    .sidebar-open .content-wrapper {
+        transform: translate(250px, 0) !important;
+    }
+}
+
 /* Ajustes del contenido */
 .content {
     padding: 15px;
+    background-color: #f4f6f9;
+    min-height: calc(100vh - 50px);
+}
+
+/* Asegurar que el body siempre tenga fondo */
+body {
+    background-color: #f4f6f9 !important;
+}
+
+/* Asegurar que el wrapper siempre tenga fondo */
+.wrapper {
+    background-color: #f4f6f9 !important;
+}
+
+/* Eliminar cualquier overlay que cause pantalla negra */
+.wrapper::before,
+.wrapper::after,
+body::before,
+body::after {
+    display: none !important;
+}
+
+/* Asegurar que el contenido principal sea visible */
+.content-wrapper {
+    background-color: #f4f6f9 !important;
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+/* Corregir el comportamiento del sidebar en móviles */
+@media (max-width: 767px) {
+    .sidebar-open .content-wrapper {
+        transform: translate(250px, 0) !important;
+        background-color: #f4f6f9 !important;
+    }
+    
+    .sidebar-open .main-sidebar {
+        z-index: 99999 !important;
+        background-color: #222d32 !important;
+    }
+    
+    /* Eliminar cualquier pseudo-elemento que cause pantalla negra */
+    .sidebar-open *::before,
+    .sidebar-open *::after {
+        display: none !important;
+    }
 }
 
 /* Ajustes de las tablas */
@@ -178,4 +416,74 @@
 .skin-blue .main-sidebar,
 .skin-blue .left-side {
     background-color: #222d32 !important;
+}
+
+/* Asegurar que el sidebar sea visible cuando está abierto */
+.sidebar-open .main-sidebar {
+    transform: translate(0, 0) !important;
+    z-index: 9999 !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Corregir el overlay de AdminLTE que causa pantalla negra */
+.sidebar-open .content-wrapper {
+    transform: translate(250px, 0) !important;
+}
+
+/* Eliminar el overlay automático de AdminLTE en móviles */
+@media (max-width: 767px) {
+    .sidebar-open .content-wrapper {
+        transform: translate(250px, 0) !important;
+    }
+    
+    /* Asegurar que no haya overlay que cause pantalla negra */
+    .sidebar-open::before {
+        display: none !important;
+    }
+    
+    .sidebar-open::after {
+        display: none !important;
+    }
+    
+    /* Asegurar que el sidebar esté por encima de todo */
+    .sidebar-open .main-sidebar {
+        z-index: 99999 !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 250px !important;
+        height: 100vh !important;
+        transform: translate(0, 0) !important;
+        background-color: #222d32 !important;
+        box-shadow: 2px 0 10px rgba(0,0,0,0.3) !important;
+    }
+}
+
+/* Asegurar que el contenido del sidebar sea visible */
+.sidebar {
+    background-color: #222d32 !important;
+    color: #fff !important;
+}
+
+.sidebar-menu {
+    background-color: transparent !important;
+}
+
+.sidebar-menu li a {
+    color: #b8c7ce !important;
+}
+
+.sidebar-menu li a:hover,
+.sidebar-menu li.active a {
+    color: #fff !important;
+    background: #1e282c !important;
+}
+
+/* Asegurar que los headers del sidebar sean visibles */
+.sidebar-menu .header {
+    color: #fff !important;
+    background: rgba(255,255,255,0.1) !important;
+    padding: 10px 15px !important;
+    font-weight: bold !important;
 } 

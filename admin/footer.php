@@ -55,6 +55,7 @@ if (window.matchMedia) {
 <script src="/certificado/admin/js/demo.js"></script>
 <script src="/certificado/admin/js/summernote.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
 	$(document).ready(function() {
 		$('#editor1').summernote({
