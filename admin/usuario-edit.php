@@ -74,14 +74,20 @@ foreach ($result as $row) {
                         <div class="form-group">
                             <label for="" class="col-sm-2 control-label">Contraseña</label>
                             <div class="col-sm-4">
-                                <input type="password" class="form-control" name="password">
+                                <div style="position:relative;">
+                                    <input type="password" class="form-control" name="password" id="edit_password">
+                                    <span class="toggle-password" onclick="togglePassword('edit_password', this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:1.2em;color:#888;z-index:2;"><i class="ph ph-eye"></i></span>
+                                </div>
                                 <small class="text-muted">Dejar en blanco para mantener la contraseña actual</small>
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="" class="col-sm-2 control-label">Confirmar Contraseña</label>
                             <div class="col-sm-4">
-                                <input type="password" class="form-control" name="confirm_password">
+                                <div style="position:relative;">
+                                    <input type="password" class="form-control" name="confirm_password" id="edit_confirm_password">
+                                    <span class="toggle-password" onclick="togglePassword('edit_confirm_password', this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:1.2em;color:#888;z-index:2;"><i class="ph ph-eye"></i></span>
+                                </div>
                             </div>
                         </div>
                         <div class="form-group">
@@ -264,4 +270,20 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+</script> 
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<script>
+function togglePassword(id, el) {
+  const input = document.getElementById(id);
+  const icon = el.querySelector('i');
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.classList.remove('ph-eye');
+    icon.classList.add('ph-eye-slash');
+  } else {
+    input.type = 'password';
+    icon.classList.remove('ph-eye-slash');
+    icon.classList.add('ph-eye');
+  }
+}
 </script> 

@@ -50,13 +50,19 @@ require_once('header.php');
                         <div class="form-group">
                             <label for="" class="col-sm-2 control-label">Contraseña <span>*</span></label>
                             <div class="col-sm-4">
-                                <input type="password" class="form-control" name="password" required>
+                                <div style="position:relative;">
+                                    <input type="password" class="form-control" name="password" id="add_password" required>
+                                    <span class="toggle-password" onclick="togglePassword('add_password', this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:1.2em;color:#888;z-index:2;"><i class="ph ph-eye"></i></span>
+                                </div>
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="" class="col-sm-2 control-label">Confirmar Contraseña <span>*</span></label>
                             <div class="col-sm-4">
-                                <input type="password" class="form-control" name="confirm_password" required>
+                                <div style="position:relative;">
+                                    <input type="password" class="form-control" name="confirm_password" id="add_confirm_password" required>
+                                    <span class="toggle-password" onclick="togglePassword('add_confirm_password', this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:1.2em;color:#888;z-index:2;"><i class="ph ph-eye"></i></span>
+                                </div>
                             </div>
                         </div>
                         <div class="form-group">
@@ -227,6 +233,23 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+</script>
+
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<script>
+function togglePassword(id, el) {
+  const input = document.getElementById(id);
+  const icon = el.querySelector('i');
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.classList.remove('ph-eye');
+    icon.classList.add('ph-eye-slash');
+  } else {
+    input.type = 'password';
+    icon.classList.remove('ph-eye-slash');
+    icon.classList.add('ph-eye');
+  }
+}
 </script>
 
 <?php require_once('footer.php'); ?> 
