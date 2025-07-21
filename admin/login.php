@@ -1,17 +1,30 @@
 <?php
 session_start();
-require_once('inc/config.php');
-
-// Verificar si existe una cookie de sesión
-if(!isset($_SESSION['user']) && isset($_COOKIE['remember_token'])) {
+require_once(__DIR__ . '/inc/config.php');
+$statement = $pdo->prepare("SELECT * FROM configuraciones WHERE id=1");
+$statement->execute();
+$row = $statement->fetch(PDO::FETCH_ASSOC);
+$favicon = $row['favicon'] ?? 'favicon.png';
+$correo_precargado = '';
+$error_message = '';
+if (isset($_POST['login'])) {
+    $correo = trim($_POST['correo'] ?? '');
+    $contrasena = $_POST['contrasena'] ?? '';
+    $remember = isset($_POST['remember']);
+    $correo_precargado = htmlspecialchars($correo);
     try {
-        $token = $_COOKIE['remember_token'];
-        $statement = $pdo->prepare("SELECT * FROM usuarios_admin WHERE remember_token = ? AND estado = ?");
-        $statement->execute(array($token, 'Activo'));
-        
-        if($statement->rowCount() > 0) {
-            $user = $statement->fetch(PDO::FETCH_ASSOC);
-            $_SESSION['user'] = array(
+        $statement = $pdo->prepare("SELECT * FROM usuarios_admin WHERE correo=?");
+        $statement->execute([$correo]);
+        $user = $statement->fetch(PDO::FETCH_ASSOC);
+        if (!$user) {
+            $error_message = "El correo electrónico no está registrado.";
+        } else if ($user['estado'] !== 'Activo') {
+            $error_message = "El usuario está inactivo. Contacte al administrador.";
+        } else if (!password_verify($contrasena, $user['contrasena'])) {
+            $error_message = "La contraseña es incorrecta.";
+        } else {
+            // Login correcto
+            $_SESSION['user'] = [
                 'id_usuario' => $user['id_usuario'],
                 'nombre_completo' => $user['nombre_completo'],
                 'correo' => $user['correo'],
@@ -19,71 +32,19 @@ if(!isset($_SESSION['user']) && isset($_COOKIE['remember_token'])) {
                 'foto' => $user['foto'],
                 'rol' => $user['rol'],
                 'estado' => $user['estado']
-            );
+            ];
+            if ($remember) {
+                $token = bin2hex(random_bytes(32));
+                $update_stmt = $pdo->prepare("UPDATE usuarios_admin SET remember_token = ? WHERE id_usuario = ?");
+                $update_stmt->execute([$token, $user['id_usuario']]);
+                setcookie('remember_token', $token, time() + (86400 * 30), '/', '', true, true);
+            }
             header("Location: index.php");
             exit;
         }
-    } catch(PDOException $e) {
-        // Si hay error, simplemente continuamos con el login normal
-    }
-}
-
-// Si ya está logueado, redirigir a index
-if(isset($_SESSION['user'])) {
-    header("Location: index.php");
-    exit;
-}
-
-if(isset($_POST['login'])) {
-    $correo = $_POST['correo'];
-    $contrasena = $_POST['contrasena'];
-    $remember = isset($_POST['remember']) ? true : false;
-    try {
-        // Buscar usuario por correo (sin filtrar por estado)
-        $statement = $pdo->prepare("SELECT * FROM usuarios_admin WHERE correo=?");
-        $statement->execute(array($correo));
-        $total = $statement->rowCount();
-        if($total == 0) {
-            $error_message = "El correo electrónico no está registrado.";
-        } else {
-            $row = $statement->fetch(PDO::FETCH_ASSOC);
-            if($row['estado'] !== 'Activo') {
-                $error_message = "El usuario está inactivo. Contacte al administrador.";
-            } else if(password_verify($contrasena, $row['contrasena']) || $contrasena === $row['contrasena']) {
-                // Si la contraseña está en texto plano, actualizarla a hash
-                if($contrasena === $row['contrasena']) {
-                    $hashed_password = password_hash($contrasena, PASSWORD_DEFAULT);
-                    $update_stmt = $pdo->prepare("UPDATE usuarios_admin SET contrasena = ? WHERE id_usuario = ?");
-                    $update_stmt->execute([$hashed_password, $row['id_usuario']]);
-                }
-                $_SESSION['user'] = array(
-                    'id_usuario' => $row['id_usuario'],
-                    'nombre_completo' => $row['nombre_completo'],
-                    'correo' => $row['correo'],
-                    'telefono' => $row['telefono'],
-                    'foto' => $row['foto'],
-                    'rol' => $row['rol'],
-                    'estado' => $row['estado']
-                );
-                if($remember) {
-                    $token = bin2hex(random_bytes(32));
-                    $update_stmt = $pdo->prepare("UPDATE usuarios_admin SET remember_token = ? WHERE id_usuario = ?");
-                    $update_stmt->execute([$token, $row['id_usuario']]);
-                    setcookie('remember_token', $token, time() + (86400 * 30), '/', '', true, true);
-                }
-                header("Location: index.php");
-                exit;
-            } else {
-                $error_message = "La contraseña es incorrecta.";
-            }
-        }
-    } catch(PDOException $e) {
+    } catch (PDOException $e) {
         $error_message = "Error en la conexión: " . $e->getMessage();
     }
-}
-
-if (!isset($correo_precargado)) {
-    $correo_precargado = '';
 }
 ?>
 
@@ -93,6 +54,7 @@ if (!isset($correo_precargado)) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Sistema de Certificados</title>
+    <link rel="icon" type="image/png" href="../assets/uploads/<?php echo $favicon; ?>">
     <link href="bootstrap-5.3.7-dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -204,8 +166,10 @@ if (!isset($correo_precargado)) {
 <body>
     <div class="card">
         <h4 class="title">Iniciar Sesión</h4>
-        <?php if(isset($error_message)): ?>
-            <div class="alert"><?php echo $error_message; ?></div>
+        <?php if(!empty($error_message)): ?>
+            <div class="alert alert-danger" style="background:#ff4444;color:white;padding:1rem;border-radius:4px;margin-bottom:1rem;">
+                <?php echo $error_message; ?>
+            </div>
         <?php endif; ?>
         <form method="post" action="">
             <div class="field">

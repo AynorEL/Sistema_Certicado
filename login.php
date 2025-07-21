@@ -70,6 +70,13 @@ if (isset($_POST['form1'])) {
     }
 }
 ?>
+<?php
+require_once(__DIR__ . '/admin/inc/config.php');
+$statement = $pdo->prepare("SELECT * FROM configuraciones WHERE id=1");
+$statement->execute();
+$row = $statement->fetch(PDO::FETCH_ASSOC);
+$favicon = $row['favicon'] ?? 'favicon.png';
+?>
 
 <!DOCTYPE html>
 <html lang="es">
@@ -77,6 +84,7 @@ if (isset($_POST['form1'])) {
     <meta charset="UTF-8">
     <title>Iniciar Sesión - Sistema de Certificados</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" href="assets/uploads/<?php echo $favicon; ?>">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <script src="admin/js/jquery-2.2.4.min.js"></script>

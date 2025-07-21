@@ -56,7 +56,7 @@ $is_admin = strpos($_SERVER['SCRIPT_NAME'], '/admin/') !== false;
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Sistema de Certificados</title>
-	<link rel="icon" type="image/png" href="assets/uploads/<?php echo $favicon; ?>">
+	<link rel="icon" type="image/png" href="/assets/uploads/<?php echo isset($favicon) && $favicon ? $favicon : 'favicon.png'; ?>">
 	<!-- ✅ CSS -->
 	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
 	<link href="admin/fontawesome-free-6.7.2-web/css/all.min.css" rel="stylesheet">
