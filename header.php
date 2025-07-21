@@ -56,7 +56,7 @@ $is_admin = strpos($_SERVER['SCRIPT_NAME'], '/admin/') !== false;
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Sistema de Certificados</title>
-	<link rel="icon" type="image/png" href="/assets/uploads/<?php echo isset($favicon) && $favicon ? $favicon : 'favicon.png'; ?>">
+	<link rel="icon" type="image/png" href="assets/uploads/<?php echo $favicon; ?>">
 	<!-- ✅ CSS -->
 	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
 	<link href="admin/fontawesome-free-6.7.2-web/css/all.min.css" rel="stylesheet">
@@ -1063,7 +1063,7 @@ $is_admin = strpos($_SERVER['SCRIPT_NAME'], '/admin/') !== false;
 						<div class="menu">
 							<ul class="nav-menu">
 								<li><a href="index.php"><i class="fa fa-home"></i> Inicio</a></li>
-								<li><a href="curso.php"><i class="fa fa-graduation-cap"></i> Cursos</a></li>
+								<li><a href="index.php#cursos-recientes"><i class="fa fa-graduation-cap"></i> Cursos</a></li>
 								<li><a href="verificar-qr.php"><i class="fa fa-qrcode"></i> Verificar Certificado</a></li>
 								<li><a href="about.php"><i class="fa fa-info-circle"></i> Sobre Nosotros</a></li>
 								<li><a href="contact.php"><i class="fa fa-envelope"></i> Contáctanos</a></li>
